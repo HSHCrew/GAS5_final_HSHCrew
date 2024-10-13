@@ -1,12 +1,10 @@
-import { useState } from 'react'
 import './App.css'
+import AppRoute from "./routers/AppRoute.jsx";
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
     <>
-      <h1>HSH_CREW PROJECT</h1>
+        <AppRoute/>
     </>
   )
 }

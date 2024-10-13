@@ -1,0 +1,26 @@
+.navigation {
+    display: flex;
+    align-items: center;
+    background-color: inherit;
+    padding: 1.25rem 0;
+
+    border-top: 0.075rem solid var(--primary-color);
+
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    box-sizing: border-box;
+    width: 100%;
+    margin: 0 auto;
+    min-width: var(--min-width);
+    max-width: var(--max-width);
+}
+
+.navigation > div {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
