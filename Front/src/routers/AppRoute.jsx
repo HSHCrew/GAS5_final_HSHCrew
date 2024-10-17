@@ -1,20 +1,44 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import Home from '../pages/Home/index.jsx';
-import MainLayout from '../layouts/mainLayout/index.jsx';
+import MainLayout from '../layouts/MainLayout/index.jsx';
 import About from '../pages/About/index.jsx';
 import Chatting from '../pages/Chatting/index.jsx';
 import Setting from '../pages/Setting/index.jsx';
 import Landing from '../pages/Landing/index.jsx';
 import MedicationManagement from '../pages/MedicationManagement/index.jsx';
 import RegistrationPrescription from '../pages/RegistrationPrescription/index.jsx';
+import SignIn from "../pages/SignIn/index.jsx";
+import SignUp from "../pages/SignUp/index.jsx";
+import EmptyLayout from "../layouts/EmptyLayout/index.jsx";
 
 const staticMenuRoute = [
     {
-        key: 'Landing',
-        name: 'Landing',
-        element: <Landing />,
-        path: '/',
+        key: 'MobileLayout',
+        name: 'MobileLayout',
+        element: <EmptyLayout />,
+        path: null,
+        childList: [
+            {
+                key: 'Landing',
+                name: 'Landing',
+                element: <Landing />,
+                path: '/',
+            },
+            {
+                key: 'SignIn',
+                name: 'SignIn',
+                element: <SignIn />,
+                path: '/signIn',
+            },
+
+            {
+                key: 'SignUp',
+                name: 'SignUp',
+                element: <SignUp />,
+                path: '/signUp',
+            }
+        ]
     },
     {
         key: 'MobileLayout',
