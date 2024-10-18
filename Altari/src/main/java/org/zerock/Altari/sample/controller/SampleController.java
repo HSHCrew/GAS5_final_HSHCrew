@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/samples")
 public class SampleController {
 
-    @PreAuthorize("hasRole('ROLE_ADMIN') and principal.name == 'user55'")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/list")
     public ResponseEntity<?> list() {
 

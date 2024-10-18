@@ -1,4 +1,4 @@
-package org.zerock.Altari.member.controller.advice;
+package org.zerock.Altari.user.controller.advice;
 
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.zerock.Altari.member.exception.MemberTaskException;
+import org.zerock.Altari.user.exception.UserTaskException;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -15,8 +15,8 @@ import java.util.HashMap;
 @Log4j2
 public class TokenControllerAdvice {
 
-    @ExceptionHandler(MemberTaskException.class)
-    public ResponseEntity<Map<String, String>> handleTaskException(MemberTaskException ex) {
+    @ExceptionHandler(UserTaskException.class)
+    public ResponseEntity<Map<String, String>> handleTaskException(UserTaskException ex) {
 
         log.error(ex.getMessage());
 
@@ -27,7 +27,7 @@ public class TokenControllerAdvice {
 
         return ResponseEntity.status(status).body(map);
     }
-//
+
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<?> handleAccessDeniedException(AccessDeniedException exception) {
 
@@ -39,3 +39,4 @@ public class TokenControllerAdvice {
         return new ResponseEntity<>(errors, HttpStatus.FORBIDDEN);
     }
 }
+

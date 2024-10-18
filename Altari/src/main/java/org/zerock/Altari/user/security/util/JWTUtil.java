@@ -1,4 +1,4 @@
- package org.zerock.Altari.member.security.util;
+ package org.zerock.Altari.user.security.util;
 
  import io.jsonwebtoken.*;
  import io.jsonwebtoken.security.Keys;

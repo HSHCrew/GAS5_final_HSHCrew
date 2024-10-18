@@ -1,4 +1,4 @@
-package org.zerock.Altari.member.security.filter;
+package org.zerock.Altari.user.security.filter;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -13,8 +13,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
 //import org.zerock.ex3.member.security.auth.CustomUserPrincipal;
 import org.springframework.stereotype.Component;
-import org.zerock.Altari.member.security.auth.CustomUserPrincipal;
-import org.zerock.Altari.member.security.util.JWTUtil;
+import org.zerock.Altari.user.security.auth.CustomUserPrincipal;
+import org.zerock.Altari.user.security.util.JWTUtil;
 
 import java.util.Arrays;
 import java.io.IOException;
@@ -30,33 +30,24 @@ public class JWTCheckFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-
         // JWTCheckFilter가 동작하지 않아야 하는 경로 지정을 위해 사용
-
-//          return super.shouldNotFilter(request);}
-        if(request.getServletPath().startsWith("/api/v1/token/")) {
+        if (request.getServletPath().startsWith("/api/v1/token/")) {
             return true;
         }
-//
         return false;
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-
         // 토큰을 검증하여 문제가 없을 경우 컨트롤러 혹은 필터가 작동하도록 설정
-
         log.info("JWTCheckFilter doFilter..........");
-
         log.info("requestURI: " + request.getRequestURI());
 
         String headerStr = request.getHeader("Authorization");
-
         log.info("headerStr: " + headerStr);
 
         if (headerStr == null || !headerStr.startsWith("Bearer ")) {
-            handleException(response, new Exception("ACCESSS TOKEN NOT FOUND"));
-
+            handleException(response, new Exception("ACCESS TOKEN NOT FOUND"));
             return;
         }
 
@@ -65,20 +56,17 @@ public class JWTCheckFilter extends OncePerRequestFilter {
 
         try {
             java.util.Map<String, Object> tokenMap = jwtUtil.validateToken(accessToken);
-
             log.info("tokenMap: " + tokenMap);
 
-            String mid = tokenMap.get("mid").toString();
-//
+            String username = tokenMap.get("username").toString(); // auth_id를 username으로 변경
             String[] roles = tokenMap.get("role").toString().split(",");
 
             UsernamePasswordAuthenticationToken authenticationToken =
-                    new UsernamePasswordAuthenticationToken(new CustomUserPrincipal(mid),
+                    new UsernamePasswordAuthenticationToken(new CustomUserPrincipal(username),
                             null,
                             Arrays.stream(roles)
-                                            .map(role -> new
-                                                    SimpleGrantedAuthority("ROLE_" + role))
-                                                    .collect(Collectors.toList())
+                                    .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
+                                    .collect(Collectors.toList())
                     );
 
             SecurityContext context = SecurityContextHolder.getContext();
@@ -89,13 +77,11 @@ public class JWTCheckFilter extends OncePerRequestFilter {
         } catch (Exception e) {
             handleException(response, e);
         }
-
     }
 //
     private void handleException(HttpServletResponse response, Exception e) throws IOException {
-            response.sendError(HttpServletResponse.SC_FORBIDDEN);
-            response.setContentType("application/json");
-            response.getWriter().println("{\"error\":\"" + e.getMessage() + "\"}");
-        }
-
+        response.sendError(HttpServletResponse.SC_FORBIDDEN);
+        response.setContentType("application/json");
+        response.getWriter().println("{\"error\":\"" + e.getMessage() + "\"}");
+    }
 }
