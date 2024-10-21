@@ -1,57 +1,91 @@
-import React, { useState } from 'react';
-import './SignIn.css'; // SignIn 스타일 연결
+import React, { useState, useEffect } from 'react';
+import './SignIn.css'; 
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
-// 이미지 파일을 import 합니다.
 import altariLogo from '../../assets/altari-logo.svg';
 import lockerIcon from '../../assets/locker.svg';
 
 function SignIn() {
-
-  const dummyData = {
-    username: 'testuser',
-    password: 'password123'
-  };
-  
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false); // "자동 로그인" 상태
+  const navigate = useNavigate();
 
-  // 로그인 버튼 클릭 시 동작하는 함수
-  const handleLogin = () => {
-    if (username === '') {
-      alert('아이디를 입력해주세요.');
-    } else if (password === '') {
-      alert('비밀번호를 입력해주세요.')
-    } else if (username !== 'testuser') {
-      alert('아이디를 확인해주세요.');
-    } else if (password !== 'password123') {
-      alert('비밀번호를 확인해주세요.')
-    } else {
-      console.log('아이디:', username, '비밀번호:', password);
-      alert('로그인 되었습니다.')
-      // alert('로그인 시도 중...'); 
+  useEffect(() => {
+    // localStorage와 sessionStorage에서 토큰을 확인
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+    if (token) {
+      // 선택적으로, 토큰의 유효성을 검증할 수 있습니다.
+      navigate('/home');
+    }
+  }, [navigate]);
+
+  const handleLogin = async () => {
+    setErrorMessage('');
+
+    if (username.trim() === '') {
+      setErrorMessage('아이디를 입력해주세요.');
+      return;
+    }
+
+    if (password.trim() === '') {
+      setErrorMessage('비밀번호를 입력해주세요.');
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/v1/token/make`, { username, password });
+      const { token } = response.data;
+
+      if (token) {
+        if (rememberMe) {
+          localStorage.setItem('token', token); // "자동 로그인" 선택 시 localStorage에 저장
+        } else {
+          sessionStorage.setItem('token', token); // 그렇지 않으면 sessionStorage에 저장
+        }
+        alert('로그인 성공!');
+        navigate('/home');
+      } else {
+        setErrorMessage('로그인 실패: 올바른 아이디와 비밀번호를 입력해주세요.');
       }
+    } catch (error) {
+      if (error.response?.data?.message) {
+        setErrorMessage(error.response.data.message);
+      } else {
+        setErrorMessage('로그인 실패: 서버 오류가 발생했습니다.');
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSignUp = () => {
+    navigate('/signUp');
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword((prev) => !prev);
   };
 
   return (
     <div className="signin-container">
       <div className="signin-box">
-        <img
-          src={altariLogo} // 불러온 이미지를 사용합니다.
-          alt="Logo"
-          className="signin-logo"
-        />
+        <img src={altariLogo} alt="Logo" className="signin-logo" />
 
-        <div className="signin-form">
+        <form className="signin-form" onSubmit={(e) => { e.preventDefault(); handleLogin(); }}>
           <div className="signin-header">
-            <img
-              src={lockerIcon} // 불러온 이미지를 사용합니다.
-              alt="Login icon"
-              className="signin-icon"
-            />
+            <img src={lockerIcon} alt="Login icon" className="signin-icon" />
             <p className="signin-title">로그인</p>
           </div>
 
           <div className="signin-input-container">
+            <label htmlFor="username" className="hidden-label">아이디</label>
             <input
               type="text"
               id="username"
@@ -63,29 +97,45 @@ function SignIn() {
           </div>
 
           <div className="signin-input-container">
+            <label htmlFor="password" className="hidden-label">비밀번호</label>
             <input
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="비밀번호를 입력해주세요."
               className="signin-input"
             />
-          </div>
-
-          <div className="signin-button-container">
-            <button
-              onClick={handleLogin}
-              className="signin-button"
-            >
-              로그인
+            <button type="button" onClick={togglePasswordVisibility} className="toggle-password">
+              {showPassword ? '숨기기' : '보기'}
             </button>
           </div>
-        </div>
+
+          {/* "자동 로그인" 체크박스 추가: 로그인 폼 내부에 위치 */}
+          <div className="remember-me-container">
+            <input
+              type="checkbox"
+              id="rememberMe"
+              checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
+              className="remember-me-checkbox"
+            />
+            <label htmlFor="rememberMe" className="remember-me-label">자동 로그인</label>
+          </div>
+
+          {/* 에러 메시지 표시 */}
+          {errorMessage && <p className="error-message">{errorMessage}</p>}
+
+          <div className="signin-button-container">
+            <button type="submit" className="signin-button" disabled={isLoading}>
+              {isLoading ? '로그인 중...' : '로그인'}
+            </button>
+          </div>
+        </form>
 
         <div className="signin-footer">
           <span>회원이 아니신가요? </span>
-          <a href="#" className="signup-link">
+          <a onClick={handleSignUp} className="signup-link" role="button">
             회원가입
           </a>
         </div>

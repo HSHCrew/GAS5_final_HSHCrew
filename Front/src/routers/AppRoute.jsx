@@ -11,6 +11,17 @@ import RegistrationPrescription from '../pages/RegistrationPrescription/index.js
 import SignIn from "../pages/SignIn/index.jsx";
 import SignUp from "../pages/SignUp/index.jsx";
 import EmptyLayout from "../layouts/EmptyLayout/index.jsx";
+import Choice from '../pages/HealthNote/Choice/Choice.jsx';
+import Step1 from '../pages/HealthNote/Step1/Step1.jsx';
+import Step2 from '../pages/HealthNote/Step2/Step2.jsx';
+import Step3 from '../pages/HealthNote/Step3/Step3.jsx';
+import Step4 from '../pages/HealthNote/Step4/Step4.jsx';
+import Step5 from '../pages/HealthNote/Step5/Step5.jsx';
+import Step6 from '../pages/HealthNote/Step6/Step6.jsx';
+import Step7 from '../pages/HealthNote/Step7/Step7.jsx';
+import Step8 from '../pages/HealthNote/Step8/Step8.jsx';
+import Step9 from '../pages/HealthNote/Step9/Step9.jsx';
+
 
 const staticMenuRoute = [
     {
@@ -31,14 +42,74 @@ const staticMenuRoute = [
                 element: <SignIn />,
                 path: '/signIn',
             },
-
             {
                 key: 'SignUp',
                 name: 'SignUp',
                 element: <SignUp />,
                 path: '/signUp',
-            }
-        ]
+            },
+
+            {
+                key: 'Choice',
+                name: 'Choice',
+                element: <Choice />,  
+                path: '/healthnote/choice',
+            },
+            {
+                key: 'Step1',
+                name: 'Step1',
+                element: <Step1 />,
+                path: '/healthnote/step1',
+            },
+            {
+                key: 'Step2',
+                name: 'Step2',
+                element: <Step2 />,
+                path: '/healthnote/step2',
+            },
+            {
+                key: 'Step3',
+                name: 'Step3',
+                element: <Step3 />,
+                path: '/healthnote/step3',
+            },
+            {
+                key: 'Step4',
+                name: 'Step4',
+                element: <Step4 />,
+                path: '/healthnote/step4',
+            },
+            {
+                key: 'Step5',
+                name: 'Step5',
+                element: <Step5 />,
+                path: '/healthnote/step5',
+            },
+            {
+                key: 'Step6',
+                name: 'Step6',
+                element: <Step6 />,
+                path: '/healthnote/step6',
+            },
+            {
+                key: 'Step7',
+                name: 'Step7',
+                element: <Step7 />,
+                path: '/healthnote/step7',
+            },
+            {
+                key: 'Step8',
+                name: 'Step8',
+                element: <Step8 />,
+                path: '/healthnote/step8',
+            },
+            {
+                key: 'Step9',
+                name: 'Step9',
+                element: <Step9 />,
+                path: '/healthnote/step9',
+            },
+        ],
     },
     {
         key: 'MobileLayout',
