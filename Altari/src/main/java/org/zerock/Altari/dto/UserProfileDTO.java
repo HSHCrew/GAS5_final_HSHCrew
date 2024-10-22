@@ -4,6 +4,7 @@ import lombok.*;
 import org.zerock.Altari.entity.UserProfileEntity;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 
@@ -14,7 +15,7 @@ import java.time.LocalTime;
 @ToString
 public class UserProfileDTO {
 
-    private String user_id;
+    private int user_profile_id;
     private String full_name;
     private String nickname;
     private LocalDate date_of_birth;
@@ -25,10 +26,12 @@ public class UserProfileDTO {
     private LocalTime morning_medication_time;
     private LocalTime lunch_medication_time;
     private LocalTime dinner_medication_time;
+    private LocalDateTime user_profile_created_at;
+    private LocalDateTime user_profile_updated_at;
 
     public UserProfileDTO(UserProfileEntity userProfileEntity) {
 
-        this.user_id = userProfileEntity.getUser_profile_id();
+        this.user_profile_id = userProfileEntity.getUser_profile_id();
         this.full_name = userProfileEntity.getFull_name();
         this.nickname = userProfileEntity.getNickname();
         this.date_of_birth = userProfileEntity.getDate_of_birth();

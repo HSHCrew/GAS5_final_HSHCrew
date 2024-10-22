@@ -2,7 +2,7 @@ package org.zerock.Altari.dto;
 
 import lombok.*;
 import org.zerock.Altari.entity.HealthKeywordEntity;
-import org.zerock.Altari.entity.ModicationEntity;
+import org.zerock.Altari.entity.MedicationEntity;
 
 import java.time.LocalDateTime;
 
@@ -15,8 +15,8 @@ public class NewsCurationDTO {
 
     private int news_curation_id;
     private HealthKeywordEntity health_keyword_id;
-    private ModicationEntity medication_id;
+    private MedicationEntity medication_id;
     private String news_content;
-    private LocalDateTime user_create_at;
-    private LocalDateTime user_update_at;
+    private LocalDateTime news_curation_created_at;
+    private LocalDateTime news_curation_updated_at;
 }

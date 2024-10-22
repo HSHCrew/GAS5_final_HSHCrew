@@ -24,9 +24,9 @@ public class UserEntity {
     private String password;
     private String role;
     @CreatedDate
-    private LocalDateTime create_at;
+    private LocalDateTime user_created_at;
     @LastModifiedDate
-    private LocalDateTime update_at;
+    private LocalDateTime user_updated_at;
 
     public void changePassword(String password) {
         this.password = password;

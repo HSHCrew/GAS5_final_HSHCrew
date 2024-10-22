@@ -1,7 +1,6 @@
 package org.zerock.Altari.dto;
 
 import lombok.*;
-import org.zerock.Altari.entity.UserEntity;
 
 @Data
 @Builder
@@ -10,7 +9,7 @@ import org.zerock.Altari.entity.UserEntity;
 @ToString
 public class ChatSummaryDTO {
     private int chat_summary_id;
-    private UserEntity user_profile_id;
+    private UserProfileDTO user_profile_id;
     private String chat_date;
     private String summary_content;
 

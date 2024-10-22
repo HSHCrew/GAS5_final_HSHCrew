@@ -23,8 +23,8 @@ public class AllergyEntity {
     @JoinColumn(name = "user_profile_id")
     private UserEntity user_profile_id;
     @ManyToOne
-    @JoinColumn(name = "modication_id")
-    private ModicationEntity modication_id;
+    @JoinColumn(name = "medication_id")
+    private MedicationEntity medication_id;
 
     private String food_name;
 }
