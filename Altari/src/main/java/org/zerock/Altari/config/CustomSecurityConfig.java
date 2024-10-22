@@ -11,6 +11,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.stereotype.Component;
 import org.zerock.Altari.user.security.filter.JWTCheckFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -21,6 +22,7 @@ import java.util.List;
 @Configuration
 @Log4j2
 @EnableMethodSecurity
+@Component
 public class CustomSecurityConfig {
 
     private JWTCheckFilter jwtCheckFilter;
@@ -46,6 +48,12 @@ public class CustomSecurityConfig {
             sessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.NEVER); // Spring Security가 세션 설정 x
         });
 //
+        httpSecurity.authorizeRequests(authorizeRequests ->
+                    authorizeRequests
+                    .requestMatchers("/api/v1/users/register").permitAll()
+                            .anyRequest().authenticated());
+
+
         httpSecurity.addFilterBefore(jwtCheckFilter, UsernamePasswordAuthenticationFilter.class);
 
         httpSecurity.cors(cors -> {

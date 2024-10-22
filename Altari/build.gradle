@@ -30,7 +30,10 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
-    runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
+
+    // MySQL 8.0 JDBC 드라이버 추가
+    runtimeOnly 'mysql:mysql-connector-java:8.0.33' // 사용하려는 MySQL 버전에 맞게 조정
+
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
@@ -41,7 +44,6 @@ dependencies {
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.5'
 
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.12.2'
-
 }
 
 tasks.named('test') {
