@@ -6,8 +6,9 @@ import org.springframework.test.annotation.Commit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
-import org.zerock.Altari.user.entity.UserEntity;
-import org.zerock.Altari.user.exception.UserExceptions;
+import org.zerock.Altari.entity.UserEntity;
+import org.zerock.Altari.exception.UserExceptions;
+import org.zerock.Altari.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
