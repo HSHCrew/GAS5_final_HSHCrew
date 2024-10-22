@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './SignIn.css'; 
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import axiosInstance from '../../api/axiosInstance'; // Axios 인스턴스 임포트
 
 import altariLogo from '../../assets/altari-logo.svg';
 import lockerIcon from '../../assets/locker.svg';
@@ -40,14 +40,15 @@ function SignIn() {
     setIsLoading(true);
 
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/v1/token/make`, { username, password });
-      const { token } = response.data;
+      // Axios 인스턴스를 사용하여 API 호출
+      const response = await axiosInstance.post('/api/v1/token/make', { username, password });
+      const { accessToken } = response.data;
 
-      if (token) {
+      if (accessToken) {
         if (rememberMe) {
-          localStorage.setItem('token', token); // "자동 로그인" 선택 시 localStorage에 저장
+          localStorage.setItem('token', accessToken); // "자동 로그인" 선택 시 localStorage에 저장
         } else {
-          sessionStorage.setItem('token', token); // 그렇지 않으면 sessionStorage에 저장
+          sessionStorage.setItem('token', accessToken); // 그렇지 않으면 sessionStorage에 저장
         }
         alert('로그인 성공!');
         navigate('/home');
