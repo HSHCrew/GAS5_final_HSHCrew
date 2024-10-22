@@ -24,7 +24,7 @@ public class UserRepositoryTests {
     @Test
     public void testInsert() {
 
-        for (int i = 1; i <= 100; i++) {
+        for (int i = 1; i <= 10; i++) {
 
             UserEntity userEntity = UserEntity.builder()
                     .username("user" + i)
@@ -37,6 +37,8 @@ public class UserRepositoryTests {
             userRepository.save(userEntity);
         }
     }
+
+
 
     @Test
     @Transactional
@@ -65,14 +67,14 @@ public class UserRepositoryTests {
         userEntity.changePassword(passwordEncoder.encode("2222"));
     }
 
-    // @Commit
-    // @Test
-    // @Transactional
-    // public void testDelete() {
-    //     String username = "user1";
-    //     Optional<UserEntity> result = userRepository.findById(username);
-    //     UserEntity userEntity = result.orElseThrow(UserExceptions.NOT_FOUND::get);
-    //     userRepository.delete(userEntity);
-    // }
+     @Commit
+     @Test
+     @Transactional
+     public void testDelete() {
+         String username = "user1";
+         Optional<UserEntity> result = userRepository.findById(username);
+         UserEntity userEntity = result.orElseThrow(UserExceptions.NOT_FOUND::get);
+         userRepository.delete(userEntity);
+     }
 }
 

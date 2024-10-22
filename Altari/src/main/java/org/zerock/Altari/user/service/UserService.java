@@ -7,8 +7,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.zerock.Altari.user.dto.UserDTO;
 import org.zerock.Altari.user.entity.UserEntity;
-import org.zerock.Altari.user.repository.UserRepository;
 import org.zerock.Altari.user.exception.UserExceptions;
+import org.zerock.Altari.user.repository.UserRepository;
+import org.zerock.Altari.user.dto.UserProfileDTO;
+import org.zerock.Altari.user.entity.UserProfileEntity;
+
 import java.util.Optional;
 
 @Service
@@ -19,6 +22,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+
 
     public UserDTO read(String username, String password) {
         Optional<UserEntity> result = userRepository.findById(username); //
@@ -37,5 +41,23 @@ public class UserService {
 
         return new UserDTO(userEntity);
     }
+
+    public void registerUser(UserDTO userDTO, UserProfileDTO userProfileDTO) {
+
+        UserEntity user = userDTO.toEntity();
+        user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+
+        UserProfileEntity userProfile = userProfileDTO.toEntity();
+        userProfile.setUserEntity(user);
+        user.setUserProfile(userProfile);
+
+        userRepository.save(user);
+
+    }
+
+
+
+
+
 }
 

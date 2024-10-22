@@ -9,7 +9,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "user")
+@Table(name = "health_keyword")
 @Getter
 @Setter
 @ToString
@@ -17,30 +17,19 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 @EntityListeners(AuditingEntityListener.class)
-public class UserEntity {
+public class KeywordRegistrationEntity {
 
     @Id
-    private String username;
-    private String password;
-    private String role;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int keyword_registration_id;
+    @ManyToOne
+    @JoinColumn(name = "user_profile_id")
+    private UserEntity user_profile_id;
+    @ManyToOne
+    @JoinColumn(name = "health_keyword_id")
+    private HealthKeywordEntity health_keyword_id;
     @CreatedDate
     private LocalDateTime create_at;
     @LastModifiedDate
     private LocalDateTime update_at;
-
-    public void changePassword(String password) {
-        this.password = password;
-    }
-
-    public UserEntity(String username, String password, String role, UserProfileEntity userProfile) {
-        this.username = username;
-        this.password = password;
-        this.role = role;
-    }
-
-
 }
-
-
-
-

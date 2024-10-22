@@ -35,5 +35,13 @@ public class UserDTO {
         this.create_at = userEntity.getCreate_at();
         this.update_at = userEntity.getUpdate_at();
     }
+
+    public UserEntity toEntity() {
+        return UserEntity.builder()
+                .username(this.username)
+                .password(this.password)
+                .role(this.role)
+                .build();
+    }
 }
 
