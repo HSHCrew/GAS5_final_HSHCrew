@@ -12,6 +12,6 @@ import java.time.LocalDateTime;
 public class HealthKeywordDTO {
     private int health_keyword_id;
     private String health_keyword;
-    private LocalDateTime create_at;
-    private LocalDateTime update_at;
+    private LocalDateTime health_keyword_created_at;
+    private LocalDateTime health_keyword_updated_at;
 }

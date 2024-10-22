@@ -5,7 +5,7 @@ import lombok.*;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
-@Table(name = "past_disease")
+@Table(name = "prescription")
 @Getter
 @Setter
 @ToString

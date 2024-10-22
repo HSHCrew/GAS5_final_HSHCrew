@@ -12,3 +12,4 @@ public class DiseaseDTO {
     private String disease_name;
     private String disease_info;
 }
+

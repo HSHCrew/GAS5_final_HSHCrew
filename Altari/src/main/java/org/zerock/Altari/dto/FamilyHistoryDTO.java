@@ -2,7 +2,6 @@ package org.zerock.Altari.dto;
 
 import lombok.*;
 import org.zerock.Altari.entity.DiseaseEntity;
-import org.zerock.Altari.entity.UserEntity;
 
 @Data
 @Builder
@@ -12,6 +11,6 @@ import org.zerock.Altari.entity.UserEntity;
 public class FamilyHistoryDTO {
     private int family_history_id;
     private DiseaseEntity disease_id;
-    private UserEntity user_profile_id;
+    private UserProfileDTO user_profile_id;
     private String family_relation;
 }

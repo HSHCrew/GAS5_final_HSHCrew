@@ -48,10 +48,6 @@ public class CustomSecurityConfig {
             sessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.NEVER); // Spring Security가 세션 설정 x
         });
 //
-        httpSecurity.authorizeRequests(authorizeRequests ->
-                    authorizeRequests
-                    .requestMatchers("/api/v1/users/register").permitAll()
-                            .anyRequest().authenticated());
 
 
         httpSecurity.addFilterBefore(jwtCheckFilter, UsernamePasswordAuthenticationFilter.class);
@@ -59,6 +55,7 @@ public class CustomSecurityConfig {
         httpSecurity.cors(cors -> {
             cors.configurationSource(corsConfigurationSource());
         });
+
 //
         return httpSecurity.build();
     }
@@ -79,7 +76,7 @@ public class CustomSecurityConfig {
         corsConfiguration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", corsConfiguration);
+        source.registerCorsConfiguration("/*", corsConfiguration);
 
         return source;
     }

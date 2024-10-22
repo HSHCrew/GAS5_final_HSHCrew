@@ -23,7 +23,7 @@ public class UserMedicationInfoEntity {
     private PrescriptionEntity prescription_id;
     @ManyToOne
     @JoinColumn(name = "medication_id")
-    private ModicationEntity medication_id;
+    private MedicationEntity medication_id;
     @ManyToOne
     @JoinColumn(name = "user_profile_id")
     private UserEntity user_profile_id;

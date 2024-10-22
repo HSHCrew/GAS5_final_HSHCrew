@@ -5,7 +5,7 @@ import lombok.*;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
-@Table(name = "user_disease")
+@Table(name = "medication")
 @Getter
 @Setter
 @ToString
@@ -13,14 +13,13 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @NoArgsConstructor
 @Builder
 @EntityListeners(AuditingEntityListener.class)
-public class UserDiseaseEntity {
+public class MedicationEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int user_disease_id;
-    @ManyToOne
-    @JoinColumn(name = "user_profile_id")
-    private UserEntity user_profile_id;
-    @ManyToOne
-    @JoinColumn(name = "disease_id")
-    private DiseaseEntity disease_id;
+    private int medication_id;
+    private String medication_name;
+    private String medication_info;
+    private String interaction_info;
 }
+

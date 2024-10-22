@@ -2,7 +2,6 @@ package org.zerock.Altari.dto;
 
 import lombok.*;
 import org.zerock.Altari.entity.HealthKeywordEntity;
-import org.zerock.Altari.entity.UserEntity;
 
 import java.time.LocalDateTime;
 
@@ -13,8 +12,8 @@ import java.time.LocalDateTime;
 @ToString
 public class KeywordRegistrationDTO {
     private int keyword_registration_id;
-    private UserEntity user_profile_id;
+    private UserProfileDTO user_profile_id;
     private HealthKeywordEntity health_keyword_id;
-    private LocalDateTime create_at;
-    private LocalDateTime update_at;
+    private LocalDateTime keyword_registration_created_at;
+    private LocalDateTime keyword_registration_updated_at;
 }

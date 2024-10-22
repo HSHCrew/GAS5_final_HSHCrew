@@ -27,14 +27,14 @@ public class NewsCurationEntity {
     private HealthKeywordEntity health_keyword_id;
     @ManyToOne
     @JoinColumn(name = "medication_id")
-    private ModicationEntity medication_id;
+    private MedicationEntity medication_id;
 
     private String news_content;
     @CreatedDate
-    private LocalDateTime user_create_at;
+    private LocalDateTime news_curation_created_at;
 
     @LastModifiedDate
-    private LocalDateTime user_update_at;
+    private LocalDateTime news_curation_updated_at;
 
 
 }

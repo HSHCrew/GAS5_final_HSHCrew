@@ -24,7 +24,7 @@ public class HealthKeywordEntity {
     private int health_keyword_id;
     private String health_keyword;
     @CreatedDate
-    private LocalDateTime create_at;
+    private LocalDateTime health_keyword_created_at;
     @LastModifiedDate
-    private LocalDateTime update_at;
+    private LocalDateTime health_keyword_updated_at;
 }

@@ -18,8 +18,8 @@ public class UserDTO {
     private String username;
     private String password;
     private String role;
-    private LocalDateTime create_at;
-    private LocalDateTime update_at;
+    private LocalDateTime user_created_at;
+    private LocalDateTime user_updated_at;
 
     public Map<String, Object> getDataMap() {
         Map<String, Object> map = new HashMap<>();
@@ -28,13 +28,6 @@ public class UserDTO {
         return map;
     }
 
-    public UserDTO(UserEntity userEntity) {
-        this.username = userEntity.getUsername();
-        this.password = userEntity.getPassword();
-        this.role = userEntity.getRole();
-        this.create_at = userEntity.getCreate_at();
-        this.update_at = userEntity.getUpdate_at();
-    }
 
     public UserEntity toEntity() {
         return UserEntity.builder()
@@ -43,5 +36,12 @@ public class UserDTO {
                 .role(this.role)
                 .build();
     }
+
+    public UserDTO(UserEntity userEntity){
+        this.username = userEntity.getUsername();
+        this.password = userEntity.getPassword();
+        this.role = userEntity.getRole();
+   }
+
 }
 

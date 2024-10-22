@@ -23,7 +23,7 @@ public class UserProfileEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private String user_profile_id;
+    private int user_profile_id;
 
     private String full_name;
 
@@ -47,25 +47,10 @@ public class UserProfileEntity {
 
 
     @CreatedDate
-    private LocalDateTime user_create_at;
+    private LocalDateTime user_profile_created_at;
 
     @LastModifiedDate
-    private LocalDateTime user_update_at;
-
-    public UserProfileEntity toEntity() {
-        return UserProfileEntity.builder()
-                .user_id(this.user_id)
-                .full_name(this.full_name)
-                .date_of_birth(this.date_of_birth)
-                .phone_number(this.phone_number)
-                .height(this.height)
-                .weight(this.weight)
-                .blood_type(this.blood_type)
-                .morning_medication_time(this.morning_medication_time)
-                .lunch_medication_time(this.lunch_medication_time)
-                .dinner_medication_time(this.dinner_medication_time)
-                .build();
-    }
+    private LocalDateTime user_profile_updated_at;
 }
 
 

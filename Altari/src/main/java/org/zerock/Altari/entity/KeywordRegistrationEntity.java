@@ -9,7 +9,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "health_keyword")
+@Table(name = "keyword_registration")
 @Getter
 @Setter
 @ToString
@@ -29,7 +29,7 @@ public class KeywordRegistrationEntity {
     @JoinColumn(name = "health_keyword_id")
     private HealthKeywordEntity health_keyword_id;
     @CreatedDate
-    private LocalDateTime create_at;
+    private LocalDateTime keyword_registration_created_at;
     @LastModifiedDate
-    private LocalDateTime update_at;
+    private LocalDateTime keyword_registration_updated_at;
 }
