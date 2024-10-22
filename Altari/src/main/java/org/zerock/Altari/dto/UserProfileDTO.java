@@ -17,7 +17,6 @@ public class UserProfileDTO {
 
     private int user_profile_id;
     private String full_name;
-    private String nickname;
     private LocalDate date_of_birth;
     private String phone_number;
     private int height;
@@ -33,7 +32,6 @@ public class UserProfileDTO {
 
         this.user_profile_id = userProfileEntity.getUser_profile_id();
         this.full_name = userProfileEntity.getFull_name();
-        this.nickname = userProfileEntity.getNickname();
         this.date_of_birth = userProfileEntity.getDate_of_birth();
         this.phone_number = userProfileEntity.getPhone_number();
         this.height = userProfileEntity.getHeight();
