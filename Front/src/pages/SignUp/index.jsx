@@ -254,7 +254,7 @@ const SignupForm = () => {
             </div>
 
             {/* 임시로 Choice 페이지로 이동하는 버튼 추가 */}
-            <div className="choice-button" onClick={() => navigate('/healthnote/choice')}>
+            <div className="choice-button" onClick={() => navigate('/healthnote')}>
               <p className="choice-text">건강노트 선택 화면으로 이동 (임시)</p>
             </div>
 
@@ -263,7 +263,7 @@ const SignupForm = () => {
           {/* 로그인 유도 텍스트 */}
           <div className="login-prompt">
             <p>
-              회원이신가요?{' '}
+              회원이신가요?
               <span className="login-link" onClick={() => navigate('/signIn')}>
                 로그인
               </span>
