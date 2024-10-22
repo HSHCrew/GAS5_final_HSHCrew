@@ -12,10 +12,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.stereotype.Component;
-import org.zerock.Altari.security.filter.JWTCheckFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.zerock.Altari.security.filter.JWTCheckFilter;
 
 import java.util.List;
 
@@ -47,8 +47,6 @@ public class CustomSecurityConfig {
         httpSecurity.sessionManagement(sessionManagementConfigurer -> {
             sessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.NEVER); // Spring Security가 세션 설정 x
         });
-//
-
 
         httpSecurity.addFilterBefore(jwtCheckFilter, UsernamePasswordAuthenticationFilter.class);
 

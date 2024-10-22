@@ -1,55 +1,34 @@
-package org.zerock.Altari.entity;
+package org.zerock.Altari.dto;
 
-import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
-@Entity
-@Table(name = "user_profile")
-@Getter
-@Setter
-@ToString
+@Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-@EntityListeners(AuditingEntityListener.class)
-public class UserProfileEntity {
+@ToString
+public class RegisterDTO {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int user_profile_id;
-
     private String full_name;
-
     private LocalDate date_of_birth;
-
     private String phone_number;
-
     private int height;
-
     private int weight;
-
     private String blood_type;
-
     private LocalTime morning_medication_time;
-
     private LocalTime lunch_medication_time;
-
     private LocalTime dinner_medication_time;
-
-
-    @CreatedDate
     private LocalDateTime user_profile_created_at;
-
-    @LastModifiedDate
     private LocalDateTime user_profile_updated_at;
+    private int auth_id;
+    private String username;
+    private String password;
+    private String role;
+    private LocalDateTime user_created_at;
+    private LocalDateTime user_updated_at;
 }
-
-
-
