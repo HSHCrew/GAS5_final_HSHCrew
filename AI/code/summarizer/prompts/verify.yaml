@@ -1,0 +1,20 @@
+_type: "prompt"
+template: |
+  You are tasked with verifying the accuracy of a summary against the original content. 
+
+  Original Content: {original_content}
+  Summary: {summary}
+
+  Your task is to evaluate the following:
+
+  1. **Consistency Check**: Determine if the summary accurately reflects the key points and details of the original content. Are there any discrepancies?
+  
+  2. **Missing Information**: Identify any important information that is present in the original content but missing from the summary. List these missing elements clearly.
+
+  3. **Misrepresentations**: Highlight any statements in the summary that misrepresent or distort the original content.
+
+  4. **Overall Assessment**: Provide an overall assessment of the summary's accuracy and completeness. Is the summary a faithful representation of the original content?
+
+  Please present your findings in a clear and structured format, addressing each of the points mentioned above.
+  Use only KOREAN language for your response.
+input_variables: ["original_content", "summary"]
