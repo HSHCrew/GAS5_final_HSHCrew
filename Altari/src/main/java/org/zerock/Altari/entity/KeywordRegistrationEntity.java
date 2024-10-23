@@ -24,7 +24,7 @@ public class KeywordRegistrationEntity {
     private int keyword_registration_id;
     @ManyToOne
     @JoinColumn(name = "user_profile_id")
-    private UserEntity user_profile_id;
+    private UserProfileEntity user_profile_id;
     @ManyToOne
     @JoinColumn(name = "health_keyword_id")
     private HealthKeywordEntity health_keyword_id;

@@ -42,16 +42,18 @@ public class UserRepositoryTests {
 
     @Test
     public void testInsertMedication() {
-        // 테스트 데이터 추가
-        MedicationEntity medicationEntity = MedicationEntity.builder()
-                .medication_id(1)
-                .medication_name("타이레놀")
-                .medication_info("감기약")
-                .interaction_info("사과")
-                .build();
 
-        medicationRepository.save(medicationEntity);
+        for (int i = 4; i <= 14; i++) {
+            // 테스트 데이터 추가
+            MedicationEntity medicationEntity = MedicationEntity.builder()
+                    .medication_id(i)
+                    .medication_name("타이레놀")
+                    .medication_info("감기약")
+                    .interaction_info("사과")
+                    .build();
 
+            medicationRepository.save(medicationEntity);
+        }
 
     }
 

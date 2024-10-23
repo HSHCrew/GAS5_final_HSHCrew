@@ -12,7 +12,13 @@ import java.time.LocalTime;
 @NoArgsConstructor
 @ToString
 public class RegisterDTO {
-
+    // user 테이블
+    private String username;
+    private String password;
+    private String role;
+    private LocalDateTime user_created_at;
+    private LocalDateTime user_updated_at;
+    // user_profile 테이블
     private int user_profile_id;
     private String full_name;
     private LocalDate date_of_birth;
@@ -26,9 +32,8 @@ public class RegisterDTO {
     private LocalDateTime user_profile_created_at;
     private LocalDateTime user_profile_updated_at;
     private int auth_id;
-    private String username;
-    private String password;
-    private String role;
-    private LocalDateTime user_created_at;
-    private LocalDateTime user_updated_at;
+    // allergy 테이블
+    private String food_name;
+    // medication 테이블
+    private String medication_name;
 }
