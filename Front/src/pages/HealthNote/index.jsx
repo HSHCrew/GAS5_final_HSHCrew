@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import altariLogo from '../../assets/altari-logo.svg';
@@ -35,7 +35,7 @@ function HealthNote() {
     });
 
     const nextStep = () => {
-        if (nextStep >= 9) {
+        if (step >= 9) {
             const confirmed =
                 window.confirm('건강노트 작성을 완료하시겠습니까?');
             console.log({
@@ -129,28 +129,31 @@ function HealthNote() {
                             ) : (
                                 setStep(9)
                             )}
-                            {/* 하단 단계 및 화살표 */}
-                            <div className="steps-footer">
-                                <img
-                                    src={arrowIcon}
-                                    alt="Previous Arrow"
-                                    className="steps-prev-arrow"
-                                    style={{ transform: 'rotate(180deg)' }}
-                                    onClick={previousStep}
-                                />
-                                <p className="step1-step-indicator">
-                                    {step} / 9
-                                </p>
-                                <img
-                                    src={arrowIcon}
-                                    alt="Next Arrow"
-                                    className="steps-next-arrow"
-                                    onClick={nextStep}
-                                />
-                            </div>
                         </>
                     )}
                 </div>
+
+                {/* 하단 단계 및 화살표 - Step1부터 표시 */}
+                {step > 0 && (
+                    <div className="steps-footer">
+                        <img
+                            src={arrowIcon}
+                            alt="Previous Arrow"
+                            className="steps-prev-arrow"
+                            style={{ transform: 'rotate(180deg)' }}
+                            onClick={previousStep}
+                        />
+                        <p className="step1-step-indicator">
+                            {step} / 9
+                        </p>
+                        <img
+                            src={arrowIcon}
+                            alt="Next Arrow"
+                            className="steps-next-arrow"
+                            onClick={nextStep}
+                        />
+                    </div>
+                )}
             </div>
         </div>
     );

@@ -14,12 +14,18 @@
   color: #529174;
 }
 
-.steps-prev-arrow,
+.steps-prev-arrow{
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  cursor: pointer;
+}
+
+
 .steps-next-arrow {
   width: 120px;
   height: 120px;
-  margin-left: 10px;
-  margin-right: 10px;
   object-fit: cover;
   cursor: pointer;
+  margin-right: 35px;
 }

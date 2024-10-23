@@ -12,6 +12,7 @@ import RegistrationPrescription from '../pages/RegistrationPrescription/index.js
 import Setting from '../pages/Setting/index.jsx';
 import SignIn from '../pages/SignIn/index.jsx';
 import SignUp from '../pages/SignUp/index.jsx';
+import Search from '../pages/Search/SearchPage.jsx';
 
 const staticMenuRoute = [
     {
@@ -43,6 +44,12 @@ const staticMenuRoute = [
                 name: 'HealthNote',
                 element: <HealthNote />,
                 path: '/healthNote',
+            },
+            {
+                key: 'Searchpage',
+                name: 'Searchpage',
+                element: <Search />,
+                path: '/searchpage',
             },
         ],
     },
