@@ -27,4 +27,5 @@ public class HealthKeywordEntity {
     private LocalDateTime health_keyword_created_at;
     @LastModifiedDate
     private LocalDateTime health_keyword_updated_at;
+
 }
