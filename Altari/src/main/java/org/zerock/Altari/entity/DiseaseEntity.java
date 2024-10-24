@@ -28,6 +28,7 @@ public class DiseaseEntity {
     private LocalDateTime disease_created_at;
     @LastModifiedDate
     private LocalDateTime disease_updated_at;
+    private boolean is_hereditary;
 
 
 }

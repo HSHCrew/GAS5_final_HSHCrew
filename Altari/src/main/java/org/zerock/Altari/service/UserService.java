@@ -83,6 +83,14 @@ public class UserService {
 
         return savedUser;
     }
+    public boolean isUsernameDuplicate(String username) {
+        // username으로 UserEntity를 찾음
+        UserEntity user = userRepository.findByUsername(username);
+
+        // user가 null이면 중복되지 않음, 아니면 중복됨
+        return user != null; // 중복이면 true, 아니면 false
+    }
+
 
 }
 

@@ -32,6 +32,6 @@ public class PrescriptionEntity {
     @CreatedDate
     private LocalDateTime prescription_created_at;
     @LastModifiedDate
-    private LocalDateTime prescription_updated_at;
+    private LocalDateTime prescription_updated_at0;
 
 }
