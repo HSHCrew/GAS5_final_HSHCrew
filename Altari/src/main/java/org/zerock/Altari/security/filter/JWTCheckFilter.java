@@ -40,6 +40,7 @@ public class JWTCheckFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         // 토큰을 검증하여 문제가 없을 경우 컨트롤러 혹은 필터가 작동하도록 설정
+
         log.info("JWTCheckFilter doFilter..........");
         log.info("requestURI: " + request.getRequestURI());
 
@@ -49,6 +50,20 @@ public class JWTCheckFilter extends OncePerRequestFilter {
         }
 
         if (request.getRequestURI().equals("/api/v1/medications")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        if (request.getRequestURI().equals("/api/v1/check-username")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        if (request.getRequestURI().equals("/api/codef/first")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+        if (request.getRequestURI().equals("/api/codef/second")) {
             filterChain.doFilter(request, response);
             return;
         }

@@ -11,5 +11,6 @@ public class DiseaseDTO {
     private int disease_id;
     private String disease_name;
     private String disease_info;
+    private boolean is_hereditary;
 }
 

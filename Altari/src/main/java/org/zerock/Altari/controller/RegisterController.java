@@ -13,6 +13,8 @@ import org.zerock.Altari.dto.RegisterDTO;
 import org.zerock.Altari.entity.UserEntity;
 import org.zerock.Altari.service.UserService;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/v1")
 @Log4j2
@@ -25,6 +27,12 @@ public class RegisterController {
     public ResponseEntity<UserEntity> signUp(@Valid @RequestBody RegisterDTO registerDTO) {
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.join(registerDTO));
 
+    }
+    @PostMapping("/check-username")
+    public ResponseEntity<Boolean> checkUsername(@RequestBody Map<String, String> requestBody) {
+        String username = requestBody.get("username");
+        boolean isDuplicate = userService.isUsernameDuplicate(username);
+        return ResponseEntity.ok(isDuplicate); //중복이면 true, 중복이 아니면 false
     }
 }
 
