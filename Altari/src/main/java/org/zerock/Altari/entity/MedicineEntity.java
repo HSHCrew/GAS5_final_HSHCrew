@@ -40,4 +40,6 @@ public class MedicineEntity {
     @ManyToOne
     @JoinColumn(name = "user_prescription_id")
     private UserPrescriptionEntity user_prescription_id;
+
+
 }

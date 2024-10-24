@@ -1,6 +1,8 @@
 package org.zerock.Altari.dto;
 
 import lombok.*;
+import org.zerock.Altari.entity.DiseaseEntity;
+import org.zerock.Altari.entity.MedicationEntity;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -36,4 +38,8 @@ public class RegisterDTO {
     private String food_name;
     // medication 테이블
     private String medication_name;
+    private DiseaseEntity disease_id;
+    private String family_relation;
+    private MedicationEntity medication_id;
+
 }

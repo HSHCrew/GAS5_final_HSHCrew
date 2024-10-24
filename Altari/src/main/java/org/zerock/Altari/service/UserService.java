@@ -7,13 +7,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.zerock.Altari.dto.RegisterDTO;
 import org.zerock.Altari.dto.UserDTO;
-import org.zerock.Altari.entity.UserEntity;
-import org.zerock.Altari.entity.UserProfileEntity;
+import org.zerock.Altari.entity.*;
 import org.zerock.Altari.exception.UserExceptions;
-import org.zerock.Altari.repository.AllergyRepository;
-import org.zerock.Altari.repository.MedicationRepository;
-import org.zerock.Altari.repository.UserProfileRepository;
-import org.zerock.Altari.repository.UserRepository;
+import org.zerock.Altari.repository.*;
 
 import java.util.Optional;
 
@@ -28,6 +24,9 @@ public class UserService {
     private final UserProfileRepository userProfileRepository;
     private final AllergyRepository allergyRepository;
     private final MedicationRepository medicationRepository;
+    private final UserDiseaseRepository userDiseaseRepository;
+    private final UserPastDiseaseRepository userPastDiseaseRepository;
+    private final FamilyHistoryRepository familyHistoryRepository;
 
 
     public UserDTO read(String username, String password) {
@@ -78,8 +77,38 @@ public class UserService {
                 .dinner_medication_time(registerDTO.getDinner_medication_time())
                 .build();
 
+
         UserProfileEntity savedUserProfile = userProfileRepository.save(userProfile);
 
+        UserDiseaseEntity userDisease = UserDiseaseEntity.builder()
+                .disease_id(registerDTO.getDisease_id())
+                .user_profile_id(savedUserProfile)
+                .build();
+
+        UserDiseaseEntity savedUserDisease = userDiseaseRepository.save(userDisease);
+
+        UserPastDiseaseEntity userPastDisease = UserPastDiseaseEntity.builder()
+                .disease_id(registerDTO.getDisease_id())
+                .user_profile_id(savedUserProfile)
+                .build();
+
+        UserPastDiseaseEntity saveduserPastDisease = userPastDiseaseRepository.save(userPastDisease);
+
+        FamilyHistoryEntity familyHistory = FamilyHistoryEntity.builder()
+                .disease_id(registerDTO.getDisease_id())
+                .user_profile_id(savedUserProfile)
+                .family_relation(registerDTO.getFamily_relation())
+                .build();
+
+        FamilyHistoryEntity savedfamilyHistory = familyHistoryRepository.save(familyHistory);
+
+        AllergyEntity allergy = AllergyEntity.builder()
+                .medication_id(registerDTO.getMedication_id())
+                .food_name(registerDTO.getFood_name())
+                .user_profile_id(savedUserProfile)
+                .build();
+
+        AllergyEntity savedallergy = allergyRepository.save(allergy);
 
         return savedUser;
     }

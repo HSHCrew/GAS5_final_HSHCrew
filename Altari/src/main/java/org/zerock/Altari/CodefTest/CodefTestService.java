@@ -19,18 +19,18 @@ public class CodefTestService {
     private static final String API_URL = "https://development.codef.io/v1/kr/public/hw/hira-list/my-medicine";
 
     // 액세스 토큰을 클래스 변수로 선언
-    private String accessToken = "Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZXJ2aWNlX3R5cGUiOiIxIiwic2NvcGUiOlsicmVhZCJdLCJzZXJ2aWNlX25vIjoiMDAwMDA0NzYwMDAyIiwiZXhwIjoxNzMwMzYzMjg0LCJhdXRob3JpdGllcyI6WyJJTlNVUkFOQ0UiLCJQVUJMSUMiLCJCQU5LIiwiRVRDIiwiU1RPQ0siLCJDQVJEIl0sImp0aSI6IjAxMjdiZjI4LTRjZTktNDU2Yi05ODFiLWVkMDE1NTM5NDhjZSIsImNsaWVudF9pZCI6IjBlYTMxNjIwLTIwMTctNDQ2MS1iYzIyLTk2YzM3ZWU5OWFmMSJ9.ZaKTRyn3JJI98CZK82ZcsvKgoCV5rg0K6X4vnr_fzRKoWXHzuoxG1_-_lQpn9WQBx3ctbaksn1xN26g1L8HyQhPg4xBiEUNugw_Rn4ol8Cn4eZMS9pInHhD4QbSCFXr_97WzGPx9Gt9skjCew8Crrv9cHV6d8_mYtk5eaQnqG2aLdpjHGFI4-ir4u4h39R4_-Tk59cjjj-mbyKOJWKgghiBWYzDAw357JZiwzggdz5xIeQ46sWczUZq3v8DPhMfQJ-ClTaAI2btkdhYhHVxXhBcZUEleZPRS9X89qcNGwYLU5uEhc7BhS0aZUrbczx1OLg8bo1lhzug_W0JV8c8r9w";
+    private String accessToken = "Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZXJ2aWNlX3R5cGUiOiIxIiwic2NvcGUiOlsicmVhZCJdLCJzZXJ2aWNlX25vIjoiMDAwMDA0NzYwMDAyIiwiZXhwIjoxNzMwMzY2OTM2LCJhdXRob3JpdGllcyI6WyJJTlNVUkFOQ0UiLCJQVUJMSUMiLCJCQU5LIiwiRVRDIiwiU1RPQ0siLCJDQVJEIl0sImp0aSI6ImIyNjg0MDVhLWQzNjYtNGE1Yi04ODM3LWQxZTliOWU0ZmRkOCIsImNsaWVudF9pZCI6IjBlYTMxNjIwLTIwMTctNDQ2MS1iYzIyLTk2YzM3ZWU5OWFmMSJ9.NYdmH57Y2uwoZhXcofZPtE5qYVjvWQFjDKIhDSQSmuLa5Fd2yCAhqp0DPavaKh5KUqrogpHzPpQyg8hF_UzTH6tnug3EzN0hnaeGPl3c6IrZlzDkt9bM7ZhY5amN__cVXEfvS3ZCXdyyJmmmmAqY-Vc3NGsbKsgGhn4mLXE0UgJSsBNHhitBaWi7BdUA7gpp-OBj96HVWW1oPT2neSc8l-TLxF5gfeq2JTlqtsUyQUNIdnvGubMfvNJIVLuBkEplBb3CbPrETAx5O-SjKEMS1oIZ13SKaK_9VS72HvfxvWn4Awb8bDVzpKOx9d407I1QSpF2wvTZuTEz66MRGBW3IA";
     public String callApi(String organization,
                           String loginType,
                           String identity,
                           String loginTypeLevel,
                           String userName,
                           String phoneNo,
-                          String authMethod,
                           String telecom,
                           String startDate,
-                          String secureNoYN,
-                          String reqChildYN) {
+                          String id,
+                          String reqChildYN,
+                          String detailYN) {
         try {
 
             // MedicineRequestDTO 객체 생성 및 데이터 설정
@@ -41,11 +41,11 @@ public class CodefTestService {
                     .loginTypeLevel(loginTypeLevel)
                     .userName(userName)
                     .phoneNo(phoneNo)
-                    .authMethod(authMethod)
-                    .telecom(telecom)
                     .startDate(startDate)
-                    .secureNoYN(secureNoYN)
+                    .telecom(telecom)
+                    .id(id)
                     .reqChildYN(reqChildYN)
+                    .detailYN(detailYN)
                     .build();
 
             // 요청 헤더에 Authorization 추가
@@ -68,14 +68,14 @@ public class CodefTestService {
         }
     }
 
-    public String callSecondApi(String organization,  String smsAuthNo, boolean is2Way,  String jti, int jobIndex, int threadIndex, long twoWayTimestamp ) {
+    public String callSecondApi(String organization,  String simpleAuth, boolean is2Way,  String jti, int jobIndex, int threadIndex, long twoWayTimestamp ) {
         try {
 
 
             // 두 번째 호출을 위한 요청 데이터 설정
             SecondApiRequestDTO secondRequestDTO = SecondApiRequestDTO.builder()
                     .organization(organization)
-                    .smsAuthNo(smsAuthNo)
+                    .simpleAuth(simpleAuth)
                     .is2Way(is2Way)
                     .twoWayInfo(new TwoWayInfoDTO(jobIndex, threadIndex, jti, twoWayTimestamp))
                     .build();

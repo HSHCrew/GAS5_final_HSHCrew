@@ -30,5 +30,7 @@ public class DiseaseEntity {
     private LocalDateTime disease_updated_at;
     private boolean is_hereditary;
 
-
+    public DiseaseEntity(int id) {
+        this.disease_id = id;
+    }
 }

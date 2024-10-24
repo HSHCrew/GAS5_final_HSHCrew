@@ -30,5 +30,7 @@ public class MedicationEntity {
     @LastModifiedDate
     private LocalDateTime medication_updated_at;
 
+    public MedicationEntity(int id) {
+        this.medication_id = id;}
 }
 
