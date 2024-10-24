@@ -17,4 +17,5 @@ template: |
 
   Please present your findings in a clear and structured format, addressing each of the points mentioned above.
   Use only KOREAN language for your response.
+  end up evaluate, return the score(0~100) of each step with tuple.
 input_variables: ["original_content", "summary"]
