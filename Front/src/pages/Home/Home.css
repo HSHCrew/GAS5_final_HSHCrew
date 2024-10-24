@@ -1,0 +1,239 @@
+/* 홈 화면 컨테이너 설정 */
+.home-container {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    max-width: 600px;
+    height: 100%;
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* 홈 화면 콘텐츠 */
+.home-content {
+    width: 100%;
+    max-width: 600px;
+    text-align: center;
+    margin: 20px auto;
+}
+
+/* 텍스트 스타일 */
+.day-label {
+    font-size: 24px;
+    margin-bottom: 20px;
+    font-weight: bold;
+    text-align: left;
+    margin-left: 15px;
+}
+
+/* 약 정보 카드 */
+.medication-card {
+    background-color: #e5f6f9;
+    border-radius: 10px;
+    padding: 20px;
+    height: auto;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: grid;
+    grid-template-columns: 50px 1fr auto;
+    grid-template-rows: auto auto;
+    gap: 15px;
+    align-items: center;
+    position: relative;
+}
+
+/* 시계 아이콘 (첫 번째 열, 첫 번째 행) */
+.clock-icon {
+    grid-column: 1 / 2;
+    grid-row: 1 / 2;
+    width: 50px;
+    margin-right: 10px;
+}
+
+/* 시간 텍스트 (두 번째 열, 첫 번째 행) */
+.time {
+    grid-column: 2 / 3;
+    grid-row: 1 / 2;
+    font-size: 20px;
+    font-weight: bold;
+    text-align: left;
+
+}
+
+/* 타이레놀 이미지 (두 번째 열, 두 번째 행) */
+.medication-image-container {
+    grid-column: 2 / 3;
+    grid-row: 2 / 2;
+    width: 120px;
+    height: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.medication-image {
+    width: 100px;
+    height: auto;
+    object-fit: cover;
+}
+
+/* 약 정보 텍스트 (두 번째 열, 두 번째 행) */
+.medication-info {
+    grid-column: 2 / 3;
+    grid-row: 2 / 3;
+    font-size: 16px;
+    line-height: 1.5;
+    text-align: left;
+    margin-left:120px;
+    margin-bottom: 20px;
+}
+
+/* 알림 스위치 (세 번째 열, 첫 번째 행에 위치) */
+.notification-container {
+    grid-column: 3 / 4;
+    grid-row: 1 / 3;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.notification-label {
+    font-size: 18px;
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+/* 토글 스위치 */
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.4s ease-in-out;
+    border-radius: 24px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    border-radius: 50%;
+    left: 2px;
+    bottom: 2px;
+    background-color: white;
+    transition: 0.4s ease-in-out;
+}
+
+input:checked + .slider {
+    background-color: #59BDBD;
+}
+
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
+
+input:checked + .slider {
+    background-color: #59BDBD; /* 체크 상태일 때 배경 색상 */
+}
+
+input:checked + .slider:before {
+    transform: translateX(26px); /* 체크 상태일 때 원의 위치 이동 */
+}
+
+/* 슬라이드 애니메이션 */
+.slide-left-enter {
+    transform: translateX(100%);
+}
+.slide-left-enter-active {
+    transform: translateX(0);
+    transition: transform 200ms ease-in-out;
+}
+.slide-left-exit {
+    transform: translateX(0);
+}
+.slide-left-exit-active {
+    transform: translateX(-100%);
+    transition: transform 200ms ease-in-out;
+}
+
+.slide-right-enter {
+    transform: translateX(-100%);
+}
+.slide-right-enter-active {
+    transform: translateX(0);
+    transition: transform 200ms ease-in-out;
+}
+.slide-right-exit {
+    transform: translateX(0);
+}
+.slide-right-exit-active {
+    transform: translateX(100%);
+    transition: transform 200ms ease-in-out;
+}
+
+/* 모든 텍스트 드래그 방지 */
+body {
+    user-select: none;  /* 표준 브라우저 */
+    -webkit-user-select: none; /* Chrome, Safari */
+    -moz-user-select: none;    /* Firefox */
+    -ms-user-select: none;     /* Internet Explorer/Edge */
+}
+
+
+/* 마우스 커서 및 반응 추가 */
+.medication-image-container {
+    grid-column: 2 / 3;
+    grid-row: 2 / 2;
+    width: 120px;
+    height: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer; /* 마우스 커서 변경 */
+}
+
+.medication-image-container:hover .medication-image {
+    opacity: 0.8; /* 이미지에 반응 추가 */
+}
+
+.medication-image {
+    width: 100px;
+    height: auto;
+    object-fit: cover;
+}
+
+/* 약 정보 텍스트 반응 */
+.medication-info {
+    grid-column: 2 / 3;
+    grid-row: 2 / 3;
+    font-size: 16px;
+    line-height: 1.5;
+    text-align: left;
+    margin-left:120px;
+    margin-bottom: 20px;
+    cursor: pointer; /* 마우스 커서 변경 */
+    text-decoration: none;
+}
+
+.medication-info:hover {
+    text-decoration: underline; /* 텍스트에 밑줄 추가 */
+    color: #3c3c3c8a; /* 텍스트 색상 변경 */
+}

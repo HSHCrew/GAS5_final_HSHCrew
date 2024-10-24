@@ -13,6 +13,7 @@ import Setting from '../pages/Setting/index.jsx';
 import SignIn from '../pages/SignIn/index.jsx';
 import SignUp from '../pages/SignUp/index.jsx';
 import Search from '../pages/Search/SearchPage.jsx';
+import MedicineInfo from '../pages/MedicineInfo/index.jsx';
 
 const staticMenuRoute = [
     {
@@ -50,6 +51,12 @@ const staticMenuRoute = [
                 name: 'Searchpage',
                 element: <Search />,
                 path: '/searchpage',
+            },
+            {
+                key: 'MedicineInfo',
+                name: 'MedicineInfo',
+                element: <MedicineInfo />,
+                path: '/medicineinfo',
             },
         ],
     },

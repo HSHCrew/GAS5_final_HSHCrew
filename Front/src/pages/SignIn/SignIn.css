@@ -5,6 +5,7 @@
   min-height: 100vh;
   text-align: center;
   overflow: auto;
+  margin-bottom: 30px;
 }
 
 /* 로그인 박스 설정 */
@@ -22,10 +23,10 @@
 /* 로고 설정 */
 .signin-logo {
   position: absolute;
-  left: 170px;
-  top: 105px;
-  width: 280px;
-  height: 70px;
+  left: 150px;
+  top: 50px;
+  width: 300px;
+  height: 75px;
   object-fit: cover;
 }
 
@@ -33,7 +34,7 @@
 .signin-form {
   position: absolute;
   left: 23px;
-  top: 205px;
+  top: 180px;
   width: 478px;
   height: auto;
   background-color: white;
@@ -155,7 +156,7 @@
   position: absolute;
   left: 0;
   right: 0;
-  top: 740px; /* 로그인 박스의 하단에 위치하도록 조정 */
+  top: 710px; /* 로그인 박스의 하단에 위치하도록 조정 */
   text-align: center;
   font-size: 1.25rem;
   font-weight: 500;
