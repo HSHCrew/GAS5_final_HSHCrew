@@ -1,0 +1,61 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.3.4'
+    id 'io.spring.dependency-management' version '1.1.6'
+}
+
+group = 'org.zerock'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    compileOnly 'org.projectlombok:lombok'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    // MySQL 8.0 JDBC 드라이버 추가
+    runtimeOnly 'mysql:mysql-connector-java:8.0.33' // 사용하려는 MySQL 버전에 맞게 조정
+
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    implementation 'io.codef.api:easycodef-java:1.0.6'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.9.0'
+    implementation 'io.jsonwebtoken:jjwt-api:0.12.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.5'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-json'
+    implementation 'org.springframework.boot:spring-boot-starter-security' // Optional, for security if needed
+    implementation 'com.fasterxml.jackson.core:jackson-databind' // JSON 처리
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.9.0'
+    implementation 'org.apache.httpcomponents:httpclient:4.5.13' // 또는 최신 버전으로 변경
+    implementation 'org.apache.httpcomponents:httpcore:4.4.13' // 또는 최신 버전으로 변경
+
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.12.2'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
