@@ -2,15 +2,14 @@ import os
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from sqlalchemy import create_engine, Column, Integer, String, ForeignKey
+from sqlalchemy import Column, Integer, String, ForeignKey, select
 from sqlalchemy.orm import sessionmaker, declarative_base
-from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.ext.declarative import as_declarative
-from sqlalchemy.orm import sessionmaker
+import asyncio
 from dotenv import load_dotenv
 import uvicorn
-from summarizer import Summarizer
+from summarizer.Summarizer import Summarizer
 
 load_dotenv()
 
@@ -106,4 +105,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
