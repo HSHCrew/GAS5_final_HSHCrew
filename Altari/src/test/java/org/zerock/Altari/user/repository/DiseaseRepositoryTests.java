@@ -1,31 +1,30 @@
-//package org.zerock.Altari.user.repository;
-//
-//import org.junit.jupiter.api.Test;
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.boot.test.context.SpringBootTest;
-//import org.zerock.Altari.entity.DiseaseEntity;
-//import org.zerock.Altari.repository.DiseaseRepository;
-//
-//import static org.assertj.core.api.Assertions.assertThat;
-//
-//@SpringBootTest
-//public class DiseaseRepositoryTests {
-//
-//    @Autowired
-//    private DiseaseRepository diseaseRepository;
-//
-//    @Test
-//    public void testInsert() {
-//        // 테스트 데이터 추가
-//        DiseaseEntity diseaseEntity = DiseaseEntity.builder()
-//                .disease_id(1)
-//                .disease_name("당뇨")
-//                .disease_info("위험")
-//                .build();
-//
-//        diseaseRepository.save(diseaseEntity);
-//    }
-//
+package org.zerock.Altari.user.repository;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.zerock.Altari.entity.DiseaseEntity;
+import org.zerock.Altari.repository.DiseaseRepository;
+
+@SpringBootTest
+public class DiseaseRepositoryTests {
+
+    @Autowired
+    private DiseaseRepository diseaseRepository;
+
+    @Test
+    public void testInsert() {
+        // 테스트 데이터 추가
+        DiseaseEntity diseaseEntity = DiseaseEntity.builder()
+                .disease_id(3)
+                .disease_name("고혈압")
+                .disease_info("혈압이 높음")
+                .build();
+
+        diseaseRepository.save(diseaseEntity);
+    }
+}
+
 //    @Test
 //    public void testFindByDiseaseName() {
 //        // 테스트: "당뇨"로 질병 검색

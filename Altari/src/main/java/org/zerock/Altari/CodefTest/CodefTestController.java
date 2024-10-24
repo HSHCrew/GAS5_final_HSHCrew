@@ -22,11 +22,12 @@ public class CodefTestController {
                 requestDTO.getLoginTypeLevel(),
                 requestDTO.getUserName(),
                 requestDTO.getPhoneNo(),
-                requestDTO.getAuthMethod(),
                 requestDTO.getTelecom(),
-                requestDTO.getTimeout(),
                 requestDTO.getStartDate(),
-                requestDTO.getSecureNoYN()
+                requestDTO.getId(),
+                requestDTO.getReqChildYN(),
+                requestDTO.getDetailYN()
+
         );
         return ResponseEntity.ok(response);
     }
@@ -37,7 +38,7 @@ public class CodefTestController {
         // 전달된 DTO 데이터를 사용하여 두 번째 API 호출
         String response = codefTestService.callSecondApi(
                 secondRequestDTO.getOrganization(),
-                secondRequestDTO.getSmsAuthNo(),
+                secondRequestDTO.getSimpleAuth(),
                 secondRequestDTO.is2Way(),
                 secondRequestDTO.getTwoWayInfo().getJti(),
                 secondRequestDTO.getTwoWayInfo().getJobIndex(),

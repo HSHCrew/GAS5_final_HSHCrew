@@ -8,6 +8,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MedicineRequestDTO {
+    private String id;
     private String organization;
     private String loginType;
     private String loginTypeLevel;
@@ -17,8 +18,8 @@ public class MedicineRequestDTO {
     private String startDate;
     private String telecom;
     private String reqChildYN;
-    private String authMethod;       // 추가된 필드
-    private String timeout;          // 추가된 필드
-    private String secureNoYN;       // 추가된 필드
+    private String authMethod;
+    private String detailYN;
+
 }
 

@@ -23,7 +23,7 @@ public class UserProfileEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer user_profile_id;
+    private int user_profile_id;
 
     private String full_name;
 
