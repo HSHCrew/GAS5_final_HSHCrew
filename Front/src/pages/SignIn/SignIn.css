@@ -1,0 +1,187 @@
+/* 전체 배경 설정 */
+.signin-container {
+  background-color: #f7fafc;
+  display: block;
+  min-height: 100vh;
+  text-align: center;
+  overflow: auto;
+  margin-bottom: 30px;
+}
+
+/* 로그인 박스 설정 */
+.signin-box {
+  background-color: #fff;
+  width: 573px;
+  min-height: 100vh;
+  min-width: 320px;
+  max-width: 800px;
+  margin: 0 auto;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 로고 설정 */
+.signin-logo {
+  position: absolute;
+  left: 150px;
+  top: 50px;
+  width: 300px;
+  height: 75px;
+  object-fit: cover;
+}
+
+/* 로그인 폼 설정 */
+.signin-form {
+  position: absolute;
+  left: 23px;
+  top: 180px;
+  width: 478px;
+  height: auto;
+  background-color: white;
+  border: 4px solid #529174;
+  border-radius: 12px;
+  padding: 20px;
+}
+
+/* 로그인 헤더 설정 */
+.signin-header {
+  margin-top: 20px;
+  text-align: center;
+}
+
+/* 로그인 아이콘 설정 */
+.signin-icon {
+  width: 45px;
+  height: 45px;
+  object-fit: cover;
+  margin-right: 10px;
+  display: inline-block;
+}
+
+/* 로그인 제목 설정 */
+.signin-title {
+  font-size: 1.875rem;
+  font-weight: 600;
+  display: inline-block;
+}
+
+/* 입력 필드 설정 */
+.signin-input-container {
+  margin-top: 20px;
+  position: relative; /* 비밀번호 토글 버튼을 위한 상대 위치 */
+}
+
+.signin-input {
+  width: 85%;
+  height: 82px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e0;
+  padding-left: 1rem;
+  padding-right: 3rem; /* 토글 버튼 공간 확보 */
+  font-size: 1.25rem;
+}
+
+/* 비밀번호 토글 버튼 설정 */
+.toggle-password {
+  position: absolute;
+  right: 3%;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #0f7445;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.toggle-password:focus {
+  outline: none;
+}
+
+/* "자동 로그인" 체크박스 컨테이너 설정 */
+.remember-me-container {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-top: 20px;
+  padding-left: 10px; /* 좌측 여백 조정 */
+}
+
+.remember-me-checkbox {
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+.remember-me-label {
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: #333333;
+  cursor: pointer;
+}
+
+/* 에러 메시지 스타일링 */
+.error-message {
+  color: #ff0000;
+  font-size: 1rem;
+  margin-top: 15px;
+}
+
+/* 로그인 버튼 설정 */
+.signin-button-container {
+  margin-top: 30px;
+}
+
+.signin-button {
+  width: 100%;
+  height: 73px;
+  background-color: #529174;
+  color: white;
+  font-weight: bold;
+  font-size: 1.25rem;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+}
+
+.signin-button:disabled {
+  background-color: #a0c4ff;
+  cursor: not-allowed;
+}
+
+/* 하단 텍스트 설정 */
+.signin-footer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 710px; /* 로그인 박스의 하단에 위치하도록 조정 */
+  text-align: center;
+  font-size: 1.25rem;
+  font-weight: 500;
+}
+
+/* 회원가입 링크 설정 */
+.signup-link {
+  color: #0f7445;
+  font-weight: bold;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.signup-link:hover {
+  text-decoration: underline;
+}
+
+/* 숨겨진 레이블 스타일링 */
+.hidden-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}

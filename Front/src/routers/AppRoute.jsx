@@ -1,20 +1,64 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import Home from '../pages/Home/index.jsx';
-import MainLayout from '../layouts/mainLayout/index.jsx';
-import About from '../pages/About/index.jsx';
+
+import EmptyLayout from '../layouts/EmptyLayout/index.jsx';
+import MainLayout from '../layouts/MainLayout/index.jsx';
 import Chatting from '../pages/Chatting/index.jsx';
-import Setting from '../pages/Setting/index.jsx';
+import HealthNote from '../pages/HealthNote/index.jsx';
+import Home from '../pages/Home/index.jsx';
 import Landing from '../pages/Landing/index.jsx';
 import MedicationManagement from '../pages/MedicationManagement/index.jsx';
 import RegistrationPrescription from '../pages/RegistrationPrescription/index.jsx';
+import Setting from '../pages/Setting/index.jsx';
+import SignIn from '../pages/SignIn/index.jsx';
+import SignUp from '../pages/SignUp/index.jsx';
+import Search from '../pages/Search/SearchPage.jsx';
+import MedicineInfo from '../pages/MedicineInfo/index.jsx';
 
 const staticMenuRoute = [
     {
-        key: 'Landing',
-        name: 'Landing',
-        element: <Landing />,
-        path: '/',
+        key: 'MobileLayout',
+        name: 'MobileLayout',
+        element: <EmptyLayout />,
+        path: null,
+        childList: [
+            {
+                key: 'Landing',
+                name: 'Landing',
+                element: <Landing />,
+                path: '/',
+            },
+            {
+                key: 'SignIn',
+                name: 'SignIn',
+                element: <SignIn />,
+                path: '/signIn',
+            },
+            {
+                key: 'SignUp',
+                name: 'SignUp',
+                element: <SignUp />,
+                path: '/signUp',
+            },
+            {
+                key: 'HealthNote',
+                name: 'HealthNote',
+                element: <HealthNote />,
+                path: '/healthNote',
+            },
+            {
+                key: 'Searchpage',
+                name: 'Searchpage',
+                element: <Search />,
+                path: '/searchpage',
+            },
+            {
+                key: 'MedicineInfo',
+                name: 'MedicineInfo',
+                element: <MedicineInfo />,
+                path: '/medicineinfo',
+            },
+        ],
     },
     {
         key: 'MobileLayout',
@@ -67,8 +111,7 @@ const AppRoute = () => {
                         <Route
                             element={menu.element}
                             path={menu.path}
-                            key={menu.key}
-                        >
+                            key={menu.key}>
                             {createMenuRoutes(menu.childList)}
                         </Route>
                     ) : (
@@ -77,7 +120,7 @@ const AppRoute = () => {
                             path={menu.path}
                             key={menu.key}
                         />
-                    ),
+                    )
                 )}
             </>
         );
@@ -85,7 +128,7 @@ const AppRoute = () => {
 
     const menuRoutes = useMemo(
         () => createMenuRoutes(menuList),
-        [createMenuRoutes, menuList],
+        [createMenuRoutes, menuList]
     );
 
     const getMenuList = useCallback(() => {

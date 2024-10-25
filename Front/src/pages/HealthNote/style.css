@@ -1,0 +1,31 @@
+/* 단계 표시 및 화살표 설정 */
+.steps-footer {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  margin-top: 30px;
+}
+
+.steps-step-indicator {
+  font-size: 40px;
+  font-weight: 700;
+  color: #529174;
+}
+
+.steps-prev-arrow{
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  cursor: pointer;
+}
+
+
+.steps-next-arrow {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  cursor: pointer;
+  margin-right: 35px;
+}
