@@ -1,65 +1,54 @@
- package org.zerock.Altari.security.util;
+package org.zerock.Altari.security.util;
 
- import io.jsonwebtoken.Claims;
- import io.jsonwebtoken.Jwts;
- import io.jsonwebtoken.security.Keys;
- import lombok.extern.log4j.Log4j2;
- import org.springframework.beans.factory.annotation.Value;
- import org.springframework.stereotype.Component;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
- import javax.crypto.SecretKey;
- import java.time.ZonedDateTime;
- import java.util.Date;
- import java.util.Map;
+import javax.crypto.SecretKey;
+import java.time.ZonedDateTime;
+import java.util.Date;
+import java.util.Map;
 
- @Component
- @Log4j2
- public class JWTUtil {
-     @Value("${jwt.secret}") // application.properties에서 키 값 주입
-     private static String key;
+@Component
+@Log4j2
+public class JWTUtil {
+    @Value("${jwt.secret.key}") // application.properties에서 키 값 주입
+    private String key;
 
-   public String createToken(Map<String, Object> valueMap, int min) {
+    public String createToken(Map<String, Object> valueMap, int min) {
 
-     SecretKey key = null;
+        SecretKey secretKey = null;
 
-     try {
-       key = Keys.hmacShaKeyFor(JWTUtil.key.getBytes("UTF-8"));
+        try {
+            secretKey = Keys.hmacShaKeyFor(key.getBytes("UTF-8"));
 
-     } catch (Exception e) {
-       throw new RuntimeException(e.getMessage());
-     }
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
 
-     return Jwts.builder().header()
-             .add("typ", "JWT")
-             .add("alg", "HS256")
-             .and()
-             .issuedAt(Date.from(ZonedDateTime.now().toInstant()))
-             .expiration((Date.from(ZonedDateTime.now()
-                     .plusMinutes(min).toInstant()))).claims(valueMap)
-             .signWith(key)
-             .compact();
+        return Jwts.builder().header().add("typ", "JWT").add("alg", "HS256").and().issuedAt(Date.from(ZonedDateTime.now().toInstant())).expiration((Date.from(ZonedDateTime.now().plusMinutes(min).toInstant()))).claims(valueMap).signWith(secretKey).compact();
 
-   }
+    }
 
-   public Map<String, Object> validateToken(String token) {
+    public Map<String, Object> validateToken(String token) {
 
-     SecretKey key = null;
+        SecretKey secretKey = null;
 
-     try {
-       key = Keys.hmacShaKeyFor(JWTUtil.key.getBytes("UTF-8"));
+        try {
+            secretKey = Keys.hmacShaKeyFor(key.getBytes("UTF-8"));
 
-     } catch (Exception e) {
-       throw new RuntimeException(e.getMessage());
-     }
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
 
-     Claims claims = Jwts.parser().verifyWith(key)
-             .build()
-             .parseSignedClaims(token)
-             .getPayload();
+        Claims claims = Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload();
 
-     log.info("claims: " + claims);
+        log.info("claims: " + claims);
 
-     return claims;
+        return claims;
 
-   }
- }
+    }
+}
