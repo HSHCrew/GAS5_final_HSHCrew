@@ -122,24 +122,36 @@
   vertical-align: top;
 }
 
-.id-status {
-  margin-top: 5px;
+.id-status,
+.password-status {
   font-size: 0.9rem;
   text-align: left;
+  margin-top: 5px; /* 동일한 마진 설정 */
   width: 100%;
   color: #333;
+  display: block; /* 동일한 display 속성 적용 */
 }
 
-.id-status.available {
+.id-status.available,
+.password-status.available {
   color: green;
 }
 
-.id-status.unavailable {
+.id-status.unavailable,
+.password-status.unavailable {
   color: red;
 }
 
-.id-status.checking {
+.id-status.checking,
+.password-status.checking {
   color: #555;
+}
+
+/* 메시지의 가로폭을 부모 컨테이너에 맞추도록 설정 */
+.id-section p, 
+.password-confirm-section p {
+  width: 100%;
+  margin: 0;
 }
 
 /* 회원가입 버튼 */

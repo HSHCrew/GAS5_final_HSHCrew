@@ -5,7 +5,7 @@
   min-height: 100vh;
   text-align: center;
   overflow: auto;
-  margin-bottom: 30px;
+  margin-bottom: 50px;
 }
 
 /* 로그인 박스 설정 */
@@ -156,7 +156,8 @@
   position: absolute;
   left: 0;
   right: 0;
-  top: 710px; /* 로그인 박스의 하단에 위치하도록 조정 */
+  top: 720px; /* 로그인 박스의 하단에 위치하도록 조정 */
+  margin-bottom: 50px;
   text-align: center;
   font-size: 1.25rem;
   font-weight: 500;

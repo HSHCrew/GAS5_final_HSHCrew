@@ -41,6 +41,7 @@ function SignIn() {
 
     try {
       // Axios 인스턴스를 사용하여 API 호출
+      console.log(axiosInstance.defaults.baseURL)
       const response = await axiosInstance.post('/api/v1/token/make', { username, password });
       const { accessToken } = response.data;
 

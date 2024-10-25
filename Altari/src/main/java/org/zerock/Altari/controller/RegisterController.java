@@ -24,10 +24,11 @@ public class RegisterController {
     private final UserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity<UserEntity> signUp(@Valid @RequestBody RegisterDTO registerDTO) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(userService.join(registerDTO));
-
+    public ResponseEntity<Boolean> signUp(@Valid @RequestBody RegisterDTO registerDTO) {
+        userService.join(registerDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(true);
     }
+    
     @PostMapping("/check-username")
     public ResponseEntity<Boolean> checkUsername(@RequestBody Map<String, String> requestBody) {
         String username = requestBody.get("username");
