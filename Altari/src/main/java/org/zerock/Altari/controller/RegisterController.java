@@ -10,7 +10,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.zerock.Altari.dto.RegisterDTO;
+import org.zerock.Altari.dto.UserProfileDTO;
 import org.zerock.Altari.entity.UserEntity;
+import org.zerock.Altari.entity.UserProfileEntity;
 import org.zerock.Altari.service.UserService;
 
 import java.util.Map;
@@ -34,5 +36,11 @@ public class RegisterController {
         boolean isDuplicate = userService.isUsernameDuplicate(username);
         return ResponseEntity.ok(isDuplicate); //중복이면 true, 중복이 아니면 false
     }
+//    @PostMapping("/update/profile")
+//    public ResponseEntity<UserProfileEntity> updateProfile(@RequestBody UserProfileDTO userProfileDTO) {
+//        UserProfileEntity updatedUserProfile = userService.updateUserProfile(userProfileDTO);
+//        return ResponseEntity.ok(updatedUserProfile);
+//
+//    }
 }
 

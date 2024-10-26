@@ -25,6 +25,10 @@ public class UserProfileEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int user_profile_id;
 
+    @OneToOne
+    @JoinColumn(name = "username", referencedColumnName = "username")
+    private UserEntity username;
+
     private String full_name;
 
     private LocalDate date_of_birth;
@@ -49,6 +53,8 @@ public class UserProfileEntity {
 
     @LastModifiedDate
     private LocalDateTime user_profile_updated_at;
+
+
 }
 
 

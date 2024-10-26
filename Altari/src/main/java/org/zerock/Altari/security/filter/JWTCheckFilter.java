@@ -49,7 +49,7 @@ public class JWTCheckFilter extends OncePerRequestFilter {
             return;
         }
 
-        if (request.getRequestURI().equals("/api/v1/medications")) {
+        if (request.getRequestURI().equals("u")) {
             filterChain.doFilter(request, response);
             return;
         }

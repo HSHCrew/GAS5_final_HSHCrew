@@ -6,8 +6,13 @@ import io.jsonwebtoken.security.Keys;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.zerock.Altari.entity.UserEntity;
+import org.zerock.Altari.entity.UserProfileEntity;
+import org.zerock.Altari.repository.UserProfileRepository;
+import org.zerock.Altari.repository.UserRepository;
 
 import javax.crypto.SecretKey;
+import java.io.UnsupportedEncodingException;
 import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.Map;
@@ -15,8 +20,17 @@ import java.util.Map;
 @Component
 @Log4j2
 public class JWTUtil {
+
+    private final UserRepository userRepository;
+    private final UserProfileRepository userProfileRepository;
+
     @Value("${jwt.secret.key}") // application.properties에서 키 값 주입
     private String key;
+
+    public JWTUtil(UserRepository userRepository, UserRepository userRepository1, UserProfileRepository userProfileRepository) {
+        this.userRepository = userRepository1;
+        this.userProfileRepository = userProfileRepository;
+    }
 
     public String createToken(Map<String, Object> valueMap, int min) {
 
@@ -51,4 +65,29 @@ public class JWTUtil {
         return claims;
 
     }
+
+    public UserProfileEntity extractUsername(String token) throws UnsupportedEncodingException {
+
+        SecretKey secretKey = null;
+        try {
+            secretKey = Keys.hmacShaKeyFor(key.getBytes("UTF-8"));
+
+            Claims claims = Jwts.parser()
+                    .setSigningKey(secretKey)
+                    .build()
+                    .parseClaimsJws(token).getBody();
+
+            String username = claims.get("username", String.class);
+
+            UserEntity userEntity = userRepository.findByUsername(username);
+
+            UserProfileEntity userProfile = userProfileRepository.findByUsername(userEntity);
+
+            return userProfile;
+
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
 }

@@ -37,6 +37,11 @@ public class UserEntity {
         this.password = password;
         this.role = role;
     }
+    public void UsernametoUserEntity(String username) {
+        this.username = username;
+    }
+
+
 
 
 }

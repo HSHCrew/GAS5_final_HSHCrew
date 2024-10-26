@@ -1,45 +1,34 @@
-package org.zerock.Altari.entity;
+package org.zerock.Altari.dto;
 
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.zerock.Altari.entity.MedicineEntity;
+import org.zerock.Altari.entity.UserProfileEntity;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Entity
-@Table(name = "user_prescription")
-@Getter
-@Setter
-@ToString
+@Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-@EntityListeners(AuditingEntityListener.class)
-public class UserPrescriptionEntity {
+@ToString
+public class UserPrescriptionDTO {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+
     private int user_prescription_id;
-
     private String prescribe_no;
     private String prescribe_org;
     private String comm_brand_name;
     private LocalDate manufacture_date;
     private String tel_no;
     private String tel_no1;
-    @ManyToOne
-    @JoinColumn(name = "user_profile_id")
     private UserProfileEntity user_profile_id;
-
-    @CreatedDate
     private LocalDateTime user_prescription_created_at;
-    @LastModifiedDate
     private LocalDateTime user_prescription_updated_at;
-
-    @OneToMany(mappedBy = "user_prescription_id", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<MedicineEntity> medicines;
 }
+

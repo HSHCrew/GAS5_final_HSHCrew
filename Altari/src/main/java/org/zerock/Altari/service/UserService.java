@@ -75,6 +75,7 @@ public class UserService {
                 .morning_medication_time(registerDTO.getMorning_medication_time())
                 .lunch_medication_time(registerDTO.getLunch_medication_time())
                 .dinner_medication_time(registerDTO.getDinner_medication_time())
+                .username(savedUser)
                 .build();
 
 

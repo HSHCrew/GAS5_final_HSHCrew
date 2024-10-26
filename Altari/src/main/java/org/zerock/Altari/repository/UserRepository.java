@@ -5,4 +5,5 @@ import org.zerock.Altari.entity.UserEntity;
 
 public interface UserRepository extends JpaRepository<UserEntity, String> {
     UserEntity findByUsername(String username);
+//    UserEntity findByUserEntity(UserEntity userEntity);
 }
