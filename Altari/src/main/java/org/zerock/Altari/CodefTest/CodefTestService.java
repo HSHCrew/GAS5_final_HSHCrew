@@ -8,9 +8,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.zerock.Altari.Codef.EasyCodefToken;
-import org.zerock.Altari.entity.UserEntity;
-import org.zerock.Altari.entity.UserPrescriptionEntity;
-import org.zerock.Altari.entity.UserProfileEntity;
+import org.zerock.Altari.entity.*;
+import org.zerock.Altari.repository.DrugRepository;
+import org.zerock.Altari.repository.PrescriptionDrugRepository;
 import org.zerock.Altari.repository.UserPrescriptionRepository;
 
 import java.net.URLDecoder;
@@ -36,6 +36,10 @@ public class CodefTestService {
     private EasyCodefToken easyCodefToken;
 
     private static final String API_URL = "https://development.codef.io/v1/kr/public/hw/hira-list/my-medicine";
+    @Autowired
+    private DrugRepository drugRepository;
+    @Autowired
+    private PrescriptionDrugRepository prescriptionDrugRepository;
 
 
     public String callApi(String organization,
@@ -86,7 +90,6 @@ public class CodefTestService {
 
 
     public String callSecondApi(String organization, String simpleAuth, boolean is2Way, String jti, int jobIndex, int threadIndex, long twoWayTimestamp, UserProfileEntity userProfile) {
-
         try {
             // 두 번째 호출을 위한 요청 데이터 설정
             SecondApiRequestDTO secondRequestDTO = SecondApiRequestDTO.builder()
@@ -99,7 +102,6 @@ public class CodefTestService {
             // 요청 헤더에 Authorization 추가
             HttpHeaders headers = new HttpHeaders();
             headers.set("Authorization", "Bearer " + easyCodefToken.getAccessToken());
-
 
             // HttpEntity를 사용하여 요청 본문과 헤더를 포함합니다.
             HttpEntity<SecondApiRequestDTO> requestEntity = new HttpEntity<>(secondRequestDTO, headers);
@@ -121,7 +123,6 @@ public class CodefTestService {
             DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
             LocalDate manufactureDate = LocalDate.parse(manufactureDateStr, dateTimeFormatter);
 
-
             // UserPrescription 객체 생성 및 저장
             UserPrescriptionEntity userPrescription = new UserPrescriptionEntity();
             userPrescription.setComm_brand_name(commBrandName);
@@ -129,10 +130,30 @@ public class CodefTestService {
             userPrescription.setPrescribe_org(prescribeOrg);
             userPrescription.setPrescribe_no(prescribeNo);
             userPrescription.setTel_no1(telNo1);
-            userPrescription.setManufacture_date(LocalDate.from(manufactureDate));
+            userPrescription.setManufacture_date(manufactureDate);
             userPrescription.setUser_profile_id(userProfile);
-
             userPrescriptionRepository.save(userPrescription);
+
+            // 약물 리스트를 Prescription_Drug 테이블에 저장
+            JsonNode drugList = data.get("resDrugList");
+            for (JsonNode drugData : drugList) {
+                String drugCode = drugData.get("resDrugCode").asText();
+
+                // 기존 약물 정보를 조회
+                DrugEntity drugItemSeq = drugRepository.findByItemseq(drugCode);
+                if (drugItemSeq != null) {
+                    // Prescription_Drug 객체 생성 및 저장
+                    PrescriptionDrugEntity prescriptionDrug = new PrescriptionDrugEntity();
+                    prescriptionDrug.setPrescription_id(userPrescription);
+                    prescriptionDrug.setItem_seq(drugItemSeq); // 기존 약물 사용
+                    prescriptionDrug.setOne_dose(drugData.get("resOneDose").asText());
+                    prescriptionDrug.setDailyDosesNumber(drugData.get("resDailyDosesNumber").asText());
+                    prescriptionDrug.setTotal_dosing_days(drugData.get("resTotalDosingdays").asText());
+                    prescriptionDrug.setMedication_direction(drugData.get("resMedicationDirection").asText());
+                    prescriptionDrugRepository.save(prescriptionDrug);
+                }
+                // 약물이 존재하지 않을 경우에 대한 처리 (필요시 추가 가능)
+            }
 
             return decodedSecondResponseBody;
 
@@ -142,6 +163,8 @@ public class CodefTestService {
             return null;
         }
     }
+
 }
+
 
 
