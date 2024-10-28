@@ -1,7 +1,10 @@
 package org.zerock.Altari.controller;
 
+import io.jsonwebtoken.Claims;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 import org.zerock.Altari.dto.UserDTO;
@@ -113,4 +116,5 @@ public class TokenController {
     private ResponseEntity<Map<String, String>> handleException(String msg, int status) {
         return ResponseEntity.status(status).body(Map.of("msg", msg)); //
     }
+
 }

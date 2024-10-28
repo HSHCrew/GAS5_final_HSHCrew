@@ -18,7 +18,7 @@ public class DrugEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int drug_id;
+    private Integer drug_id;
 
     @Column(nullable = false)
     private String result_code; // 결과코드

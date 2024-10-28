@@ -21,7 +21,7 @@ public class MedicationEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int medication_id;
+    private Integer medication_id;
     private String medication_name;
     private String medication_info;
     private String interaction_info;

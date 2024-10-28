@@ -1,5 +1,6 @@
 package org.zerock.Altari.entity;
 
+import ch.qos.logback.classic.spi.LoggingEventVO;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -7,6 +8,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "disease")
@@ -21,16 +23,17 @@ public class DiseaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int disease_id;
+    private Integer diseaseId;
     private String disease_name;
     private String disease_info;
     @CreatedDate
     private LocalDateTime disease_created_at;
     @LastModifiedDate
     private LocalDateTime disease_updated_at;
-    private boolean is_hereditary;
+    private Boolean is_hereditary;
 
-    public DiseaseEntity(int id) {
-        this.disease_id = id;
+    public DiseaseEntity(int diseaseId) {
+        this.diseaseId = diseaseId;
     }
+
 }

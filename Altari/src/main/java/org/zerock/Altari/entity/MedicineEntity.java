@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 public class MedicineEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int medicine_id;
+    private Integer medicine_id;
     private String drug_code;
     private String drug_name;
     private String ingredients;

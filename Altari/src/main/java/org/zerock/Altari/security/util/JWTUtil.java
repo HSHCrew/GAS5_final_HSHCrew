@@ -3,6 +3,7 @@ package org.zerock.Altari.security.util;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -23,6 +24,8 @@ public class JWTUtil {
 
     private final UserRepository userRepository;
     private final UserProfileRepository userProfileRepository;
+    private static final String AUTHORIZATION_HEADER = "Authorization";
+    private static final String BEARER_PREFIX = "Bearer ";
 
     @Value("${jwt.secret.key}") // application.properties에서 키 값 주입
     private String key;
@@ -66,7 +69,40 @@ public class JWTUtil {
 
     }
 
-    public UserProfileEntity extractUsername(String token) throws UnsupportedEncodingException {
+    public static String getJwtFromHeader(HttpServletRequest request) {
+        String header = request.getHeader(AUTHORIZATION_HEADER);
+
+        if (header != null && header.startsWith(BEARER_PREFIX)) {
+            // "Bearer " 접두사를 제거하고 JWT 토큰 반환
+            return header.substring(BEARER_PREFIX.length());
+        }
+
+        return null; // 헤더가 없거나 형식이 올바르지 않으면 null 반환
+    }
+
+    public UserEntity getUsernameFromToken(String token) throws UnsupportedEncodingException {
+
+        SecretKey secretKey = null;
+        try {
+            secretKey = Keys.hmacShaKeyFor(key.getBytes("UTF-8"));
+
+            Claims claims = Jwts.parser()
+                    .setSigningKey(secretKey)
+                    .build()
+                    .parseClaimsJws(token).getBody();
+
+            String username = claims.get("username", String.class);
+
+            UserEntity userEntity = userRepository.findByUsername(username);
+
+            return userEntity;
+
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    public UserProfileEntity getUserProfileFromToken(String token) throws UnsupportedEncodingException {
 
         SecretKey secretKey = null;
         try {

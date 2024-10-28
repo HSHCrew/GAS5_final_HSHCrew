@@ -14,7 +14,7 @@ public class PrescriptionDrugEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int prescription_drug_id;
+    private Integer prescription_drug_id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "prescription_id", nullable = false)

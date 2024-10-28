@@ -8,9 +8,9 @@ import lombok.*;
 @NoArgsConstructor
 @ToString
 public class DiseaseDTO {
-    private int disease_id;
+    private Integer diseaseId;
     private String disease_name;
     private String disease_info;
-    private boolean is_hereditary;
+    private Boolean is_hereditary;
 }
 

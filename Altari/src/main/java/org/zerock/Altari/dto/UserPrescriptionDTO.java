@@ -19,7 +19,7 @@ import java.util.List;
 public class UserPrescriptionDTO {
 
 
-    private int user_prescription_id;
+    private Integer user_prescription_id;
     private String prescribe_no;
     private String prescribe_org;
     private String comm_brand_name;

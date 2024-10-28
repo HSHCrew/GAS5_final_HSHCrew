@@ -8,7 +8,7 @@ import lombok.*;
 @NoArgsConstructor
 @ToString
 public class MedicationDTO {
-    private int medication_id;
+    private Integer medication_id;
     private String medication_name;
     private String medication_info;
     private String interaction_info;

@@ -22,10 +22,10 @@ public class AllergyEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int allergy_id;
+    private Integer allergy_id;
     @ManyToOne
     @JoinColumn(name = "user_profile_id")
-    private UserProfileEntity user_profile_id;
+    private UserProfileEntity userProfile;
     @ManyToOne
     @JoinColumn(name = "medication_id")
     private MedicationEntity medication_id;
@@ -34,5 +34,4 @@ public class AllergyEntity {
     @LastModifiedDate
     private LocalDateTime allergy_updated_at;
 
-    private String food_name;
 }

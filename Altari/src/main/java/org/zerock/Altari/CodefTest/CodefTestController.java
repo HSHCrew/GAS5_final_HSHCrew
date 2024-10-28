@@ -65,10 +65,8 @@ public class CodefTestController {
     public ResponseEntity<String> callSecondApi(@RequestBody SecondApiRequestDTO secondRequestDTO,
                                                 @RequestHeader("Authorization") String token) throws UnsupportedEncodingException {
         // 전달된 DTO 데이터를 사용하여 두 번째 API 호출
-//
-        UserProfileEntity userProfile = jwtUtil.extractUsername(token.substring(7)); // "Bearer " 이후의 토큰 문자열
-//
-//
+
+        UserProfileEntity userProfile = jwtUtil.getUserProfileFromToken(token.substring(7)); // "Bearer " 이후의 토큰 문자열
 
         String response = codefTestService.callSecondApi(
                 secondRequestDTO.getOrganization(),

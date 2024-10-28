@@ -131,7 +131,7 @@ public class CodefTestService {
             userPrescription.setPrescribe_no(prescribeNo);
             userPrescription.setTel_no1(telNo1);
             userPrescription.setManufacture_date(manufactureDate);
-            userPrescription.setUser_profile_id(userProfile);
+            userPrescription.setUserProfile(userProfile);
             userPrescriptionRepository.save(userPrescription);
 
             // 약물 리스트를 Prescription_Drug 테이블에 저장

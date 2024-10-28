@@ -21,7 +21,7 @@ public class PrescriptionEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int prescription_id;
+    private Integer prescription_id;
     @ManyToOne
     @JoinColumn(name = "user_profile_id")
     private UserProfileEntity user_profile_id;

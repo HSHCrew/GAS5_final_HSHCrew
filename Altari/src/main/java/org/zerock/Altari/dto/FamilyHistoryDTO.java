@@ -10,7 +10,7 @@ import org.zerock.Altari.entity.UserProfileEntity;
 @NoArgsConstructor
 @ToString
 public class FamilyHistoryDTO {
-    private int family_history_id;
+    private Integer family_history_id;
     private DiseaseEntity disease_id;
     private UserProfileEntity user_profile_id;
     private String family_relation;

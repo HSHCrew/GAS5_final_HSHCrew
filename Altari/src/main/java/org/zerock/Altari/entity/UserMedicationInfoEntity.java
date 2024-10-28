@@ -21,16 +21,16 @@ public class UserMedicationInfoEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int user_medication_info_id;
+    private Integer user_medication_info_id;
     @ManyToOne
     @JoinColumn(name = "prescription_id")
-    private PrescriptionEntity prescription_id;
+    private PrescriptionEntity prescription;
     @ManyToOne
     @JoinColumn(name = "medication_id")
-    private MedicationEntity medication_id;
+    private MedicationEntity mediacation;
     @ManyToOne
     @JoinColumn(name = "user_profile_id")
-    private UserProfileEntity user_profile_id;
+    private UserProfileEntity userProfile;
     private String user_medication_status;
     private String user_medication_datetime;
     private String dosage;

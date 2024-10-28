@@ -9,7 +9,7 @@ import org.zerock.Altari.entity.UserProfileEntity;
 @NoArgsConstructor
 @ToString
 public class PrescriptionDTO {
-    private int prescription_id;
+    private Integer prescription_id;
     private UserProfileEntity user_profile_id;
     private String prescription_info;
     private String ai_summary;

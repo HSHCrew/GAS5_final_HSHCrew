@@ -23,7 +23,7 @@ public class UserPrescriptionEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int user_prescription_id;
+    private Integer user_prescription_id;
 
     private String prescribe_no;
     private String prescribe_org;
@@ -33,7 +33,7 @@ public class UserPrescriptionEntity {
     private String tel_no1;
     @ManyToOne
     @JoinColumn(name = "user_profile_id")
-    private UserProfileEntity user_profile_id;
+    private UserProfileEntity userProfile;
 
     @CreatedDate
     private LocalDateTime user_prescription_created_at;

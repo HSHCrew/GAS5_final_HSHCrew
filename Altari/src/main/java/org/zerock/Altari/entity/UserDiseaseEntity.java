@@ -20,16 +20,22 @@ import java.time.LocalDateTime;
 public class UserDiseaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int user_disease_id;
+    private Integer user_disease_id;
     @ManyToOne
     @JoinColumn(name = "user_profile_id")
-    private UserProfileEntity user_profile_id;
+    private UserProfileEntity userProfile;
     @ManyToOne
     @JoinColumn(name = "disease_id")
-    private DiseaseEntity disease_id;
+    private DiseaseEntity disease;
     @CreatedDate
     private LocalDateTime user_disease_created_at;
     @LastModifiedDate
     private LocalDateTime user_disease_updated_at;
+
+
+
+
+
+
 
 }
