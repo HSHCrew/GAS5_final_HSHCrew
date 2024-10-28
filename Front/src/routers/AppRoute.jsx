@@ -14,6 +14,9 @@ import SignIn from '../pages/SignIn/index.jsx';
 import SignUp from '../pages/SignUp/index.jsx';
 import Search from '../pages/Search/SearchPage.jsx';
 import MedicineInfo from '../pages/MedicineInfo/index.jsx';
+import OnMedication from '../pages/Prescription/OnMedication/index.jsx'
+import EndMedication from '../pages/Prescription/EndMedication/index.jsx'
+
 
 const staticMenuRoute = [
     {
@@ -57,6 +60,18 @@ const staticMenuRoute = [
                 name: 'MedicineInfo',
                 element: <MedicineInfo />,
                 path: '/medicineinfo',
+            },
+            {
+                key: 'OnMedication',
+                name: 'OnMedication',
+                element: <OnMedication />,
+                path: '/onMedication',
+            },
+            {
+                key: 'EndMedication',
+                name: 'EndMedication',
+                element: <EndMedication />,
+                path: '/endMedication',
             },
         ],
     },
