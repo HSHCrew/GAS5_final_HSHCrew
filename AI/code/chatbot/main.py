@@ -25,6 +25,7 @@ if __name__ == '__main__':
         ]
     }
 
+    # chatbot.add_medication_info(user_id, medication_info)
     summary = chatbot.add_medication_info(user_id, medication_info)
     print("Medication Summary:")
     print(summary)
