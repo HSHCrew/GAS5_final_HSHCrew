@@ -1,17 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useSwipeable } from 'react-swipeable';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
-import { useNavigate } from 'react-router-dom'; // useNavigate 추가
+import { useNavigate } from 'react-router-dom';
 import './Home.css';
 
-import tylenolIcon from '../../assets/tylenol.svg'; // 타이레놀 이미지 경로
-import clockIcon from '../../assets/clock.svg'; // 시계 아이콘 이미지 경로
+import tylenolIcon from '../../assets/tylenol.svg';
+import clockIcon from '../../assets/clock.svg';
 
 function Home() {
     const [day, setDay] = useState(0);
     const [direction, setDirection] = useState('');
     const [notification, setNotification] = useState(true);
-    const navigate = useNavigate(); // 페이지 이동을 위한 useNavigate 훅
+    const navigate = useNavigate();
+    const nodeRef = useRef(null); // 추가된 코드
 
     const handlers = useSwipeable({
         onSwipedLeft: () => {
@@ -43,7 +44,7 @@ function Home() {
     };
 
     const handleMedicationClick = () => {
-        navigate('/medicineinfo'); // 약 정보 페이지로 이동
+        navigate('/medicineinfo');
     };
 
     return (
@@ -51,37 +52,34 @@ function Home() {
             <TransitionGroup component={null}>
                 <CSSTransition
                     key={day}
-                    classNames={direction === 'left' ? 'slide-left' : 'slide-right'}
+                    nodeRef={nodeRef} // 추가된 코드
+                    classNames={direction === 'left' ? 'home-slide-left' : 'home-slide-right'}
                     timeout={300}
                 >
-                    <div className="home-content">
-                        <p className="day-label">{getDayLabel()}</p>
+                    <div className="home-content" ref={nodeRef}>
+                        <p className="home-day-label">{getDayLabel()}</p>
 
-                        <div className="medication-card">
-                            {/* 시계 아이콘 */}
-                            <img src={clockIcon} alt="Clock" className="clock-icon" />
-                            <p className="time">오전 : 8:00</p>
+                        <div className="home-medication-card">
+                            <img src={clockIcon} alt="Clock" className="home-clock-icon" />
+                            <p className="home-time">오전 : 8:00</p>
 
-                            {/* 타이레놀 이미지, 클릭 시 페이지 이동 */}
-                            <div className="medication-image-container" onClick={handleMedicationClick}>
-                                <img src={tylenolIcon} alt="Tylenol" className="medication-image" />
+                            <div className="home-medication-image-container" onClick={handleMedicationClick}>
+                                <img src={tylenolIcon} alt="Tylenol" className="home-medication-image" />
                             </div>
 
-                            {/* 약 정보 텍스트, 클릭 시 페이지 이동 */}
-                            <p className="medication-info" onClick={handleMedicationClick}>
+                            <p className="home-medication-info" onClick={handleMedicationClick}>
                                 타이레놀8시간이알서방정 325mg<br />1정
                             </p>
 
-                            {/* 알림 토글 */}
-                            <div className="notification-container">
-                                <span className="notification-label">알림</span>
-                                <label className="toggle-switch">
+                            <div className="home-notification-container">
+                                <span className="home-notification-label">알림</span>
+                                <label className="home-toggle-switch">
                                     <input
                                         type="checkbox"
                                         checked={notification}
                                         onChange={toggleNotification} 
                                     />
-                                    <span className="slider"></span>
+                                    <span className="home-slider"></span>
                                 </label>
                             </div>
                         </div>
