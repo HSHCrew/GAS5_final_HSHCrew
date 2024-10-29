@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @ToString
 public class NewsCurationDTO {
 
-    private int news_curation_id;
+    private Integer news_curation_id;
     private HealthKeywordEntity health_keyword_id;
     private MedicationEntity medication_id;
     private String news_content;

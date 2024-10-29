@@ -4,9 +4,11 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -17,11 +19,12 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@EntityListeners(AuditingEntityListener.class)
 public class UserPrescriptionEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int user_prescription_id;
+    private Integer user_prescription_id;
 
     private String prescribe_no;
     private String prescribe_org;
@@ -29,15 +32,20 @@ public class UserPrescriptionEntity {
     private LocalDate manufacture_date;
     private String tel_no;
     private String tel_no1;
+    private String prescription_info;
+    private String ai_summary;
+    private String adherence_score;
     @ManyToOne
     @JoinColumn(name = "user_profile_id")
-    private UserProfileEntity user_profile_id;
+    private UserProfileEntity userProfile;
 
     @CreatedDate
     private LocalDateTime user_prescription_created_at;
     @LastModifiedDate
     private LocalDateTime user_prescription_updated_at;
 
-    @OneToMany(mappedBy = "user_prescription_id", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<MedicineEntity> medicines;
+//    @OneToMany(mappedBy = "prescriptionId", cascade = CascadeType.ALL)
+//    private List<PrescriptionDrugEntity> prescriptionDrugs = new ArrayList<>();
+
+
 }
