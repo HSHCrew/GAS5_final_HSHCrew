@@ -19,6 +19,7 @@ public class MedicineRequestDTO {
     private String telecom;
     private String reqChildYN;
     private String authMethod;
+    private String detailYN;
 
 }
 

@@ -21,13 +21,13 @@ public class UserPastDiseaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer user_past_disease_id;
+    private int user_past_disease_id;
     @ManyToOne
     @JoinColumn(name = "user_profile_id")
-    private UserProfileEntity userProfile;
+    private UserProfileEntity user_profile_id;
     @ManyToOne
     @JoinColumn(name = "disease_id")
-    private DiseaseEntity disease;
+    private DiseaseEntity disease_id;
     @CreatedDate
     private LocalDateTime user_past_disease_created_at;
     @LastModifiedDate

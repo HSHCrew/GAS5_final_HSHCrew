@@ -43,8 +43,8 @@ dependencies {
     implementation 'io.codef.api:easycodef-java:1.0.6'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.9.0'
     implementation 'io.jsonwebtoken:jjwt-api:0.12.5'
-    implementation 'io.jsonwebtoken:jjwt-impl:0.12.5'
-    implementation 'io.jsonwebtoken:jjwt-jackson:0.12.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.5'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-json'
     implementation 'org.springframework.boot:spring-boot-starter-security' // Optional, for security if needed

@@ -21,7 +21,7 @@ public class HealthKeywordEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer health_keyword_id;
+    private int health_keyword_id;
     private String health_keyword;
     @CreatedDate
     private LocalDateTime health_keyword_created_at;

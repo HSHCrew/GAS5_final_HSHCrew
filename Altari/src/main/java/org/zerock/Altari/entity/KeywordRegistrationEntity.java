@@ -21,7 +21,7 @@ public class KeywordRegistrationEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer keyword_registration_id;
+    private int keyword_registration_id;
     @ManyToOne
     @JoinColumn(name = "user_profile_id")
     private UserProfileEntity user_profile_id;

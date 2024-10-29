@@ -21,7 +21,7 @@ public class NewsCurationEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer news_curation_id;
+    private int news_curation_id;
     @ManyToOne
     @JoinColumn(name = "health_keyword_id")
     private HealthKeywordEntity health_keyword_id;

@@ -9,7 +9,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "user_disease")
+@Table(name = "prescription")
 @Getter
 @Setter
 @ToString
@@ -17,19 +17,21 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 @EntityListeners(AuditingEntityListener.class)
-public class UserDiseaseEntity {
+public class PrescriptionEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int user_disease_id;
+    private int prescription_id;
     @ManyToOne
     @JoinColumn(name = "user_profile_id")
     private UserProfileEntity user_profile_id;
-    @ManyToOne
-    @JoinColumn(name = "disease_id")
-    private DiseaseEntity disease_id;
+
+    private String prescription_info;
+    private String ai_summary;
+    private String adherence_score;
     @CreatedDate
-    private LocalDateTime user_disease_created_at;
+    private LocalDateTime prescription_created_at;
     @LastModifiedDate
-    private LocalDateTime user_disease_updated_at;
+    private LocalDateTime prescription_updated_at0;
 
 }

@@ -10,7 +10,8 @@ import org.zerock.Altari.entity.UserProfileEntity;
 @NoArgsConstructor
 @ToString
 public class AllergyDTO {
-    private Integer allergy_id;
+    private int allergy_id;
     private UserProfileEntity user_profile_id;
     private MedicationEntity medication_id;
+    private String food_name;
 }

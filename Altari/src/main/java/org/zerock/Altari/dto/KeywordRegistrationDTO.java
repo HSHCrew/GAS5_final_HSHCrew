@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @ToString
 public class KeywordRegistrationDTO {
-    private Integer keyword_registration_id;
+    private int keyword_registration_id;
     private UserProfileEntity user_profile_id;
     private HealthKeywordEntity health_keyword_id;
     private LocalDateTime keyword_registration_created_at;
