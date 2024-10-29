@@ -1,0 +1,103 @@
+/* html과 body의 높이를 100%로 설정 */
+html, body {
+    height: auto;
+    overflow-y: auto; /* 브라우저 자체에 스크롤이 생기도록 설정 */
+    margin: 0;
+    padding: 0;
+}
+
+/* 전체 컨테이너 설정 */
+.setting-container {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    background-color: #fafafa;
+    /* setting-container 내부 스크롤 제거 */
+    overflow: visible;
+}
+
+/* 메인 박스 설정 */
+.setting-box {
+    width: 90%;
+    max-width: 573px;
+    min-height: 100vh;
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    overflow: visible; /* setting-box에서도 스크롤 제거 */
+}
+
+
+  
+  /* 상단 헤더 설정 */
+  .setting-header {
+    height: 65px;
+    background-color: white;
+    border-bottom: 1px solid #d9d9d9;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .header-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: black;
+  }
+  
+  /* 프로필 섹션 */
+  .profile-section {
+    padding: 20px;
+    border-bottom: 10px solid #e5e8eb;
+    text-align: center;
+  }
+  
+  .profile-image {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 50%;
+  }
+  
+  .profile-name {
+    font-size: 24px;
+    font-weight: bold;
+    margin-top: 10px;
+    color: black;
+  }
+  
+  .profile-edit {
+    font-size: 18px;
+    color: #8b8b8b;
+    margin-top: 5px;
+    cursor: pointer;
+  }
+  
+
+  
+  .menu-item {
+    padding: 20px;
+    border-bottom: 1px solid #e5e8eb;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .menu-item:hover {
+    background-color: #f5f5f5;
+  }
+  
+  .menu-label {
+    font-size: 18px;
+    color: black;
+  }
+  
+  .menu-version {
+    font-size: 16px;
+    color: #8b8b8b;
+  }
