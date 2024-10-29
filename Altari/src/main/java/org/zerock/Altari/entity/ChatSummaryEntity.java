@@ -21,10 +21,10 @@ public class ChatSummaryEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int chat_summary_id;
+    private Integer chat_summary_id;
     @ManyToOne
     @JoinColumn(name = "user_profile_id")
-    private UserProfileEntity user_profile_id;
+    private UserProfileEntity userProfile;
 
     private String chat_date;
     private String summary_content;

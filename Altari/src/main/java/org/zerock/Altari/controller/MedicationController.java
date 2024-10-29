@@ -19,12 +19,14 @@ public class MedicationController {
 
     private final MedicationRepository medicationRepository;
 
-    @GetMapping("/medications")
-    public List<MedicationEntity> getAllMedications() {
-        List<MedicationEntity> medcations = medicationRepository.findAll();
-        if (medcations.isEmpty()) {
+    @GetMapping("/drugs")
+    public List<MedicationEntity> getAllDrugs() {
+        List<MedicationEntity> drugs = medicationRepository.findAll();
+        if (drugs.isEmpty()) {
             throw new EntityNotFoundException("No medications found in the database");
         }
-        return medcations;
+        return drugs;
     }
+
+
 }
