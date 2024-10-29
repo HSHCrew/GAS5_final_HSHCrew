@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
+import FooterOnlyLayout from '../layouts/FooterOnlyLayout/index.jsx';
 import EmptyLayout from '../layouts/EmptyLayout/index.jsx';
 import MainLayout from '../layouts/MainLayout/index.jsx';
 import Chatting from '../pages/Chatting/index.jsx';
@@ -14,8 +15,12 @@ import SignIn from '../pages/SignIn/index.jsx';
 import SignUp from '../pages/SignUp/index.jsx';
 import Search from '../pages/Search/SearchPage.jsx';
 import MedicineInfo from '../pages/MedicineInfo/index.jsx';
-import OnMedication from '../pages/Prescription/OnMedication/index.jsx'
-import EndMedication from '../pages/Prescription/EndMedication/index.jsx'
+import OnMedication from '../pages/Prescription/OnMedication/index.jsx';
+import EndMedication from '../pages/Prescription/EndMedication/index.jsx';
+import UserInfo from '../pages/Setting/UserInfo/index.jsx'
+import HealthNoteProfile from '../pages/Setting/HealthNoteProfile/index.jsx';
+import Provision from '../pages/Setting/Provision/index.jsx';
+import SetAlarm from '../pages/Setting/SetAlarm/index.jsx';;
 
 
 const staticMenuRoute = [
@@ -73,6 +78,30 @@ const staticMenuRoute = [
                 element: <EndMedication />,
                 path: '/endMedication',
             },
+            {
+                key: 'UserInfo',
+                name: 'UserInfo',
+                element: <UserInfo />,
+                path: '/userInfo',
+            },
+            {
+                key: 'HealthNoteProfile',
+                name: 'HealthNoteProfile',
+                element: <HealthNoteProfile />,
+                path: '/healthNoteProfile',
+            },
+            {
+                key: 'Provision',
+                name: 'Provision',
+                element: <Provision />,
+                path: '/provision',
+            },
+            {
+                key: 'SetAlarm',
+                name: 'SetAlarm',
+                element: <SetAlarm />,
+                path: '/setAlarm',
+            },
         ],
     },
     {
@@ -113,7 +142,24 @@ const staticMenuRoute = [
             },
         ],
     },
+    {
+        key: 'FooterOnlyLayout',
+        name: 'FooterOnlyLayout',
+        element: <FooterOnlyLayout />, // FooterOnlyLayout을 적용
+        path: null,
+        childList: [
+            {
+                key: 'UserInfo',
+                name: 'UserInfo',
+                element: <UserInfo />,
+                path: '/userInfo',
+            },
+            // 추가적으로 하단 네비게이션만 필요로 하는 페이지를 여기에 추가할 수 있습니다.
+        ],
+    },
 ];
+
+
 
 const AppRoute = () => {
     const [menuList, setMenuList] = useState([]);
