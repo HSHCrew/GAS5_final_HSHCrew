@@ -5,7 +5,6 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.zerock.Altari.dto.UserDiseaseDTO;
 import org.zerock.Altari.dto.UserHealthInfoDTO;
 import org.zerock.Altari.entity.*;
 import org.zerock.Altari.exception.UserExceptions;
@@ -13,7 +12,6 @@ import org.zerock.Altari.repository.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -35,6 +33,8 @@ public class UserHealthInfoService {
     private FamilyHistoryRepository familyHistoryRepository;
     @Autowired
     private DiseaseRepository diseaseRepository;
+    @Autowired
+    private MedicationRepository medicationRepository;
 
     @Transactional(readOnly = true)
     public UserHealthInfoDTO getUserHealthInfo(UserEntity username) {
@@ -66,7 +66,7 @@ public class UserHealthInfoService {
                 .collect(Collectors.toList()));
 
         userHealthInfoDTO.setAllergy_medication_id(userAllergies.stream()
-                .map(disease -> disease.getMedication_id().getMedication_id())
+                .map(disease -> disease.getMedicationId().getMedicationId())
                 .collect(Collectors.toList()));
 
         return userHealthInfoDTO;
@@ -106,28 +106,28 @@ public class UserHealthInfoService {
             List<AllergyEntity> allergiesToRemove = new ArrayList<>();
 
             for (UserDiseaseEntity currentDisease : userDiseases) {
-                if (!inputDiseaseIds.contains(currentDisease.getDisease().getDiseaseId())) {
+                if (!inputDiseaseIds.contains(currentDisease.getDisease())) {
                     diseasesToRemove.add(currentDisease);
                 }
             }
             userDiseaseRepository.deleteAll(diseasesToRemove);
 
             for (UserPastDiseaseEntity currentPastDisease : userPastDiseases) {
-                if (!inputPastDiseaseIds.contains(currentPastDisease.getDisease().getDiseaseId())) {
+                if (!inputPastDiseaseIds.contains(currentPastDisease.getDisease())) {
                     pastDiseasesToRemove.add(currentPastDisease);
                 }
             }
             userPastDiseaseRepository.deleteAll(pastDiseasesToRemove);
 
             for (FamilyHistoryEntity currentFamilyDisease : userFamilyDiseases) {
-                if (!inputFamilyDiseaseIds.contains(currentFamilyDisease.getDisease().getDiseaseId())) {
+                if (!inputFamilyDiseaseIds.contains(currentFamilyDisease.getDisease())) {
                     familyDiseasesToRemove.add(currentFamilyDisease);
                 }
             }
             familyHistoryRepository.deleteAll(familyDiseasesToRemove);
 
             for (AllergyEntity currentAllergy : userAllergies) {
-                if (!inputMedicationIds.contains(currentAllergy.getMedication_id().getMedication_id())) {
+                if (!inputMedicationIds.contains(currentAllergy.getMedicationId())) {
                     allergiesToRemove.add(currentAllergy);
                 }
             }
@@ -176,10 +176,10 @@ public class UserHealthInfoService {
             familyHistoryRepository.saveAll(newFamilyDiseases);
 
             for (Integer medicationId : inputMedicationIds) {
-                if (userAllergies.stream().noneMatch(allergy -> allergy.getMedication_id().getMedication_id().equals(medicationId))) {
+                if (userAllergies.stream().noneMatch(allergy -> allergy.getMedicationId().getMedicationId().equals(medicationId))) {
                     AllergyEntity allergy = AllergyEntity.builder()
                             .userProfile(userProfileEntity)
-                            .medication_id(new MedicationEntity(medicationId))
+                            .medicationId(medicationRepository.findByMedicationId(medicationId))
                             .build();
                     newAllergyMedications.add(allergy);
                 }

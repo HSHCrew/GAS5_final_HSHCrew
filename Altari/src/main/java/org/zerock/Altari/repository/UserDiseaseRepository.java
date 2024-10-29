@@ -14,8 +14,5 @@ import java.util.List;
 @Repository
 public interface UserDiseaseRepository extends JpaRepository<UserDiseaseEntity, Integer> {
     List<UserDiseaseEntity> findByUserProfile(UserProfileEntity profile_id);
-    @Modifying
-    @Query("DELETE FROM UserDiseaseEntity ud WHERE ud.userProfile = :userProfileEntity AND ud.disease = :diseaseId")
-    void deleteByUserProfileIdAndDiseaseId(@Param("userProfileEntity") UserProfileEntity userProfileEntity, @Param("diseaseId") DiseaseEntity diseaseId);
 }
 

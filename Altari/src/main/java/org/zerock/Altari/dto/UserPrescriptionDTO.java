@@ -1,10 +1,8 @@
 package org.zerock.Altari.dto;
 
-import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.zerock.Altari.entity.MedicineEntity;
+import org.zerock.Altari.entity.MedicationEntity;
+import org.zerock.Altari.entity.PrescriptionDrugEntity;
 import org.zerock.Altari.entity.UserProfileEntity;
 
 import java.time.LocalDate;
@@ -16,6 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
+@Setter
 public class UserPrescriptionDTO {
 
 
@@ -29,6 +28,9 @@ public class UserPrescriptionDTO {
     private UserProfileEntity user_profile_id;
     private LocalDateTime user_prescription_created_at;
     private LocalDateTime user_prescription_updated_at;
-    private List<MedicineEntity> medicines;
+    private List<PrescriptionDrugDTO> drugs;
+    private String prescription_info;
+    private String ai_summary;
+    private String adherence_score;
 }
 

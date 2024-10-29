@@ -17,12 +17,12 @@ public class PrescriptionDrugEntity {
     private Integer prescription_drug_id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "prescription_id", nullable = false)
-    private UserPrescriptionEntity prescription_id;
+    @JoinColumn(name = "user_prescription_id", nullable = false)
+    private UserPrescriptionEntity prescriptionId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_seq", nullable = false)
-    private DrugEntity item_seq;
+    private MedicationEntity MedicationId;
 
     @Column(nullable = false)
     private String one_dose;

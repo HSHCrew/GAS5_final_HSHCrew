@@ -62,6 +62,17 @@ public class CodefTestController {
 
     // 두 번째 API 호출을 위한 엔드포인트
     @PostMapping("/second")
+//    {
+//        "organization":"0020",
+//            "simpleAuth": "1",
+//            "is2Way": true,
+//            "twoWayInfo": {
+//        "jobIndex": 0,
+//                "threadIndex": 0,
+//                "jti": "672049d528e65e51c0d13724",
+//                "twoWayTimestamp": 1730169303017
+//    }
+//    }
     public ResponseEntity<String> callSecondApi(@RequestBody SecondApiRequestDTO secondRequestDTO,
                                                 @RequestHeader("Authorization") String token) throws UnsupportedEncodingException {
         // 전달된 DTO 데이터를 사용하여 두 번째 API 호출

@@ -21,12 +21,6 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final UserProfileRepository userProfileRepository;
-    private final AllergyRepository allergyRepository;
-    private final MedicationRepository medicationRepository;
-    private final UserDiseaseRepository userDiseaseRepository;
-    private final UserPastDiseaseRepository userPastDiseaseRepository;
-    private final FamilyHistoryRepository familyHistoryRepository;
 
 
     public UserDTO read(String username, String password) {

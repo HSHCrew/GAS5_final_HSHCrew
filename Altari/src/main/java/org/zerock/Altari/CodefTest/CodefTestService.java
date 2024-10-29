@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.zerock.Altari.Codef.EasyCodefToken;
 import org.zerock.Altari.entity.*;
-import org.zerock.Altari.repository.DrugRepository;
+import org.zerock.Altari.repository.MedicationRepository;
 import org.zerock.Altari.repository.PrescriptionDrugRepository;
 import org.zerock.Altari.repository.UserPrescriptionRepository;
 
@@ -37,7 +37,7 @@ public class CodefTestService {
 
     private static final String API_URL = "https://development.codef.io/v1/kr/public/hw/hira-list/my-medicine";
     @Autowired
-    private DrugRepository drugRepository;
+    private MedicationRepository medicationRepository;
     @Autowired
     private PrescriptionDrugRepository prescriptionDrugRepository;
 
@@ -137,15 +137,15 @@ public class CodefTestService {
             // 약물 리스트를 Prescription_Drug 테이블에 저장
             JsonNode drugList = data.get("resDrugList");
             for (JsonNode drugData : drugList) {
-                String drugCode = drugData.get("resDrugCode").asText();
+                Integer drugCode = Integer.parseInt(drugData.get("resDrugCode").asText());
 
                 // 기존 약물 정보를 조회
-                DrugEntity drugItemSeq = drugRepository.findByItemseq(drugCode);
+                MedicationEntity drugItemSeq = medicationRepository.findByMedicationId(drugCode);
                 if (drugItemSeq != null) {
                     // Prescription_Drug 객체 생성 및 저장
                     PrescriptionDrugEntity prescriptionDrug = new PrescriptionDrugEntity();
-                    prescriptionDrug.setPrescription_id(userPrescription);
-                    prescriptionDrug.setItem_seq(drugItemSeq); // 기존 약물 사용
+                    prescriptionDrug.setPrescriptionId(userPrescription);
+                    prescriptionDrug.setMedicationId(drugItemSeq); // 기존 약물 사용
                     prescriptionDrug.setOne_dose(drugData.get("resOneDose").asText());
                     prescriptionDrug.setDailyDosesNumber(drugData.get("resDailyDosesNumber").asText());
                     prescriptionDrug.setTotal_dosing_days(drugData.get("resTotalDosingdays").asText());

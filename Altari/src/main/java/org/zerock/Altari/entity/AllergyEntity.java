@@ -27,8 +27,8 @@ public class AllergyEntity {
     @JoinColumn(name = "user_profile_id")
     private UserProfileEntity userProfile;
     @ManyToOne
-    @JoinColumn(name = "medication_id")
-    private MedicationEntity medication_id;
+    @JoinColumn(name = "item_seq")
+    private MedicationEntity medicationId;
     @CreatedDate
     private LocalDateTime allergy_created_at;
     @LastModifiedDate

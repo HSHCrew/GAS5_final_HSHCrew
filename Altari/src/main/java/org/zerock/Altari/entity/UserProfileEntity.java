@@ -32,7 +32,6 @@ public class UserProfileEntity {
 
     @OneToOne
     @JoinColumn(name = "username", referencedColumnName = "username")
-    @JsonManagedReference
     private UserEntity username;
 
     private String full_name;

@@ -8,6 +8,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -31,6 +32,9 @@ public class UserPrescriptionEntity {
     private LocalDate manufacture_date;
     private String tel_no;
     private String tel_no1;
+    private String prescription_info;
+    private String ai_summary;
+    private String adherence_score;
     @ManyToOne
     @JoinColumn(name = "user_profile_id")
     private UserProfileEntity userProfile;
@@ -40,6 +44,8 @@ public class UserPrescriptionEntity {
     @LastModifiedDate
     private LocalDateTime user_prescription_updated_at;
 
-    @OneToMany(mappedBy = "user_prescription_id", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<MedicineEntity> medicines;
+//    @OneToMany(mappedBy = "prescriptionId", cascade = CascadeType.ALL)
+//    private List<PrescriptionDrugEntity> prescriptionDrugs = new ArrayList<>();
+
+
 }
