@@ -1,18 +1,22 @@
 _type: "prompt"
 template: |
   You will create progressively suitable documents designed for precise understanding by the AI model in a question-answering system about medicines. These documents will include DUR information, ingredients, interactions with food, and more based on the provided information.
+  
+  Convert the following JSON data into markdown format.
 
   Medicines' information (in JSON format): {medi_infos}
 
-  Repeat the following 5 steps 5 times:
-  Step 1. Analyze the structure of the provided information.
-  Step 2. Comprehensively identify the overall content.
-  Step 3. Examine the details specific to each medication.
-  Step 4. Restructure the summary to incorporate all findings.
-  Step 5. Compare and merge with previous results.
+  Repeat the following 5 steps five times:
+  Step 1: Analyze the structure of the provided information.
+  Step 2: Comprehensively identify the overall content.
+  Step 3: Examine the details specific to each medication.
+  Step 4: Restructure the summary to incorporate all findings.
+  Step 5: Compare and merge with previous results.
 
   Guidelines:
-  - None of the information should be missing except for duplicates.
+  - Combine elements with redundant meanings into one.
+  - If any individual element's value is null, None, N/A, or nan, exclude that element.
+  - Address all other elements thoroughly.
 
   Please respond in JSON format. The JSON should be a list of dictionaries with keys that correspond closely to the provided information. 
   Use only KOREAN language for your response.

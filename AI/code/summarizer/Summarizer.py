@@ -1,34 +1,34 @@
 from dotenv import load_dotenv
 import os
 import asyncio
-import aiohttp
-from langchain_community.llms import OpenAI  # OpenAI import
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import load_prompt
 from langchain_core.prompts import PromptTemplate
-from langchain_core.messages import AIMessage  # AIMessage를 명확하게 import
-from sample.sample2 import contexts
+from langchain_core.prompts.few_shot import FewShotPromptTemplate
 from langchain_teddynote import logging
+import sample.sample1 as sample  # contexts를 가져옵니다.
+from pydantic import BaseModel, Field
+from langchain_core.output_parsers import JsonOutputParser
 
-
-load_dotenv()
-# 프로젝트 이름을 입력합니다.
-logging.langsmith("gas5-fp")
+class Topic(BaseModel):
+    score: int = Field(description="Overall Assessment Score  [0,100]")
+    feedback: str = Field(description="feedback detailing what needs to be improved or added to ensure the summary accurately reflects the original content")
 
 class Summarizer:
     def __init__(self):
         load_dotenv()
-        self.api_key = os.getenv("OPENAI_API_KEY")  # 환경변수에서 API 키 로드
+        logging.langsmith("gas5-fp")
+        self.api_key = os.getenv("OPENAI_API_KEY")
         self.llm = ChatOpenAI(
             temperature=0,
-            model_name="gpt-4o-mini",  # 모델명
+            model_name="gpt-4o-mini",
         )
+        self.current_dir = os.path.dirname(__file__)
 
     def get_prompt_template(self, usage: str) -> PromptTemplate:
         '''usage; 용도에 따라 다른 프롬프트 사용'''
         try:
-            current_dir = os.path.dirname(__file__)
-            prompt_path = os.path.join(current_dir, 'prompts', f'{usage}.yaml')
+            prompt_path = os.path.join(self.current_dir, 'prompts', f'{usage}.yaml')
             prompt = load_prompt(prompt_path, encoding='utf-8')
             return prompt
         except FileNotFoundError:
@@ -36,99 +36,126 @@ class Summarizer:
         except Exception as e:
             raise Exception(f"Error loading prompt template: {str(e)}")
 
-    async def fetch_openai_response(self, prompt: str) -> dict:
-        '''OpenAI API에 비동기 요청을 보내고 응답을 반환.'''
-        url = "https://api.openai.com/v1/chat/completions"
-        headers = {
-            "Authorization": f"Bearer {self.api_key}",
-            "Content-Type": "application/json",
-        }
-        data = {
-            "model": "gpt-4o",  # 사용할 모델
-            "messages": [{"role": "user", "content": prompt}],
-        }
-        
-        async with aiohttp.ClientSession() as session:
-            async with session.post(url, headers=headers, json=data) as response:
-                response.raise_for_status()  # HTTP 오류 발생 시 예외 발생
-                return await response.json()
-
-    async def restruct(self, contexts: list[str]) -> list[str]:
+    async def restruct(self, context: str) -> str:
         '''AI가 이해하기 쉬운 형태로 재구성 (불필요한 정보 중복 제거 포함)'''
-        results = []
+        prompt = self.get_prompt_template('restruct')
         try:
-            for context in contexts:
-                print(f"Processing context: {context}")  # 현재 처리 중인 context 출력
-                response = await self.fetch_openai_response(context)  # OpenAI API 호출
-                print(f"Response: {response}")  # API 응답 출력
-                
-                if 'choices' in response and len(response['choices']) > 0:
-                    result_content = response['choices'][0]['message']['content']
-                    results.append(result_content)
-                    
-            return results
+            chain = prompt | self.llm
+            return (await chain.ainvoke(context)).content
         except Exception as e:
             raise Exception(f"Error during reconstruction: {str(e)}")
 
-    async def summarize(self, contexts: list[str]) -> list[tuple[str, str]]:
+    async def summarize(self, context: str) -> str:
         '''텍스트 요약.'''
-        results = []
+        prompt = self.get_prompt_template('summarize')
+        chain = prompt | self.llm
         try:
-            for context in contexts:
-                response = await self.fetch_openai_response(context)
-                if 'choices' in response and len(response['choices']) > 0:
-                    result_content = response['choices'][0]['message']['content']
-                    results.append((context, result_content))
-            return results
+            return (await chain.ainvoke(context)).content
         except Exception as e:
             raise Exception(f"Error during summarization: {str(e)}")
 
-    async def verify(self, pairs: list[tuple[str, str]]) -> list[str]:
+    async def verify(self, pair: tuple) -> list:
         '''원본과의 대조 검증.'''
-        results = []
+        parser = JsonOutputParser(pydantic_object=Topic)
+        prompt = self.get_prompt_template('verify')
+        original, summary = pair
+        chain = prompt | self.llm | parser
         try:
-            for original, summary in pairs:
-                response = await self.fetch_openai_response(f"Verify: {original} vs {summary}")
-                if 'choices' in response and len(response['choices']) > 0:
-                    result_content = response['choices'][0]['message']['content']
-                    results.append(result_content)
-            return results
+            result = await chain.ainvoke({'original_content': original, 'summary': summary})
+            return [result.content, original, summary]
         except Exception as e:
             raise Exception(f"Error during verification: {str(e)}")
 
-    async def regenerate(self, context: str) -> str:
+    async def regenerate(self, pair : tuple) -> list:
         '''요약을 다시 생성.'''
+        prompt = self.get_prompt_template('regenerate')
+        original, fewshots = pair
+        chain = prompt | self.llm
         try:
-            response = await self.fetch_openai_response(context)
-            if 'choices' in response and len(response['choices']) > 0:
-                return response['choices'][0]['message']['content']
-            return ""
+            result = await chain.ainvoke({'original':original, 'fewshots':fewshots}) 
+            return [result.content, fewshots]
         except Exception as e:
-            raise Exception(f"Error during regeneration: {str(e)}")
-
-    async def process(self, contexts: list[str]) -> list[tuple[str, str]]:
+            raise Exception(f"Error during regenerate: {str(e)}")
+        
+    async def process(self, context: str) -> dict:
         '''전체 프로세스: 요약 -> 검증 -> 재생성'''
-        restructured = await self.restruct(contexts)
-        summaries = await self.summarize(restructured)
-        verification_results = await self.verify(summaries)
+        fewshots, restructured, summary = str()
+        verification_result = list()
+        
+        try:
+            restructured = await self.restruct(context)
+            summary = await self.summarize(restructured)
+            verification_result = await self.verify((restructured, summary))
+            
+            for _ in range(2):
+                if verification_result['score'] < 80:  # 검증 점수가 80 미만일 경우
+                    fewshot = f"Summary:\n{summary}\nFeedback:\n{verification_result['Feedback']}\n\n"
+                    fewshots += fewshot
+                    summary = await self.regenerate((restructured, fewshots))
+                    verification_result = await self.verify((restructured, summary))
+                else:
+                    break
 
-        final_results = []
-        for (original, summary), verification in zip(summaries, verification_results):
-            if verification != "Valid":  # 검증 결과가 "Valid"가 아닐 경우 재생성
-                regenerated_summary = await self.regenerate(original)
-                final_results.append((original, regenerated_summary))
-            else:
-                final_results.append((original, summary))
+            return {
+                'restructured': restructured,
+                'summary': summary,
+                'fewshots': fewshots,
+                'failed': 0
+            }
+        except Exception as e:
+            raise Exception(f"Error during process: {str(e)}")
+                  
+            
+    async def process(self, context: str, index: int) -> dict:
+        '''전체 프로세스: 요약 -> 검증 -> 재생성 ; 여러 context가 리스트 입력된 경우 처리'''
+        fewshots, restructured, summary = str()
+        verification_result = list()
+        
+        try:
+            restructured = await self.restruct(context)
+            summary = await self.summarize(restructured)
+            verification_result = await self.verify((restructured, summary))
+            
+            for _ in range(2):
+                if verification_result['score'] < 80:  # 검증 점수가 80 미만일 경우
+                    fewshot = f"Summary:\n{summary}\nFeedback:\n{verification_result['Feedback']}\n\n"
+                    fewshots += fewshot
+                    summary = await self.regenerate((restructured, fewshots))
+                    verification_result = await self.verify((restructured, summary))
+                else:
+                    break
 
-        return final_results
+            return {
+                'index': index,
+                'restructured': restructured,
+                'summary': summary,
+                'fewshots': fewshots,
+                'failed': 0
+            }
+        except Exception as e:
+            print(f"Error during process: {index} - {str(e)}")
+            return {
+                'index': index,
+                'restructured': restructured,
+                'summary': summary,
+                'fewshots': fewshots,
+                'failed': str(e)
+            }
 
+    async def mono_processes(self, contexts: list[str]) -> list[dict]:
+        '''각각의 컨텍스트에 대해 비동기적으로 process를 수행'''
+        tasks = [self.process(context, index) for index, context in enumerate(contexts)]  # 각 context에 대해 process 메서드 호출
+        results = await asyncio.gather(*tasks)  # 모든 작업을 비동기적으로 실행
+        return results
+    
+    
 
+# 테스트용 코드
 async def main():
     summarizer = Summarizer()
     # 전체 프로세스 수행
-    results = await summarizer.process(contexts)
-    for original, summary in results:
-        print(f"Original: {original}\nSummary: {summary}\n")
+    results = await summarizer.process(sample.context2)
+    print(f"Original: {results['restructed']}\nSummary: {results['summary']}\n")
 
 if __name__ == "__main__":
     asyncio.run(main())
