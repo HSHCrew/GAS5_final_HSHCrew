@@ -10,5 +10,5 @@ import java.util.List;
 
 @Repository
 public interface UserPrescriptionRepository extends JpaRepository<UserPrescriptionEntity, Integer> {
-    UserPrescriptionEntity findByUserProfile(UserProfileEntity profile_id);
+    List<UserPrescriptionEntity> findByUserProfile(UserProfileEntity profile_id);
 }
