@@ -9,7 +9,7 @@
 
 ## Getting Start
 
-### [local start](http://localhost:3030/)
+### [local start](http://localhost:3001/)
 ```
 yarn dev
 ```
