@@ -19,7 +19,6 @@ const SignupForm = () => {
 
   const [idAvailable, setIdAvailable] = useState(null); // 아이디 중복 여부
   const [checkingId, setCheckingId] = useState(false); // 아이디 확인 중인지 여부
-  const [passwordMatch, setPasswordMatch] = useState(null);// 비밀번호 일치 여부
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -42,38 +41,27 @@ const SignupForm = () => {
     }
 
     setCheckingId(true);
-    const url = '/api/v1/check-username'; // 실제 백엔드 API 경로
+    const url = '/api/check-id'; // 실제 아이디 중복 확인 API 엔드포인트로 변경하세요
 
     fetch(url, {
-      method: 'POST', // POST 요청으로 유지
+      method: 'POST', // 또는 GET, 서버 API에 맞게 설정
       headers: {
         'Content-Type': 'application/json',
       },
-      // 서버가 'username' 키를 요구하므로, 'id'를 'username'으로 변경
-      body: JSON.stringify({ username: formData.id }),
+      body: JSON.stringify({ id: formData.id }),
     })
       .then((response) => response.json())
-      .then((isDuplicate) => {
-        setIdAvailable(!isDuplicate); // 백엔드가 true/false를 반환하면 처리
+      .then((data) => {
+        setIdAvailable(data.available);
       })
       .catch((error) => {
         console.error('아이디 중복 확인 중 오류 발생:', error);
-        setIdAvailable(false); // 오류 발생 시 false로 처리
+        setIdAvailable(false);
       })
       .finally(() => {
         setCheckingId(false);
       });
   };
-
-  // 비밀번호 일치 확인 함수
-  const handleCheckPasswordMatch = () => {
-    if (formData.password && formData.confirmPassword) {
-      setPasswordMatch(formData.password === formData.confirmPassword);
-    } else {
-      setPasswordMatch(null); // 비밀번호 입력이 없으면 메시지를 초기화
-    }
-  };
-
 
   // 회원가입 요청을 서버로 전송하는 함수
   const handleSignUp = () => {
@@ -86,52 +74,27 @@ const SignupForm = () => {
       alert('아이디 중복 확인을 먼저 진행해주세요.');
       return;
     }
-  
+
     // 비밀번호와 비밀번호 확인 일치 여부 확인
     if (formData.password !== formData.confirmPassword) {
       alert('비밀번호가 일치하지 않습니다.');
       return;
     }
-  
-    // 전화번호 형식 유효성 검사 (간단히 숫자만 포함되었는지 확인)
-    const phoneRegex = /^[0-9]{10,11}$/;
-    if (!phoneRegex.test(formData.phone)) {
-      alert('유효한 전화번호를 입력해주세요.');
-      return;
-    }
-  
-    // 생년월일이 제대로 선택되었는지 확인
-    if (!formData.year || !formData.month || !formData.day) {
-      alert('생년월일을 모두 선택해주세요.');
-      return;
-    }
-  
+
+    // 기타 폼 데이터 유효성 검사 추가 가능
+
     // 서버로 보내기 위한 요청 URL
-    const url = '/api/v1/register';
-  
+    const url = '/api/signup';
+
     // 서버로 보낼 데이터 객체
     const requestData = {
-      username: formData.id,
+      id: formData.id,
       password: formData.password,
-      role: 'USER',
-      full_name: formData.name,
-      date_of_birth: `${formData.year}-${String(formData.month).padStart(2, '0')}-${String(formData.day).padStart(2, '0')}`,
-      phone_number: formData.phone,
-
-      //Api 수정 전 json 전송을 위한 null 값 대체
-      
-      height: null, // 키 정보는 현재 null로 설정
-      weight: null, // 몸무게 정보는 현재 null로 설정
-      blood_type: null, // 혈액형 정보는 현재 null로 설정
-      morning_medication_time: null, // 복약 시간 정보도 null
-      lunch_medication_time: null,
-      dinner_medication_time: null,
-      disease_id: null, // 질병 정보도 null
-      medication_id: null, // 약물 정보도 null
-      food_name: null, // 음식 알러지 정보도 null
-      family_relation: null, // 가족력 정보도 null
+      name: formData.name,
+      phone: formData.phone,
+      birthdate: `${formData.year}-${formData.month}-${formData.day}`,
     };
-  
+
     // fetch API를 사용해 서버로 데이터 전송
     fetch(url, {
       method: 'POST', // POST 요청
@@ -140,17 +103,14 @@ const SignupForm = () => {
       },
       body: JSON.stringify(requestData), // 데이터를 JSON 문자열로 변환
     })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error('네트워크 응답에 문제가 있습니다.');
-        }
-        return response.json();
-      })
-   // JSON 응답 처리
+      .then((response) => response.json()) // JSON 응답 처리
       .then((data) => {
-        if (data) {
+        if (data.success) {
           alert('회원가입이 완료되었습니다!');
-          navigate('/healthNote'); // 성공 시 홈으로 이동
+          navigate('/home'); // 성공 시 홈으로 이동
+
+          // 회원가입 후 Choice 페이지로 이동 (주석 처리 가능)
+          navigate('/healthnote/choice');
         } else {
           alert('회원가입에 실패했습니다: ' + data.message);
         }
@@ -160,7 +120,6 @@ const SignupForm = () => {
         alert('회원가입 중 오류가 발생했습니다.');
       });
   };
-  
 
   return (
     <div className="signup-container">
@@ -207,20 +166,16 @@ const SignupForm = () => {
             {/* 비밀번호 확인 필드 */}
             <div className="password-confirm-section">
               <p className="label-text">비밀번호 확인</p>
-              <div className="password-input-wrapper">
-                <input
-                  type="password"
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  onBlur={handleCheckPasswordMatch}
-                  className="input-box"
-                  placeholder="비밀번호를 다시 입력해주세요"
-                />
-              </div>
-              {passwordMatch === false && <p className="password-status unavailable">비밀번호가 일치하지 않습니다.</p>}
-              {passwordMatch === true && <p className="password-status available">비밀번호가 일치합니다.</p>}
+              <input
+                type="password"
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                className="input-box"
+                placeholder="비밀번호를 다시 입력해주세요"
+              />
             </div>
+
             {/* 이름 입력 필드 */}
             <div className="name-section">
               <p className="label-text">이름</p>

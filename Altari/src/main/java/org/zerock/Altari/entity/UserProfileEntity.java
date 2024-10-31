@@ -1,5 +1,7 @@
 package org.zerock.Altari.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -9,6 +11,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 
 @Entity
 @Table(name = "user_profile")
@@ -19,21 +22,27 @@ import java.time.LocalTime;
 @NoArgsConstructor
 @Builder
 @EntityListeners(AuditingEntityListener.class)
+
 public class UserProfileEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+
     private int user_profile_id;
+
+    @OneToOne
+    @JoinColumn(name = "username", referencedColumnName = "username")
+    private UserEntity username;
 
     private String full_name;
 
     private LocalDate date_of_birth;
 
     private String phone_number;
+    @Column(nullable = true)
+    private Integer height;
 
-    private int height;
-
-    private int weight;
+    private Integer weight;
 
     private String blood_type;
 
@@ -49,6 +58,9 @@ public class UserProfileEntity {
 
     @LastModifiedDate
     private LocalDateTime user_profile_updated_at;
+
+
+
 }
 
 

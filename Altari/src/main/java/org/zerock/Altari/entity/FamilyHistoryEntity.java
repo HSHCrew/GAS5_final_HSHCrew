@@ -21,13 +21,13 @@ public class FamilyHistoryEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int family_history_id;
+    private Integer family_history_id;
     @ManyToOne
     @JoinColumn(name = "disease_id")
-    private DiseaseEntity disease_id;
+    private DiseaseEntity disease;
     @ManyToOne
     @JoinColumn(name = "user_profile_id")
-    private UserProfileEntity user_profile_id;
+    private UserProfileEntity userProfile;
 
     private String family_relation;
     @CreatedDate

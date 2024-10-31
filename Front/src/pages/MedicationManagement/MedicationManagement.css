@@ -252,10 +252,11 @@
     margin-right:10px;
   }
   
+  
   /* 복약 종료일 때 색상 변경 */
- .status-ended {
+.status-ended {
     color: #a8a8a8; /* 종료 상태일 때 텍스트 색상 변경 */
- }
+}
   
 
 /* 처방 시작일 텍스트 */
@@ -282,20 +283,3 @@
     margin-bottom: 5px;
   }
   
-
-
-/* 처방전 카드 클릭 반응 */
-.prescription-card:active {
-    transform: scale(0.98);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
-}
-
-/* 처방전 카드 호버 시 그림자 효과 */
-.prescription-card:hover {
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-}
-
-/* 처방전 카드 커서 변경 */
-.prescription-card {
-    cursor: pointer;
-}

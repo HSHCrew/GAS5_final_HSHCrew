@@ -15,12 +15,12 @@ import java.time.LocalTime;
 @ToString
 public class UserProfileDTO {
 
-    private int user_profile_id;
+    private Integer user_profile_id;
     private String full_name;
     private LocalDate date_of_birth;
     private String phone_number;
-    private int height;
-    private int weight;
+    private Integer height;
+    private Integer weight;
     private String blood_type;
     private LocalTime morning_medication_time;
     private LocalTime lunch_medication_time;
