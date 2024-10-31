@@ -55,7 +55,6 @@ public class CustomSecurityConfig {
         });
 
 //
-
         return httpSecurity.build();
     }
 //
@@ -75,7 +74,7 @@ public class CustomSecurityConfig {
         corsConfiguration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/*", corsConfiguration);
+        source.registerCorsConfiguration("/**", corsConfiguration);
 
         return source;
     }

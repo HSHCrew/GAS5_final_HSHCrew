@@ -39,8 +39,8 @@ public class UserPrescriptionService {
     @Autowired
     private MedicationRepository medicationRepository;
 
-    @Transactional
-    public List<UserPrescriptionDTO> getUserPrescription(UserEntity username) {
+    @Transactional(readOnly = true)
+    public UserPrescriptionDTO getUserPrescription(UserEntity username) {
 
         Optional<UserProfileEntity> optionalUserProfile = Optional.ofNullable(userProfileRepository.findByUsername(username));
         if (optionalUserProfile.isEmpty()) {
@@ -48,33 +48,30 @@ public class UserPrescriptionService {
         }
 
         try {
+
             UserProfileEntity userProfile = optionalUserProfile.get();
 
-            // 여러 처방전을 처리할 수 있도록 findByUserProfile이 반환하는 타입을 List로 변경
-            List<UserPrescriptionEntity> userPrescriptions = userPrescriptionRepository.findByUserProfile(userProfile);
-            List<UserPrescriptionDTO> userPrescriptionDTOs = new ArrayList<>();
+            UserPrescriptionEntity userPrescription = userPrescriptionRepository.findByUserProfile(userProfile);
+            List<PrescriptionDrugEntity> prescriptionDrugs = prescriptionDrugRepository.findByPrescriptionId(userPrescription);
 
-            for (UserPrescriptionEntity userPrescription : userPrescriptions) {
-                // 각 처방전에 대해 약 리스트를 가져옵니다
-                List<PrescriptionDrugEntity> prescriptionDrugs = prescriptionDrugRepository.findByPrescriptionId(userPrescription);
+            List<PrescriptionDrugDTO> prescriptionDrugDTOs = new ArrayList<>();
 
-                List<PrescriptionDrugDTO> prescriptionDrugDTOs = new ArrayList<>();
-                for (PrescriptionDrugEntity prescriptionDrug : prescriptionDrugs) {
-                    PrescriptionDrugDTO prescriptionDrugDTO = PrescriptionDrugDTO.builder()
-                            .dailyDosesNumber(prescriptionDrug.getDailyDosesNumber())
-                            .medication_direction(prescriptionDrug.getMedication_direction())
-                            .one_dose(prescriptionDrug.getOne_dose())
-                            .total_dosing_days(prescriptionDrug.getTotal_dosing_days())
-                            .medicationId(prescriptionDrug.getMedicationId())
-                            .prescription_id(userPrescription.getUser_prescription_id())
-                            .build();
+            for (PrescriptionDrugEntity prescriptionDrug : prescriptionDrugs) {
+                PrescriptionDrugDTO prescriptionDrugDTO = PrescriptionDrugDTO.builder()
+                        .dailyDosesNumber(prescriptionDrug.getDailyDosesNumber())
+                        .medication_direction(prescriptionDrug.getMedication_direction())
+                        .one_dose(prescriptionDrug.getOne_dose())
+                        .total_dosing_days(prescriptionDrug.getTotal_dosing_days())
+                        .medicationId(prescriptionDrug.getMedicationId())
+                        .prescription_id(userPrescription.getUser_prescription_id())
+                        .build();
 
-                    prescriptionDrugDTOs.add(prescriptionDrugDTO);
-                }
+                prescriptionDrugDTOs.add(prescriptionDrugDTO);
 
-                // 각 처방전과 해당 처방전의 약 리스트를 UserPrescriptionDTO로 매핑
+            }
+
+//
                 UserPrescriptionDTO userPrescriptionDTO = UserPrescriptionDTO.builder()
-                        .user_prescription_id(userPrescription.getUser_prescription_id())
                         .comm_brand_name(userPrescription.getComm_brand_name())
                         .manufacture_date(userPrescription.getManufacture_date())
                         .prescribe_no(userPrescription.getPrescribe_no())
@@ -86,32 +83,16 @@ public class UserPrescriptionService {
                         .prescription_info(userPrescription.getPrescription_info())
                         .drugs(prescriptionDrugDTOs)
                         .build();
+//
 
-                userPrescriptionDTOs.add(userPrescriptionDTO);
+
+                return userPrescriptionDTO;
+
+            } catch(Exception e){
+                log.error("Error get userPrescription", e);
+                throw new RuntimeException("Error get userPrescription");
             }
-
-            return userPrescriptionDTOs;
-
-        } catch (Exception e) {
-            log.error("Error get userPrescription", e);
-            throw new RuntimeException("Error get userPrescription");
         }
     }
-
-    @Transactional
-    public List<UserPrescriptionDTO> calculateMedicationSuccessRate(UserPrescriptionEntity userPrescription) {
-
-        
-
-
-        return null;
-
-
-        }
-    }
-
-
-
-
 
 

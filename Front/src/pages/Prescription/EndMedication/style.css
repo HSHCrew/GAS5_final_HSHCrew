@@ -1,0 +1,166 @@
+.prescription-complete-page-container {
+    width: 450px;
+    min-width: 650px;
+    height: 100vh;
+    background-color: white;
+  }
+  
+  .prescription-complete-header {
+    width: 100%;
+    height: 110px;
+    display: flex;
+    align-items: center;
+    border-bottom: 10px solid #f0f0f0;
+    background-color: white;
+    position: relative;
+  }
+  
+  .prescription-complete-back-button {
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    position: absolute;
+    left: 15px;
+  }
+  
+  .plus-icon {
+    width: 30px;
+    height: 30px;
+    margin-left: 80px;
+    margin-top: 5px;
+  }
+  
+  .prescription-complete-title-container {
+    display: flex;
+    flex-direction: column;
+    margin-left: 20px;
+  }
+  
+  .prescription-complete-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin: 0;
+  }
+  
+  .prescription-complete-date {
+    font-size: 1.2rem;
+    color: #727272;
+    margin-top: 5px;
+  }
+  
+  .prescription-complete-schedule {
+    width: 100%;
+    margin-top: 20px;
+    border-radius: 8px;
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .prescription-complete-schedule-title {
+    font-size: 1.6rem;
+    font-weight: bold;
+    color: black;
+    margin-left: 20px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    align-self: flex-start;
+  }
+  
+  .prescription-complete-status {
+    font-size: 2.1rem;
+    font-weight: bold;
+    color: #489374;
+    text-align: center;
+    margin-top: 80px;
+    margin-bottom: 35px;
+  }
+  
+  /* 스케줄 진행 바 */
+  .schedule-progress-bar-container {
+    width: 85%;
+    margin: 10px 0;
+    height: 10px;
+    border-radius: 8px;
+    background-color: #d3d3d3;
+    position: relative;
+  }
+  
+  .schedule-progress-bar {
+    height: 100%;
+    border-radius: 8px;
+    background-color: #489374;
+    transition: width 0.3s ease;
+  }
+  
+  .prescription-complete-day-count {
+    width: 88%;
+    display: flex;
+    justify-content: space-between;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: black;
+    margin-top: 30px;
+    margin-bottom: 50px;
+  }
+  
+  .prescription-complete-success {
+    width: 92%;
+    margin-top: 20px;
+    text-align: center;
+    border-radius: 8px;
+    margin-left: 25px;
+  }
+  
+  .circular-progress {
+    position: relative;
+    width: 230px;
+    height: 230px;
+    margin: 20px auto;
+  }
+  
+  .progress-ring {
+    transform: rotate(-90deg);
+  }
+  
+  .progress-ring__background {
+    fill: none;
+    stroke: #d3d3d3;
+    stroke-width: 15;
+  }
+  
+  .progress-ring__circle {
+    fill: none;
+    stroke: #489374;
+    stroke-width: 15;
+    transition: stroke-dashoffset 0.5s;
+  }
+  
+  .circular-progress-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+  }
+  
+  .progress-percentage {
+    font-size: 2rem;
+    font-weight: bold;
+    color: black;
+  }
+  
+  .progress-label {
+    font-size: 1rem;
+    color: #489374;
+  }
+  
+  .completion-message {
+    font-size: 1.4rem;
+    font-weight: medium;
+    color: black;
+    margin-top: 30px;
+    line-height: 1.5;
+  }
+  

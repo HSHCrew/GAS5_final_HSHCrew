@@ -113,49 +113,46 @@ public class CodefTestService {
 
             // 응답 데이터 파싱
             JsonNode jsonResponse = objectMapper.readTree(decodedSecondResponseBody);
-            JsonNode dataList = jsonResponse.get("data");
+            JsonNode data = jsonResponse.get("data");
+            String commBrandName = data.get("commBrandName").asText();
+            String telNo = data.get("resTelNo").asText();
+            String prescribeOrg = data.get("resPrescribeOrg").asText();
+            String prescribeNo = data.get("resPrescribeNo").asText();
+            String telNo1 = data.get("resTelNo1").asText();
+            String manufactureDateStr = data.get("resManufactureDate").asText();
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+            LocalDate manufactureDate = LocalDate.parse(manufactureDateStr, dateTimeFormatter);
 
-            // 각 처방전을 반복 처리
-            for (JsonNode data : dataList) {
-                String commBrandName = data.get("commBrandName").asText();
-                String telNo = data.get("resTelNo").asText();
-                String prescribeOrg = data.get("resPrescribeOrg").asText();
-                String prescribeNo = data.get("resPrescribeNo").asText();
-                String telNo1 = data.get("resTelNo1").asText();
-                String manufactureDateStr = data.get("resManufactureDate").asText();
-                DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
-                LocalDate manufactureDate = LocalDate.parse(manufactureDateStr, dateTimeFormatter);
+            // UserPrescription 객체 생성 및 저장
+            UserPrescriptionEntity userPrescription = new UserPrescriptionEntity();
+            userPrescription.setComm_brand_name(commBrandName);
+            userPrescription.setTel_no(telNo);
+            userPrescription.setPrescribe_org(prescribeOrg);
+            userPrescription.setPrescribe_no(prescribeNo);
+            userPrescription.setTel_no1(telNo1);
+            userPrescription.setManufacture_date(manufactureDate);
+            userPrescription.setUserProfile(userProfile);
+            userPrescriptionRepository.save(userPrescription);
 
-                // UserPrescription 객체 생성 및 저장
-                UserPrescriptionEntity userPrescription = new UserPrescriptionEntity();
-                userPrescription.setComm_brand_name(commBrandName);
-                userPrescription.setTel_no(telNo);
-                userPrescription.setPrescribe_org(prescribeOrg);
-                userPrescription.setPrescribe_no(prescribeNo);
-                userPrescription.setTel_no1(telNo1);
-                userPrescription.setManufacture_date(manufactureDate);
-                userPrescription.setUserProfile(userProfile);
-                userPrescriptionRepository.save(userPrescription);
+            // 약물 리스트를 Prescription_Drug 테이블에 저장
+            JsonNode drugList = data.get("resDrugList");
+            for (JsonNode drugData : drugList) {
+                Integer drugCode = Integer.parseInt(drugData.get("resDrugCode").asText());
 
-                // 약물 리스트를 Prescription_Drug 테이블에 저장
-                JsonNode drugList = data.get("resDrugList");
-                for (JsonNode drugData : drugList) {
-                    Integer drugCode = Integer.parseInt(drugData.get("resDrugCode").asText());
-
-                    // 기존 약물 정보를 조회
-                    MedicationEntity drugItemSeq = medicationRepository.findByMedicationId(drugCode);
-                    if (drugItemSeq != null) {
-                        // Prescription_Drug 객체 생성 및 저장
-                        PrescriptionDrugEntity prescriptionDrug = new PrescriptionDrugEntity();
-                        prescriptionDrug.setPrescriptionId(userPrescription);
-                        prescriptionDrug.setMedicationId(drugItemSeq);
-                        prescriptionDrug.setOne_dose(drugData.get("resOneDose").asText());
-                        prescriptionDrug.setDailyDosesNumber(drugData.get("resDailyDosesNumber").asText());
-                        prescriptionDrug.setTotal_dosing_days(drugData.get("resTotalDosingdays").asText());
-                        prescriptionDrug.setMedication_direction(drugData.get("resMedicationDirection").asText());
-                        prescriptionDrugRepository.save(prescriptionDrug);
-                    }
+                // 기존 약물 정보를 조회
+                MedicationEntity drugItemSeq = medicationRepository.findByMedicationId(drugCode);
+                if (drugItemSeq != null) {
+                    // Prescription_Drug 객체 생성 및 저장
+                    PrescriptionDrugEntity prescriptionDrug = new PrescriptionDrugEntity();
+                    prescriptionDrug.setPrescriptionId(userPrescription);
+                    prescriptionDrug.setMedicationId(drugItemSeq); // 기존 약물 사용
+                    prescriptionDrug.setOne_dose(drugData.get("resOneDose").asText());
+                    prescriptionDrug.setDailyDosesNumber(drugData.get("resDailyDosesNumber").asText());
+                    prescriptionDrug.setTotal_dosing_days(drugData.get("resTotalDosingdays").asText());
+                    prescriptionDrug.setMedication_direction(drugData.get("resMedicationDirection").asText());
+                    prescriptionDrugRepository.save(prescriptionDrug);
                 }
+                // 약물이 존재하지 않을 경우에 대한 처리 (필요시 추가 가능)
             }
 
             return decodedSecondResponseBody;
@@ -166,7 +163,6 @@ public class CodefTestService {
             return null;
         }
     }
-
 
 }
 

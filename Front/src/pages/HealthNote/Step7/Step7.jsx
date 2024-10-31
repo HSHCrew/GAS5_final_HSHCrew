@@ -53,7 +53,7 @@ const Step7 = ({ drugsAllergy, updateDrugsAllergy }) => {
     { label: '아스피린', value: '아스피린' },
     { label: '설파제', value: '설파제' },
     { label: '항생제', value: '항생제' },
-    { label: '비스테로이드성 소염제', value: '비스테로이드성 소염제' },
+    { label: '비스테로이드성 소염제', value: '비스테로이드성  소염제' },
     { label: '인슐린', value: '인슐린' },
     { label: '조영제', value: '조영제' },
     { label: '항암제', value: '항암제' },
@@ -63,6 +63,7 @@ const Step7 = ({ drugsAllergy, updateDrugsAllergy }) => {
 
   const handleDrugChange = (selectedOptions) => {
     updateDrugsAllergy(selectedOptions);
+    console.log(selectedOptions);
   };
 
   return (
