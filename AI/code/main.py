@@ -9,7 +9,9 @@ from sqlalchemy.ext.declarative import as_declarative
 import asyncio
 from dotenv import load_dotenv
 import uvicorn
+import json
 from summarizer.Summarizer import Summarizer
+from chatbot.medication_chatbot import MedicationChatbot
 
 load_dotenv()
 
@@ -49,6 +51,7 @@ class MedicationDetails(BaseModel):
 class UserMedications(BaseModel):
     user_id: int
     medications: list[MedicationDetails]
+    
 
 # CORS 미들웨어를 추가하여 모든 도메인에서의 요청을 허용
 app.add_middleware(
@@ -90,14 +93,49 @@ async def receive_medications(user_medications: UserMedications):
         #     db.add(user_medication)
 
         await db.commit()
-
+        
+        summarizer = Summarizer()
+        summaries = await summarizer.mono_processes(medication_details)
+        
     return {
-        "message": "Medications received successfully",
-        "medication_details": medication_details
+        "message": "Medications received successfully"
     }
 
 
-summarizer = Summarizer()
+class temp_UserMedications(BaseModel):
+    user_id: int
+    user_info : str
+    medication_info: list[str]
+    
+class temp_Message(BaseModel):
+    user_id: int
+    message: str
+
+chatbot_instances = {}
+
+@app.post('/user/medications/chat_start')
+async def chat_start(user: temp_UserMedications):
+    try:
+        chatbot = MedicationChatbot(user)
+        chatbot_instances[user.user_id] = chatbot 
+        initial_response = await chatbot.start_chat()
+        return {"message": initial_response, "user_id": user.user_id}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.post('/user/medications/chat_message')
+async def chat_message(request: temp_Message):
+    user_id = request.user_id
+    message = request.message
+
+    if user_id not in chatbot_instances:
+        raise HTTPException(status_code=404, detail="챗봇 인스턴스가 존재하지 않습니다. 먼저 /chat_start를 호출하세요.")
+
+    chatbot = chatbot_instances[user_id]  # 사용자 ID로 챗봇 인스턴스를 불러옴
+    response = await chatbot.respond(message)  # 비동기 호출
+    
+    return {"response": response}
+    
 
 
 def main():
