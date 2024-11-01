@@ -26,8 +26,10 @@ const UserInfo = () => {
 
         {/* 회원탈퇴 및 로그아웃 */}
         <div className="actions-section">
-          <p className="logout-button">로그아웃</p>
           <p className="delete-account">회원탈퇴</p>
+        </div>
+        <div className="logout-container">
+            <p className="logout-button">로그아웃</p>
         </div>
       </div>
     </div>
