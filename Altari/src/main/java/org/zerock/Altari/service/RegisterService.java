@@ -70,5 +70,19 @@ public class RegisterService {
         return user != null; // 중복이면 true, 아니면 false
     }
 
+    public void deleteUser(String username) {
+        UserEntity userEntity = userRepository.findByUsername(username);
+        UserProfileEntity userProfile = userProfileRepository.findByUsername(userEntity);
+        if (userEntity == null) {
+            throw new RuntimeException("사용자를 찾을 수 없습니다.");
+        }
+        if (userProfile != null) {
+            userProfileRepository.delete(userProfile);
+        }
+
+        userRepository.delete(userEntity);
+
+    }
+
 
 }

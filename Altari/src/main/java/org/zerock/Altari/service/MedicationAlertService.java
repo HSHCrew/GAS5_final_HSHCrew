@@ -45,7 +45,7 @@
 //        Optional<Integer> maxDailyDosesOpt = prescriptiondrugs.stream()
 //                .map(drug -> {
 //                    try {
-//                        return Integer.parseInt(drug.getDailyDosesNumber()); // String을 int로 변환
+//                        return drug.getDailyDosesNumber(); // String을 int로 변환
 //                    } catch (NumberFormatException e) {
 //                        return 0; // 변환 실패 시 기본값 0
 //                    }
@@ -62,6 +62,7 @@
 //            boolean allDosesComplete = true;
 //
 //            for (PrescriptionDrugEntity prescriptionDrug : prescriptiondrugs) {
+//
 //                int totalDoses = prescriptionDrug.getTotal_dosage(); // 총 복용 횟수
 //                int consumedDoses = prescriptionDrug.getTaken_dosage(); // 현재까지 먹은 횟수
 //
@@ -73,7 +74,7 @@
 //                }
 //
 //                // 최대 하루 복용 횟수를 기준으로 알림 횟수 설정
-//                if (Integer.parseInt(prescriptionDrug.getDailyDosesNumber()) == maxDailyDoses) {
+//                if prescriptionDrug.getDailyDosesNumber() == maxDailyDoses) {
 //                    alarmCount = maxDailyDoses; // 최대 하루 복용 횟수로 알림 횟수 설정
 //                }
 //            }
@@ -86,12 +87,14 @@
 //
 //            // 하루 복용 횟수가 가장 큰 데이터의 총 복용 횟수와 현재 복용 횟수가 같은 경우
 //            for (PrescriptionDrugEntity prescriptionDrug : prescriptiondrugs) {
+//
+//
 //                if (totalDoses == consumedDoses) {
 //                    // 다음으로 하루 복용 횟수가 큰 약물 찾기
 //                    Optional<Integer> nextMaxDailyDosesOpt = prescriptiondrugs.stream()
 //                            .map(drug -> {
 //                                try {
-//                                    return Integer.parseInt(drug.getDailyDosesNumber());
+//                                    return drug.getDailyDosesNumber();
 //                                } catch (NumberFormatException e) {
 //                                    return 0; // 변환 실패 시 기본값 0
 //                                }
@@ -110,7 +113,3 @@
 //    }
 //}
 //
-//
-//    }
-//
-//}

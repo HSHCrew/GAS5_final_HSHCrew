@@ -8,12 +8,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.zerock.Altari.entity.UserEntity;
 import org.zerock.Altari.entity.UserProfileEntity;
+import org.zerock.Altari.exception.UserExceptions;
 import org.zerock.Altari.repository.UserProfileRepository;
 import org.zerock.Altari.repository.UserRepository;
 import org.zerock.Altari.security.util.JWTUtil;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -58,7 +60,8 @@ public class OAuthService {
             String id = userInfo.get("id").toString();
 
             // 사용자 정보가 DB에 있는지 확인하고 없으면 새로 저장
-            UserEntity userEntity = userRepository.findByUsername(id);
+            Optional<UserEntity> result = userRepository.findById(id);
+            UserEntity userEntity = result.orElseThrow(UserExceptions.NOT_FOUND::get);
             if (userEntity == null) {
                 userEntity = UserEntity.builder()
                         .username(id)
