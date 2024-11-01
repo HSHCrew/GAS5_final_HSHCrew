@@ -26,7 +26,7 @@ function Setting() {
           {/* <MenuItem label="앱 설정" path="/setting/appsettings" /> */}
           <MenuItem label="복약알림 설정" path="/setAlarm" />
           {/* <MenuItem label="사용자 의견 보내기" path="/feedback" /> */}
-          <MenuItem label="약관 보기" path="/provision" />
+          <MenuItem label="약관 보기" path="/termsPage" />
           <MenuItem label="버전 정보" version="v1.00.0" />
         </div>
       </div>

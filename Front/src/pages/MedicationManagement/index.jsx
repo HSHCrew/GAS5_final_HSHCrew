@@ -23,9 +23,12 @@ const MedicationManagement = () => {
 
   const getPrescriptionStatus = (prescription) => {
     const today = new Date();
+    const adjustedEndDate = new Date(prescription.endDate);
+    adjustedEndDate.setDate(adjustedEndDate.getDate() + 1);
+
     if (today < prescription.startDate) {
       return "예정";
-    } else if (today >= prescription.startDate && today <= prescription.endDate) {
+    } else if (today >= prescription.startDate && today <= adjustedEndDate) {
       return "복용 중";
     } else {
       return "복약 종료";

@@ -98,7 +98,8 @@
   
   .logout-container {
     position: fixed;
-    width: 66%;
+    width: 100%;
+    max-width: 650px;
     margin-top: 120px;
     border-radius: 5px;
     box-shadow: 0 0 4px rgba(49, 49, 49, 0.2);

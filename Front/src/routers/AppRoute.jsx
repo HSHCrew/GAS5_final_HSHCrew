@@ -19,7 +19,7 @@ import OnMedication from '../pages/Prescription/OnMedication/index.jsx';
 import EndMedication from '../pages/Prescription/EndMedication/index.jsx';
 import UserInfo from '../pages/Setting/UserInfo/index.jsx'
 import HealthNoteProfile from '../pages/Setting/HealthNoteProfile/index.jsx';
-import Provision from '../pages/Setting/Provision/index.jsx';
+import TermsPage from '../pages/Setting/TermsPage/index.jsx';
 import SetAlarm from '../pages/Setting/SetAlarm/index.jsx';;
 
 
@@ -91,10 +91,10 @@ const staticMenuRoute = [
                 path: '/healthNoteProfile',
             },
             {
-                key: 'Provision',
-                name: 'Provision',
-                element: <Provision />,
-                path: '/provision',
+                key: 'TermsPage',
+                name: 'TermsPage',
+                element: <TermsPage />,
+                path: '/termsPage',
             },
             {
                 key: 'SetAlarm',

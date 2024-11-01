@@ -19,7 +19,7 @@
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   min-height: 100vh;
-  margin-bottom: 70px;
+  margin-bottom: 140px;
 }
 
 /* 메시지 표시 영역 */
@@ -85,11 +85,15 @@
 
 /* 메시지 입력 영역 */
 .input-section {
+  position: fixed;
+  width: 100%;
+  max-width: 630px;
   display: flex;
   align-items: center;
   padding: 10px;
   border-top: 1px solid #ddd;
   background-color: #fff;
+  bottom: 70px;
 }
 
 .input-box {

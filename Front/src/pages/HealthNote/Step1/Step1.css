@@ -100,28 +100,9 @@
   margin-left: 10px;
 }
 
-/* 하단의 단계 표시 및 화살표 설정 */
-.step1-footer {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px;
-  margin-top: 30px;
-}
 
 .step1-step-indicator {
   font-size: 40px;
   font-weight: 700;
   color: #529174;
-}
-
-.step1-prev-arrow,
-.step1-next-arrow {
-  width: 120px;
-  height: 120px;
-  margin-left: 10px;
-  margin-right: 10px;
-  object-fit: cover;
-  cursor: pointer;
 }

@@ -52,8 +52,8 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-left: 35px;
-    margin-right: 15px;
+    margin-left: 20px;
+    margin-right: 10px;
     margin-top: 10px;
   }
   
@@ -92,29 +92,4 @@
     margin-right: 5px;
   }
   
-  
-  .step9-footer {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px;
-    margin-top: 30px;
-  }
-  
-  .step9-prev-arrow,
-  .step9-next-arrow {
-    width: 120px;
-    height: 120px;
-    margin-left: 10px;
-    margin-right: 10px;
-    object-fit: cover;
-    cursor: pointer;
-  }
-  
-  .step9-step-indicator {
-    font-size: 40px;
-    font-weight: 700;
-    color: #529174;
-  }
   
