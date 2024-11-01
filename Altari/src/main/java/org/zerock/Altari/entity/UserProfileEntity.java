@@ -40,9 +40,9 @@ public class UserProfileEntity {
 
     private String phone_number;
     @Column(nullable = true)
-    private Integer height;
+    private Float height;
 
-    private Integer weight;
+    private Float weight;
 
     private String blood_type;
 

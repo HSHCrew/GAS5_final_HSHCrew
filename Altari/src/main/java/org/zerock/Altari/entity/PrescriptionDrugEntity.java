@@ -28,10 +28,16 @@ public class PrescriptionDrugEntity {
     private String one_dose;
 
     @Column(nullable = false)
-    private String dailyDosesNumber;
+    private int dailyDosesNumber;
 
     @Column(nullable = false)
-    private String total_dosing_days;
+    private int total_dosing_days;
+
+    private int total_dosage;
+
+    private int taken_dosage;
 
     private String medication_direction;
+
+
 }

@@ -19,8 +19,8 @@ public class UserProfileDTO {
     private String full_name;
     private LocalDate date_of_birth;
     private String phone_number;
-    private Integer height;
-    private Integer weight;
+    private Float height;
+    private Float weight;
     private String blood_type;
     private LocalTime morning_medication_time;
     private LocalTime lunch_medication_time;

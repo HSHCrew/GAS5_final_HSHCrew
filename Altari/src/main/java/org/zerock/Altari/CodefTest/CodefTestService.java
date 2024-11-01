@@ -150,9 +150,13 @@ public class CodefTestService {
                         prescriptionDrug.setPrescriptionId(userPrescription);
                         prescriptionDrug.setMedicationId(drugItemSeq);
                         prescriptionDrug.setOne_dose(drugData.get("resOneDose").asText());
-                        prescriptionDrug.setDailyDosesNumber(drugData.get("resDailyDosesNumber").asText());
-                        prescriptionDrug.setTotal_dosing_days(drugData.get("resTotalDosingdays").asText());
+                        prescriptionDrug.setDailyDosesNumber(drugData.get("resDailyDosesNumber").asInt());
+                        prescriptionDrug.setTotal_dosing_days(drugData.get("resTotalDosingdays").asInt());
                         prescriptionDrug.setMedication_direction(drugData.get("resMedicationDirection").asText());
+                        int dailyDosesNumber = drugData.get("resDailyDosesNumber").asInt();
+                        int totalDosingDays = drugData.get("resTotalDosingdays").asInt();
+                        prescriptionDrug.setTotal_dosage(dailyDosesNumber * totalDosingDays);
+                        prescriptionDrug.setTaken_dosage(0);
                         prescriptionDrugRepository.save(prescriptionDrug);
                     }
                 }

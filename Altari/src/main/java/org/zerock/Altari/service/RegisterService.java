@@ -33,11 +33,6 @@ public class RegisterService {
 
     @Transactional
     public UserEntity join(RegisterDTO registerDTO) {
-        // 1. 유저의 존재에 대한 검증
-        Optional<UserEntity> optionalUser = Optional.ofNullable(userRepository.findByUsername(registerDTO.getUsername()));
-        if (optionalUser.isPresent()) {
-            throw RegisterExceptions.userAlreadyExists();
-        }
 
         try {
             // 2. 유저 정보 저장
@@ -59,7 +54,7 @@ public class RegisterService {
 
             userProfileRepository.save(userProfile);
 
-            return null;
+            return user;
 
         } catch (Exception e) {
             throw RegisterExceptions.registrationFailed();
