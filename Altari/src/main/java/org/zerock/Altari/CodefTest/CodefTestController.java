@@ -61,6 +61,7 @@ public class CodefTestController {
         UserProfileEntity userProfile = jwtUtil.getUserProfileFromToken(token.substring(7)); // "Bearer " 이후의 토큰 문자열
 
         String response = codefTestService.callSecondApi(
+                secondRequestDTO.is2Way(),
                 secondRequestDTO.getTwoWayInfo().getJti(),
                 secondRequestDTO.getTwoWayInfo().getJobIndex(),
                 secondRequestDTO.getTwoWayInfo().getThreadIndex(),

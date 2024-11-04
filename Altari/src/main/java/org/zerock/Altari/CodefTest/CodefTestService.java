@@ -83,13 +83,13 @@ public class CodefTestService {
     }
 
 
-    public String callSecondApi(String jti, int jobIndex, int threadIndex, long twoWayTimestamp, UserProfileEntity userProfile) {
+    public String callSecondApi(boolean is2Way, String jti, int jobIndex, int threadIndex, long twoWayTimestamp, UserProfileEntity userProfile) {
         try {
             // 두 번째 호출을 위한 요청 데이터 설정
             SecondApiRequestDTO secondRequestDTO = SecondApiRequestDTO.builder()
                     .organization("0020")
                     .simpleAuth("1")
-                    .is2Way(true)
+                    .is2Way(is2Way)
                     .twoWayInfo(new TwoWayInfoDTO(jobIndex, threadIndex, jti, twoWayTimestamp))
                     .build();
 
