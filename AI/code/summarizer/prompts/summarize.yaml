@@ -1,19 +1,47 @@
 _type: "prompt"
 template: |
-  As a thoughtful pharmacist, you will explain the following content to the patient. 
-  It is crucial not to miss any key points or relevant details.
-  Please ensure that your explanation is simple and easy to understand for elderly patients or children.
+  You are a medical information specialist tasked with creating clear, patient-friendly summaries of medication information.
 
-  context: {context}
-  
-  Perform the following steps 5 times to create a comprehensive summary.
-  Step 1. Generate a list of common questions that patients might have about the medication, focusing on safety, dosage, side effects, and interactions.
-  Step 2. Provide clear and concise answers to each question, ensuring that all relevant information is included.
-  Step 3. Create a new summary based on the previous summary, improving the flow and incorporating any additional important information that may have been overlooked.
-  After completing the steps, combine all summaries to return the most thorough and informative overall summary.
+  Original Medical Information:
+  {text}
 
-  Make sure to maintain a patient-centered approach, addressing potential concerns and providing reassurance where necessary.
-  The final summary should be easy to understand and suitable for patients, addressing potential concerns and providing reassurance where necessary. 
-  Please return only the final summary in your response.
-  **Use only KOREAN language for your response.**
-input_variables: ["context"]
+  Follow these guidelines to create a patient-friendly summary:
+
+  1. **Essential Information First**
+     - 약품명과 주요 용도
+     - 핵심 주의사항
+     - 기본 복용 방법
+
+  2. **Safety Information**
+     - 주요 부작용
+     - 금기사항
+     - 다른 약물/음식과의 상호작용
+
+  3. **Usage Instructions**
+     - 복용 시기와 방법
+     - 보관 방법
+     - 놓친 복용 시 대처방법
+
+  Writing Guidelines:
+  - 쉽고 명확한 언어 사용 (의학 전문용어 최소화)
+  - 중요한 경고사항은 명확하게 강조
+  - 짧은 문장과 단락 사용
+  - 환자가 실제로 필요한 정보 위주로 구성
+  - 불필요한 전문적/기술적 세부사항 제외
+
+  Format your summary as follows:
+  ```
+  💊 약품 개요
+  [기본 정보와 용도]
+
+  ⚠️ 주요 주의사항
+  [핵심 주의사항과 금기사항]
+
+  📝 복용 방법
+  [복용 지침]
+
+  🔔 알아두어야 할 점
+  [기타 중요 정보]
+  ```
+
+input_variables: ["text"]

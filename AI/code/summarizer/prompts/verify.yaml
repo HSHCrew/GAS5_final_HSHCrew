@@ -1,22 +1,32 @@
 _type: "prompt"
 template: |
-  You are tasked with verifying the accuracy and completeness of a summary in comparison to the original content.
+  ### purpose
+    You are tasked with verifying the accuracy and completeness of a summary in comparison to the original content.
 
-  Original Content: {original_content}
-  Summary: {summary}
+  ### pair
+    Original Content: {original_content}
+    Summary: {summary}
 
-  Your task is to evaluate the following:
+  ### guide
+    think with follow step:
 
-  1. **Consistency Check**: Does the summary correctly reflect the key points and core details of the original content? Identify any discrepancies where the summary diverges from the original content.
+    1. **Consistency Check**: Does the summary correctly reflect the key points and core details of the original content? Identify any discrepancies where the summary diverges from the original content.
+    
+    2. **Missing Information**: Are there any critical pieces of information present in the original content but missing in the summary? Clearly list these missing elements.
+
+    3. **Misrepresentations**: Point out any statements in the summary that are inaccurate or distort the meaning of the original content.
+
+    4. **Overall Assessment**: Based on the points above, assess the summary's overall accuracy and completeness. Is the summary a true and reliable reflection of the original content?
+
+    Finally, provide a score between 0 and 100, representing the summary's accuracy:
+    - If the score is below 80, return feedback detailing what needs to be improved or added to ensure the summary accurately reflects the original content.
   
-  2. **Missing Information**: Are there any critical pieces of information present in the original content but missing in the summary? Clearly list these missing elements.
+  ### **Output Format**:
+    {{
+      "score": <integer_between_0_and_100>,
+      "feedback": "<feedback_text>"
+    }}
 
-  3. **Misrepresentations**: Point out any statements in the summary that are inaccurate or distort the meaning of the original content.
-
-  4. **Overall Assessment**: Based on the points above, assess the summary's overall accuracy and completeness. Is the summary a true and reliable reflection of the original content?
-
-  Finally, provide a score between 0 and 100, representing the summary's accuracy:
-  - If the score is below 80, return feedback detailing what needs to be improved or added to ensure the summary accurately reflects the original content.
 
 input_variables: ["original_content", "summary"]
 
@@ -28,10 +38,10 @@ few_shot_examples:
       The global economy improved in 2023, with strong growth in technology, healthcare, and energy sectors. Inflation, while still a problem, began to stabilize.
 
     completion: |
-      {
-        "Score": 75,
-        "Feedback": "Include the information about the tourism and hospitality sectors still struggling to provide a more complete summary."
-      }
+      {{
+        "score": 75,
+        "feedback": "Include the information about the tourism and hospitality sectors still struggling to provide a more complete summary."
+      }}
   
   - original_content: |
       Researchers have discovered a new species of deep-sea fish in the Pacific Ocean. This species, which dwells at depths of over 1,500 meters, has adapted to the extreme conditions with specialized features such as bioluminescence and a unique bone structure. The discovery offers new insights into deep-sea biodiversity and the evolutionary processes that enable life in such harsh environments.
@@ -40,10 +50,10 @@ few_shot_examples:
       A new deep-sea fish species has been found in the Pacific Ocean. It has special features to survive deep underwater, and this discovery helps scientists learn more about deep-sea life.
 
     completion: |
-      {
-        "Score": 85,
-        "Feedback": "Valid"
-      }
+      {{
+        "score": 85,
+        "feedback": "Valid"
+      }}
 
   - original_content: |
       The company announced that its revenue grew by 15% in the third quarter of 2024, driven by increased demand for its cloud computing services and digital transformation solutions. However, the company also noted that supply chain disruptions affected its hardware division, leading to lower-than-expected sales in that sector.
@@ -52,7 +62,7 @@ few_shot_examples:
       The company saw a 15% revenue increase in Q3 2024, mainly due to high demand for its cloud services, though its hardware sales were impacted by supply chain issues.
 
     completion: |
-      {
-        "Score": 95,
-        "Feedback": "Valid"
-      }
+      {{
+        "score": 95,
+        "feedback": "Valid"
+      }}
