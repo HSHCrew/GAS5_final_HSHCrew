@@ -3,8 +3,6 @@ package org.zerock.Altari.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDate;
-
 @Entity
 @Table(name = "prescription_drug")
 @Getter
@@ -40,20 +38,6 @@ public class PrescriptionDrugEntity {
     private int taken_dosage;
 
     private String medication_direction;
-
-    @Column(name = "last_taken_date")
-    private LocalDate lastTakenDate; // 또는 Timestamp 타입으로 설정 가능
-
-    public boolean canIncreaseTakenDosage() {
-        // 오늘 날짜를 가져옵니다.
-        LocalDate today = LocalDate.now();
-
-        // 마지막 복용일이 null인 경우, 또는 오늘 복용하지 않은 경우에만 증가 가능
-        if (lastTakenDate == null || !lastTakenDate.isEqual(today)) {
-            return taken_dosage < dailyDosesNumber; // 현재 복용횟수가 하루 복용횟수보다 적으면 증가 가능
-        }
-        return false; // 오늘 이미 복용했으므로 증가 불가
-    }
 
 
 }

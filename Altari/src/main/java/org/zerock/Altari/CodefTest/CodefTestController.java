@@ -9,7 +9,6 @@ import org.zerock.Altari.entity.UserProfileEntity;
 import org.zerock.Altari.repository.UserProfileRepository;
 import org.zerock.Altari.repository.UserRepository;
 import org.zerock.Altari.security.util.JWTUtil;
-import org.zerock.Altari.service.MedicationAlarmService;
 import org.zerock.Altari.service.UserService;
 
 import java.io.UnsupportedEncodingException;
@@ -28,8 +27,6 @@ public class CodefTestController {
     private UserService userService;
     @Autowired
     private UserRepository userRepository;
-    @Autowired
-    private MedicationAlarmService medicationAlarmService;
 
     // 첫 번째 API 호출을 위한 엔드포인트
     @PostMapping("/first")
@@ -64,6 +61,7 @@ public class CodefTestController {
     public ResponseEntity<String> callSecondApi(@RequestBody SecondApiRequestDTO secondRequestDTO,
                                                 @RequestHeader("Authorization") String token) throws UnsupportedEncodingException {
         // 전달된 DTO 데이터를 사용하여 두 번째 API 호출
+
         UserProfileEntity userProfile = jwtUtil.getUserProfileFromToken(token.substring(7)); // "Bearer " 이후의 토큰 문자열
 
         String response = codefTestService.callSecondApi(
@@ -74,8 +72,7 @@ public class CodefTestController {
                 secondRequestDTO.getTwoWayInfo().getTwoWayTimestamp(),
                 userProfile
         );
-        UserEntity user = jwtUtil.getUsernameFromToken(token);
-        medicationAlarmService.userScheduleAlerts(user);
+
 
         return ResponseEntity.ok(response);
     }

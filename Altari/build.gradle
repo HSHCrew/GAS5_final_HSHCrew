@@ -58,8 +58,6 @@ dependencies {
 
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
-
-    implementation 'com.twilio.sdk:twilio:8.20.0'
 }
 
 tasks.named('test') {

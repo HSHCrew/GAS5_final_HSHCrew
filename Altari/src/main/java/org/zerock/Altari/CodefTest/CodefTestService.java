@@ -6,7 +6,6 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.zerock.Altari.Codef.EasyCodefToken;
 import org.zerock.Altari.entity.*;
@@ -42,7 +41,7 @@ public class CodefTestService {
     @Autowired
     private PrescriptionDrugRepository prescriptionDrugRepository;
 
-    @Transactional
+
     public String callApi(String identity,
                           String userName,
                           String phoneNo
@@ -83,7 +82,7 @@ public class CodefTestService {
         }
     }
 
-    @Transactional
+
     public String callSecondApi(boolean is2Way, String jti, int jobIndex, int threadIndex, long twoWayTimestamp, UserProfileEntity userProfile) {
         try {
             // 두 번째 호출을 위한 요청 데이터 설정
