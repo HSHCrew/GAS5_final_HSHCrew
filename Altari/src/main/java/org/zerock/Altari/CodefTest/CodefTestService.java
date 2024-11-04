@@ -42,30 +42,24 @@ public class CodefTestService {
     private PrescriptionDrugRepository prescriptionDrugRepository;
 
 
-    public String callApi(String organization,
-                          String loginType,
-                          String identity,
-                          String loginTypeLevel,
+    public String callApi(String identity,
                           String userName,
-                          String phoneNo,
-                          String telecom,
-                          String startDate,
-                          String id,
-                          String reqChildYN) {
+                          String phoneNo
+) {
         try {
 
             // MedicineRequestDTO 객체 생성 및 데이터 설정
             MedicineRequestDTO requestDTO = MedicineRequestDTO.builder()
-                    .organization(organization)
-                    .loginType(loginType)
+                    .organization("0020")
+                    .loginType("5")
                     .identity(identity)
-                    .loginTypeLevel(loginTypeLevel)
+                    .loginTypeLevel("1")
                     .userName(userName)
                     .phoneNo(phoneNo)
-                    .startDate(startDate)
-                    .telecom(telecom)
-                    .id(id)
-                    .reqChildYN(reqChildYN)
+                    .startDate("")
+                    .telecom("")
+                    .id("")
+                    .reqChildYN("")
                     .build();
 
             // 요청 헤더에 Authorization 추가
@@ -89,13 +83,13 @@ public class CodefTestService {
     }
 
 
-    public String callSecondApi(String organization, String simpleAuth, boolean is2Way, String jti, int jobIndex, int threadIndex, long twoWayTimestamp, UserProfileEntity userProfile) {
+    public String callSecondApi(String jti, int jobIndex, int threadIndex, long twoWayTimestamp, UserProfileEntity userProfile) {
         try {
             // 두 번째 호출을 위한 요청 데이터 설정
             SecondApiRequestDTO secondRequestDTO = SecondApiRequestDTO.builder()
-                    .organization(organization)
-                    .simpleAuth(simpleAuth)
-                    .is2Way(is2Way)
+                    .organization("0020")
+                    .simpleAuth("1")
+                    .is2Way(true)
                     .twoWayInfo(new TwoWayInfoDTO(jobIndex, threadIndex, jti, twoWayTimestamp))
                     .build();
 
@@ -150,11 +144,11 @@ public class CodefTestService {
                         prescriptionDrug.setPrescriptionId(userPrescription);
                         prescriptionDrug.setMedicationId(drugItemSeq);
                         prescriptionDrug.setOne_dose(drugData.get("resOneDose").asText());
-                        prescriptionDrug.setDailyDosesNumber(drugData.get("resDailyDosesNumber").asInt());
-                        prescriptionDrug.setTotal_dosing_days(drugData.get("resTotalDosingdays").asInt());
+                        prescriptionDrug.setDailyDosesNumber(Integer.parseInt(drugData.get("resDailyDosesNumber").asText()));
+                        prescriptionDrug.setTotal_dosing_days(Integer.parseInt(drugData.get("resTotalDosingdays").asText()));
                         prescriptionDrug.setMedication_direction(drugData.get("resMedicationDirection").asText());
-                        int dailyDosesNumber = drugData.get("resDailyDosesNumber").asInt();
-                        int totalDosingDays = drugData.get("resTotalDosingdays").asInt();
+                        int dailyDosesNumber = Integer.parseInt(drugData.get("resDailyDosesNumber").asText());
+                        int totalDosingDays = Integer.parseInt(drugData.get("resTotalDosingdays").asText());
                         prescriptionDrug.setTotal_dosage(dailyDosesNumber * totalDosingDays);
                         prescriptionDrug.setTaken_dosage(0);
                         prescriptionDrugRepository.save(prescriptionDrug);
@@ -165,13 +159,11 @@ public class CodefTestService {
             return decodedSecondResponseBody;
 
         } catch (Exception e) {
-            System.out.println("is2Way : " + is2Way);
-            e.printStackTrace();
             return null;
         }
+
+
     }
-
-
 }
 
 

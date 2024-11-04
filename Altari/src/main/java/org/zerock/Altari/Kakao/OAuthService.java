@@ -51,17 +51,16 @@ public class OAuthService {
                 requestEntity,
                 Map.class
         );
-
+//
         if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
             Map<String, Object> userInfo = response.getBody();
             log.info("카카오 사용자 정보: " + userInfo);
 
             // 사용자 ID 추출
             String id = userInfo.get("id").toString();
-
-            // 사용자 정보가 DB에 있는지 확인하고 없으면 새로 저장
-            Optional<UserEntity> result = userRepository.findById(id);
-            UserEntity userEntity = result.orElseThrow(UserExceptions.NOT_FOUND::get);
+//
+//            // 사용자 정보가 DB에 있는지 확인하고 없으면 새로 저장
+            UserEntity userEntity = userRepository.findByUsername(id);
             if (userEntity == null) {
                 userEntity = UserEntity.builder()
                         .username(id)
@@ -82,7 +81,7 @@ public class OAuthService {
             // 기존 createToken 메서드 사용
             String jwtToken = jwtUtil.createToken(claims, 1440);  // 토큰 유효 시간(분) 설정
 
-            return jwtToken;
+            return accessToken;
         } else {
             throw new RuntimeException("카카오 사용자 정보 조회 실패");
         }
@@ -95,7 +94,7 @@ public class OAuthService {
         // 카카오 API 요청에 필요한 파라미터
         String requestBody = "grant_type=authorization_code&"
                 + "client_id="+kakao_client_id+"&"  // 카카오 REST API 키
-                + "redirect_uri="+kakao_redirect_uri+"&"  // 리다이렉트 URI
+                 + "redirect_uri="+kakao_redirect_uri+"&"  // 리다이렉트 URI
                 + "code=" + authorizationCode;
 
         HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);

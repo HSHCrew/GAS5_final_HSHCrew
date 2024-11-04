@@ -22,9 +22,7 @@ public class NewsCurationEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer news_curation_id;
-    @ManyToOne
-    @JoinColumn(name = "health_keyword_id")
-    private HealthKeywordEntity health_keyword_id;
+
     @ManyToOne
     @JoinColumn(name = "medication_id")
     private MedicationEntity medication_id;

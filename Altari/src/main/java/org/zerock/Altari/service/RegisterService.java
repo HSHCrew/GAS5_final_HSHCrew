@@ -23,13 +23,6 @@ public class RegisterService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserProfileRepository userProfileRepository;
-    private final AllergyRepository allergyRepository;
-    private final MedicationRepository medicationRepository;
-    private final UserDiseaseRepository userDiseaseRepository;
-    private final UserPastDiseaseRepository userPastDiseaseRepository;
-    private final FamilyHistoryRepository familyHistoryRepository;
-
-
 
     @Transactional
     public UserEntity join(RegisterDTO registerDTO) {

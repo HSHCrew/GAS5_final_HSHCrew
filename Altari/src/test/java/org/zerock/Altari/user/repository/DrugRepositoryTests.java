@@ -23,7 +23,7 @@ public class DrugRepositoryTests {
                     .total_count(1)
                     .entp_name("제약회사 A")
                     .medication_name("수면제 A")
-                    .medicationId(650203656)
+                    .medicationId(641607171)
                     .medication_info("당뇨 치료에 효과적입니다.")
                     .use_method_qesitm("식사 전에 복용하세요.")
                     .atpn_warn_qesitm("알레르기 반응이 있을 수 있습니다.")
