@@ -78,7 +78,7 @@
     padding: 20px;
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: right;
   }
   
   .logout-button {
@@ -94,6 +94,7 @@
     color: #f96565;
     font-weight: bold;
     cursor: pointer;
+    align-items: right;
   }
   
   .logout-container {

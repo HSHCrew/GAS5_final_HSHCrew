@@ -1,0 +1,119 @@
+.userinfo-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #e5e8eb;
+    width: 100%;
+    min-height: 100vh;
+}
+
+.userinfo-box {
+    width: 650px;
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.info-section {
+    padding: 20px 40px;
+}
+
+.section-title {
+    text-align: center;
+    color: #489374;
+    margin-bottom: 20px;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.prescription-form {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: #333333;
+    font-size: 18px;
+}
+
+.form-group input {
+    padding: 10px 15px;
+    border: 1px solid #cccccc;
+    border-radius: 5px;
+    font-size: 16px;
+    transition: border-color 0.3s;
+}
+
+.form-group input:focus {
+    border-color: #489374;
+    outline: none;
+}
+
+.error-message {
+    color: #e74c3c;
+    margin-bottom: 10px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.success-message {
+    color: #2ecc71;
+    margin-bottom: 10px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.button-group {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.auth-button, .complete-auth-button {
+    padding: 12px 20px;
+    background-color: #489374;
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    width: 48%;
+}
+
+.auth-button:hover, .complete-auth-button:hover {
+    background-color: #3a6d63;
+}
+
+.complete-auth-button:disabled {
+    background-color: #a5d6a7;
+    cursor: not-allowed;
+}
+
+@media (max-width: 700px) {
+    .userinfo-box {
+        width: 90%;
+    }
+
+    .section-title {
+        font-size: 24px;
+    }
+
+    .form-group label, .form-group input {
+        font-size: 16px;
+    }
+
+    .auth-button, .complete-auth-button {
+        font-size: 14px;
+        padding: 10px 15px;
+    }
+}
