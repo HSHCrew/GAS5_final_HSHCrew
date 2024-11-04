@@ -1,17 +1,20 @@
 import React, { useState } from 'react';
 import './style.css';
+import { v4 as uuidv4 } from 'uuid'; // UUID 생성 라이브러리 추가
 
 function RegistrationPrescription() {
     const [formData, setFormData] = useState({
-        name: '',
-        residentNumber: '',
-        phoneNumber: ''
+        userName: '',
+        identity: '',
+        phoneNo: ''
     });
 
-    const [authData, setAuthData] = useState(null);
+    const [userData, setUserData] = useState(null); // 첫 번째 API 응답 데이터
+    const [authData, setAuthData] = useState(null); // 두 번째 API 응답 데이터
     const [successMessage, setSuccessMessage] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
 
+    // 입력 필드 변경 핸들러
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prevState => ({
@@ -20,26 +23,40 @@ function RegistrationPrescription() {
         }));
     };
 
+    // 하이픈 제거 함수
+    const removeHyphens = (value) => {
+        return value.replace(/-/g, '');
+    };
+
+    // 첫 번째 API 호출: 인증하기
     const handleAuthenticate = async () => {
         setSuccessMessage('');
         setErrorMessage('');
 
-        if (!formData.name || !formData.residentNumber || !formData.phoneNumber) {
+        // 입력값 검증
+        if (!formData.userName || !formData.identity || !formData.phoneNo) {
             setErrorMessage('모든 필드를 입력해주세요.');
             return;
         }
 
-        const residentRegex = /^\d{6}-\d{7}$/;
-        if (!residentRegex.test(formData.residentNumber)) {
-            setErrorMessage('주민등록번호 형식이 올바르지 않습니다. 예: 000000-0000000');
+        const identityRegex = /^\d{6}-?\d{7}$/;
+        if (!identityRegex.test(formData.identity)) {
+            setErrorMessage('주민등록번호 형식이 올바르지 않습니다. 예: 000000-0000000 또는 0000000000000');
             return;
         }
 
-        const phoneRegex = /^010-\d{4}-\d{4}$/;
-        if (!phoneRegex.test(formData.phoneNumber)) {
-            setErrorMessage('전화번호 형식이 올바르지 않습니다. 예: 010-1234-5678');
+        const phoneRegex = /^010-?\d{4}-?\d{4}$/;
+        if (!phoneRegex.test(formData.phoneNo)) {
+            setErrorMessage('전화번호 형식이 올바르지 않습니다. 예: 010-1234-5678 또는 01012345678');
             return;
         }
+
+        // 하이픈 제거
+        const sanitizedData = {
+            userName: formData.userName,
+            identity: removeHyphens(formData.identity),
+            phoneNo: removeHyphens(formData.phoneNo)
+        };
 
         try {
             const response = await fetch('/api/codef/first', {
@@ -47,14 +64,20 @@ function RegistrationPrescription() {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(formData)
+                body: JSON.stringify(sanitizedData)
             });
 
             if (response.ok) {
                 const result = await response.json();
-                // 예상 응답 형식에 따라 authData 설정
-                // 예: { jobIndex, threadIndex, jti, twoWayTimestamp }
-                setAuthData(result);
+                setUserData(result); // userName, identity, phoneNo 저장
+
+                // JWT 토큰을 헤더에서 가져와 로컬 스토리지에 저장
+                const authHeader = response.headers.get('Authorization');
+                if (authHeader && authHeader.startsWith('Bearer ')) {
+                    const token = authHeader.substring(7);
+                    localStorage.setItem('token', token);
+                }
+
                 setSuccessMessage('인증이 성공적으로 완료되었습니다.');
             } else {
                 const errorData = await response.json();
@@ -66,8 +89,9 @@ function RegistrationPrescription() {
         }
     };
 
+    // 두 번째 API 호출: 인증 완료
     const handleCompleteAuthentication = async () => {
-        if (!authData) {
+        if (!userData) {
             setErrorMessage('먼저 인증을 완료해주세요.');
             return;
         }
@@ -79,28 +103,44 @@ function RegistrationPrescription() {
         const token = localStorage.getItem('token');
 
         if (!token) {
-            setErrorMessage('인증 토큰이 없습니다. 다시 로그인해주세요.');
+            setErrorMessage('인증 토큰이 없습니다. 다시 인증해주세요.');
             return;
         }
+
+        // 두 번째 API 요청 데이터 생성
+        const twoWayInfo = {
+            jobIndex: uuidv4(), // 임의의 UUID 사용
+            threadIndex: uuidv4(), // 임의의 UUID 사용
+            jti: uuidv4(), // 임의의 UUID 사용
+            twoWayTimestamp: Date.now() // 현재 시간 밀리초 단위
+        };
+
+        const secondApiData = {
+            is2Way: true,
+            twoWayInfo: twoWayInfo
+        };
 
         try {
             const response = await fetch('/api/codef/second', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}` // 실제 토큰 사용
+                    'Authorization': `Bearer ${token}` // JWT 토큰 포함
                 },
-                body: JSON.stringify(authData)
+                body: JSON.stringify(secondApiData)
             });
 
             if (response.ok) {
                 const result = await response.json();
+                setAuthData(result); // 두 번째 API의 응답 데이터 저장
                 setSuccessMessage('인증 완료가 성공적으로 완료되었습니다.');
-                setAuthData(null);
+
+                // 인증 완료 후 상태 초기화
+                setUserData(null);
                 setFormData({
-                    name: '',
-                    residentNumber: '',
-                    phoneNumber: ''
+                    userName: '',
+                    identity: '',
+                    phoneNo: ''
                 });
             } else {
                 const errorData = await response.json();
@@ -119,38 +159,38 @@ function RegistrationPrescription() {
                     <h2 className="section-title">처방전 추가</h2>
                     <form className="prescription-form" onSubmit={(e) => e.preventDefault()}>
                         <div className="form-group">
-                            <label htmlFor="name">이름</label>
+                            <label htmlFor="userName">이름</label>
                             <input
                                 type="text"
-                                id="name"
-                                name="name"
-                                value={formData.name}
+                                id="userName"
+                                name="userName"
+                                value={formData.userName}
                                 onChange={handleChange}
                                 placeholder="이름을 입력하세요"
                                 required
                             />
                         </div>
                         <div className="form-group">
-                            <label htmlFor="residentNumber">주민등록번호</label>
+                            <label htmlFor="identity">주민등록번호</label>
                             <input
                                 type="text"
-                                id="residentNumber"
-                                name="residentNumber"
-                                value={formData.residentNumber}
+                                id="identity"
+                                name="identity"
+                                value={formData.identity}
                                 onChange={handleChange}
-                                placeholder="000000-0000000"
+                                placeholder="0000000000000"
                                 required
                             />
                         </div>
                         <div className="form-group">
-                            <label htmlFor="phoneNumber">전화번호</label>
+                            <label htmlFor="phoneNo">전화번호</label>
                             <input
                                 type="text"
-                                id="phoneNumber"
-                                name="phoneNumber"
-                                value={formData.phoneNumber}
+                                id="phoneNo"
+                                name="phoneNo"
+                                value={formData.phoneNo}
                                 onChange={handleChange}
-                                placeholder="010-1234-5678"
+                                placeholder="01012345678"
                                 required
                             />
                         </div>
@@ -164,13 +204,22 @@ function RegistrationPrescription() {
                                 type="button"
                                 className="complete-auth-button"
                                 onClick={handleCompleteAuthentication}
-                                disabled={!authData}
+                                disabled={!userData}
                             >
                                 인증 완료
                             </button>
                         </div>
                     </form>
                 </div>
+                {authData && (
+                    <div className="auth-data-section">
+                        <h3>인증 데이터</h3>
+                        <p><strong>Job Index:</strong> {authData.jobIndex}</p>
+                        <p><strong>Thread Index:</strong> {authData.threadIndex}</p>
+                        <p><strong>JTI:</strong> {authData.jti}</p>
+                        <p><strong>Two Way Timestamp:</strong> {authData.twoWayTimestamp}</p>
+                    </div>
+                )}
             </div>
         </div>
     );
