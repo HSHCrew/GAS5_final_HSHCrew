@@ -13,6 +13,8 @@ import org.zerock.Altari.dto.UserProfileDTO;
 import org.zerock.Altari.entity.UserEntity;
 import org.zerock.Altari.entity.UserProfileEntity;
 import org.zerock.Altari.repository.UserProfileRepository;
+import org.zerock.Altari.repository.UserRepository;
+import org.zerock.Altari.service.MedicationAlarmService;
 import org.zerock.Altari.service.UserProfileService;
 
 @RestController
@@ -22,6 +24,8 @@ import org.zerock.Altari.service.UserProfileService;
 public class UserProfileController {
     private final UserProfileRepository userProfileRepository;
     private final UserProfileService userProfileService;
+    private final UserRepository userRepository;
+    private final MedicationAlarmService medicationAlarmService;
 
     //
     @GetMapping("/get-userProfile/{username}")
@@ -37,6 +41,10 @@ public class UserProfileController {
                                                                @Valid @RequestBody UserProfileDTO userProfileDTO) {
         UserEntity userEntity = new UserEntity(username);
         UserProfileDTO updatedProfile = userProfileService.updateUserProfile(userEntity, userProfileDTO);
+
+        UserEntity user = userRepository.findByUsername(username);
+        medicationAlarmService.userScheduleAlerts(user);
+
         return ResponseEntity.ok(updatedProfile);
     }
     // {
