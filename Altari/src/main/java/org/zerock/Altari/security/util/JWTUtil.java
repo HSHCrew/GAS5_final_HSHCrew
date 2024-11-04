@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.zerock.Altari.entity.UserEntity;
 import org.zerock.Altari.entity.UserProfileEntity;
+import org.zerock.Altari.exception.UserExceptions;
 import org.zerock.Altari.repository.UserProfileRepository;
 import org.zerock.Altari.repository.UserRepository;
 
@@ -17,6 +18,7 @@ import java.io.UnsupportedEncodingException;
 import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.Map;
+import java.util.Optional;
 
 @Component
 @Log4j2
@@ -93,7 +95,8 @@ public class JWTUtil {
 
             String username = claims.get("username", String.class);
 
-            UserEntity userEntity = userRepository.findByUsername(username);
+            Optional<UserEntity> result = userRepository.findById(username);
+            UserEntity userEntity = result.orElseThrow(UserExceptions.NOT_FOUND::get);
 
             return userEntity;
 
@@ -115,7 +118,8 @@ public class JWTUtil {
 
             String username = claims.get("username", String.class);
 
-            UserEntity userEntity = userRepository.findByUsername(username);
+            Optional<UserEntity> result = userRepository.findById(username);
+            UserEntity userEntity = result.orElseThrow(UserExceptions.NOT_FOUND::get);
 
             UserProfileEntity userProfile = userProfileRepository.findByUsername(userEntity);
 

@@ -25,9 +25,7 @@ public class KeywordRegistrationEntity {
     @ManyToOne
     @JoinColumn(name = "user_profile_id")
     private UserProfileEntity user_profile_id;
-    @ManyToOne
-    @JoinColumn(name = "health_keyword_id")
-    private HealthKeywordEntity health_keyword_id;
+
     @CreatedDate
     private LocalDateTime keyword_registration_created_at;
     @LastModifiedDate

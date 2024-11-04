@@ -40,15 +40,16 @@ public class RegisterController {
         return ResponseEntity.ok(isDuplicate); //중복이면 true, 중복이 아니면 false
     }
 
+    @DeleteMapping("/delete/{username}")
+    public ResponseEntity<String> deleteUser(@PathVariable String username) {
+        try {
+            registerService.deleteUser(username);
+            return ResponseEntity.ok("회원 탈퇴가 완료되었습니다.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("회원 탈퇴에 실패하였습니다.");
+        }
+    }
 
-
-
-//    @PostMapping("/update/profile")
-//    public ResponseEntity<UserProfileEntity> updateProfile(@RequestBody UserProfileDTO userProfileDTO) {
-//        UserProfileEntity updatedUserProfile = userService.updateUserProfile(userProfileDTO);
-//        return ResponseEntity.ok(updatedUserProfile);
-//
-//    }
 
 }
 

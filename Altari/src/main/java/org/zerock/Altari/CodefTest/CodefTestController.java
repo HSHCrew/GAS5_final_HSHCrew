@@ -30,49 +30,30 @@ public class CodefTestController {
 
     // 첫 번째 API 호출을 위한 엔드포인트
     @PostMapping("/first")
-    ///{
-    ///     "organization": "0020",
-    ///     "loginType": "5",
-    ///     "loginTypeLevel": "1",
+    /// {
     ///     "identity": "001**********",
     ///     "userName": "전**",
     ///     "phoneNo": "010********",
-    ///     "startDate": "",
-    ///     "telecom": "",
-    ///     "id": "",
-    ///     "reqChildYN": "0"
     /// }
     public ResponseEntity<String> callApi(@RequestBody MedicineRequestDTO requestDTO) {
         // 전달된 DTO 데이터를 사용하여 첫 번째 API 호출
         String response = codefTestService.callApi(
-                requestDTO.getOrganization(),
-                requestDTO.getLoginType(),
-                requestDTO.getIdentity(),
-                requestDTO.getLoginTypeLevel(),
-                requestDTO.getUserName(),
-                requestDTO.getPhoneNo(),
-                requestDTO.getTelecom(),
-                requestDTO.getStartDate(),
-                requestDTO.getId(),
-                requestDTO.getReqChildYN()
 
+                requestDTO.getIdentity(),
+                requestDTO.getUserName(),
+                requestDTO.getPhoneNo()
         );
         return ResponseEntity.ok(response);
     }
 
     // 두 번째 API 호출을 위한 엔드포인트
     @PostMapping("/second")
-//    {
-//        "organization":"0020",
-//            "simpleAuth": "1",
-//            "is2Way": true,
-//            "twoWayInfo": {
-//        "jobIndex": 0,
-//                "threadIndex": 0,
-//                "jti": "672049d528e65e51c0d13724",
-//                "twoWayTimestamp": 1730169303017
-//    }
-//    }
+///    {
+///              "jobIndex": 0,
+///                "threadIndex": 0,
+///                "jti": "672049d528e65e51c0d13724",
+///                "twoWayTimestamp": 1730169303017
+///    }
     public ResponseEntity<String> callSecondApi(@RequestBody SecondApiRequestDTO secondRequestDTO,
                                                 @RequestHeader("Authorization") String token) throws UnsupportedEncodingException {
         // 전달된 DTO 데이터를 사용하여 두 번째 API 호출
@@ -80,16 +61,12 @@ public class CodefTestController {
         UserProfileEntity userProfile = jwtUtil.getUserProfileFromToken(token.substring(7)); // "Bearer " 이후의 토큰 문자열
 
         String response = codefTestService.callSecondApi(
-                secondRequestDTO.getOrganization(),
-                secondRequestDTO.getSimpleAuth(),
-                secondRequestDTO.is2Way(),
                 secondRequestDTO.getTwoWayInfo().getJti(),
                 secondRequestDTO.getTwoWayInfo().getJobIndex(),
                 secondRequestDTO.getTwoWayInfo().getThreadIndex(),
                 secondRequestDTO.getTwoWayInfo().getTwoWayTimestamp(),
                 userProfile
-                );
-
+        );
 
 
         return ResponseEntity.ok(response);
