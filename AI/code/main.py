@@ -62,40 +62,45 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+class temp_UserMedications(BaseModel):
+    user_id: int
+    medications: list[str]
+    
 @app.post("/user/medications")
-async def receive_medications(user_medications: UserMedications):
-    async with SessionLocal() as db:
-        # 사용자 확인
-        user_query = await db.execute(select(User).where(User.id == user_medications.user_id))
-        user = user_query.scalars().first()
-        if not user:
-            raise HTTPException(status_code=404, detail="User not found")
+async def receive_medications(user_medications: temp_UserMedications):
+    # async with SessionLocal() as db:
+    #     # 사용자 확인
+    #     user_query = await db.execute(select(User).where(User.id == user_medications.user_id))
+    #     user = user_query.scalars().first()
+    #     if not user:
+    #         raise HTTPException(status_code=404, detail="User not found")
 
-        # 약물 정보 저장 및 상세 정보 검색
-        medication_details = []
+    #     # 약물 정보 저장 및 상세 정보 검색
+    #     medication_details = []
         
-        for med in user_medications.medications:
-            medication_query = await db.execute(select(Medication).where(Medication.id == med.medication_id))
-            medication = medication_query.scalars().first()
-            if not medication:
-                raise HTTPException(status_code=404, detail=f"Medication with ID {med.medication_id} not found")
+    #     for med in user_medications.medications:
+    #         medication_query = await db.execute(select(Medication).where(Medication.id == med.medication_id))
+    #         medication = medication_query.scalars().first()
+    #         if not medication:
+    #             raise HTTPException(status_code=404, detail=f"Medication with ID {med.medication_id} not found")
 
-            medication_details.append({
-                "id": medication.id,
-                "name": medication.name,
-                "details": medication.details,
-                "dur_info": medication.dur_info
-            })
+    #         medication_details.append({
+    #             "id": medication.id,
+    #             "name": medication.name,
+    #             "details": medication.details,
+    #             "dur_info": medication.dur_info
+    #         })
 
-        # # 사용자 약물 정보 저장 (선택적)
-        # for med in user_medications.medications:
-        #     user_medication = UserMedication(user_id=user_medications.user_id, medication_id=med.medication_id)
-        #     db.add(user_medication)
+    #     # # 사용자 약물 정보 저장 (선택적)
+    #     # for med in user_medications.medications:
+    #     #     user_medication = UserMedication(user_id=user_medications.user_id, medication_id=med.medication_id)
+    #     #     db.add(user_medication)
 
-        await db.commit()
+    #     await db.commit()
         
-        summarizer = Summarizer()
-        summaries = await summarizer.mono_processes(medication_details)
+    summarizer = Summarizer()
+    summaries = await summarizer.mono_processes(user_medications.medications)
         
     return {
         "message": "Medications received successfully"
