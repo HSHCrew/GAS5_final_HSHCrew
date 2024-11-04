@@ -50,7 +50,7 @@ const OnMedication = () => {
       <div className="prescription-details-card">
         {/* 타이레놀 이미지, 클릭 시 페이지 이동 */}
         <div className="medication-image-container" onClick={handleMedicationClick}>
-          <img src={tylenolIcon} alt="Tylenol" className="medication-image" />
+          <img src={tylenolIcon} alt="Tylenol" className="endprescription-medication-image" />
         </div>
 
         {/* 약 정보 텍스트, 클릭 시 페이지 이동 */}

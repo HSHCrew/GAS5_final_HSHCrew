@@ -18,7 +18,7 @@ const MedicationManagement = () => {
     { id: 1, name: "편두통", startDate: new Date(2024, 9, 3), endDate: new Date(2024, 9, 5) },
     { id: 2, name: "급성 장염", startDate: new Date(2024, 9, 4), endDate: new Date(2024, 9, 10) },
     { id: 3, name: "고혈압", startDate: new Date(2024, 9, 5), endDate: new Date(2024, 9, 15) },
-    { id: 4, name: "테스트 감기", startDate: new Date(2024, 9, 27), endDate: new Date(2024, 10, 1) }
+    { id: 4, name: "테스트 감기", startDate: new Date(2024, 10,1), endDate: new Date(2024, 10, 20) }
   ];
 
   const getPrescriptionStatus = (prescription) => {

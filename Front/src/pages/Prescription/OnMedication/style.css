@@ -120,14 +120,14 @@
 }
 
 /* 타이레놀 이미지 클릭 가능 컨테이너 */
-.medication-image-container {
+.endprescription-medication-image {
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 120px;
-  height: 75px;
-  margin: 15px;
+  width: 140px;
+  height: 88px;
+  margin: 10px;
   transition: transform 0.3s ease;
 }
 
@@ -147,10 +147,4 @@
 
 .medication-info:hover {
   color: #489374;
-}
-
-.medicine-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
 }
