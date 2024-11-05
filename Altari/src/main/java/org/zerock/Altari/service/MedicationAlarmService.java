@@ -1,8 +1,8 @@
 package org.zerock.Altari.service;
 
-import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.TaskScheduler;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,13 +38,13 @@ public class MedicationAlarmService {
     @Autowired
     private TaskScheduler taskScheduler;
 
-    @Autowired
-    private TwilioSMSService twilioSMSService;
 
     // 기존 예약된 알람을 저장하기 위한 맵
     private Map<UserEntity, ScheduledFuture<?>> scheduledTasks = new HashMap<>();
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private TwilioCallService twilioCallService;
 
 //    @PostConstruct // 서버가 시작된 후 자동으로 호출
 //    public void init() {
@@ -124,17 +124,27 @@ public class MedicationAlarmService {
             List<PrescriptionDrugEntity> prescriptionDrugs = prescriptionDrugRepository.findByPrescriptionId(prescription);
 
             for (PrescriptionDrugEntity prescriptionDrug : prescriptionDrugs) {
-                if (prescriptionDrug.canIncreaseTakenDosage()) {
-                    if (prescriptionDrug.getTaken_dosage() < prescriptionDrug.getDailyDosesNumber()) {
+                    if (prescriptionDrug.getTodayTakenCount() < prescriptionDrug.getDailyDosesNumber()) {
+                        prescriptionDrug.setTodayTakenCount(prescriptionDrug.getTodayTakenCount() + 1);
                         prescriptionDrug.setTaken_dosage(prescriptionDrug.getTaken_dosage() + 1);
                         prescriptionDrug.setLastTakenDate(today); // 마지막 복용일 업데이트
                         prescriptionDrugRepository.save(prescriptionDrug);
                     }
-                }
+
             }
         }
 
         userScheduleAlerts(username);
+    }
+
+
+    @Scheduled(cron = "0 0 0 * * ?") // 매일 자정
+    public void resetTodayTakenCount() {
+        List<PrescriptionDrugEntity> allDrugs = prescriptionDrugRepository.findAll();
+        for (PrescriptionDrugEntity drug : allDrugs) {
+            drug.setTodayTakenCount(0); // 오늘 복용한 횟수 초기화
+            prescriptionDrugRepository.save(drug);
+        }
     }
 
     @Transactional
@@ -191,11 +201,12 @@ public class MedicationAlarmService {
     public void checkMedications(UserEntity username) {
         UserProfileEntity userProfile = userProfileRepository.findByUsername(username);
         String toPhoneNumber = userProfile.getPhone_number(); // 사용자 전화번호
-        String messageBody = "복약 알림: 처방전에 따라 약을 복용하세요!";
+        String messageBody = "안녕하세요! 알타리 서비스 입니다. 지금은 약 복용 시간이니, 잊지 말고 약을 드세요. 건강을 지키는 데 도움이 될 거예요!";
 
-        // SMS 전송
-        twilioSMSService.sendSMS(toPhoneNumber, messageBody);
+        // 전화 걸기
+        twilioCallService.sendCall(toPhoneNumber, messageBody);
     }
+
 
     public double calculateProgress(UserEntity username) {
         UserProfileEntity userProfile = userProfileRepository.findByUsername(username);
@@ -228,6 +239,7 @@ public class MedicationAlarmService {
         if (dosagesCount == null) {
             // 유저가 설정한 알람 시간 혹은 복약 중이지 않을 경우 작업 취소
             cancelScheduledAlerts(user);
+            System.out.println("복약 알림이 취소되었습니다.");
             return;
         }
 
@@ -242,15 +254,18 @@ public class MedicationAlarmService {
 
         // 새로운 알람 예약
         ScheduledFuture<?> future = null;
+        System.out.println("복약 알림이 재설정 됩니다.");
 
         if (maxDailyDosage == 1) {
             future = taskScheduler.schedule(() -> sendDailyMedicationAlerts(user),
                     new CronTrigger(createCronExpression(lunchMedicationTime)));
+            System.out.println("하루 1번 복약 알림이 설정되었습니다.");
         } else if (maxDailyDosage == 2) {
             future = taskScheduler.schedule(() -> sendDailyMedicationAlerts(user),
                     new CronTrigger(createCronExpression(morningMedicationTime)));
             future = taskScheduler.schedule(() -> sendDailyMedicationAlerts(user),
                     new CronTrigger(createCronExpression(dinnerMedicationTime)));
+            System.out.println("하루 2번 복약 알림이 설정되었습니다.");
         } else if (maxDailyDosage == 3) {
             future = taskScheduler.schedule(() -> sendDailyMedicationAlerts(user),
                     new CronTrigger(createCronExpression(morningMedicationTime)));
@@ -258,6 +273,7 @@ public class MedicationAlarmService {
                     new CronTrigger(createCronExpression(lunchMedicationTime)));
             future = taskScheduler.schedule(() -> sendDailyMedicationAlerts(user),
                     new CronTrigger(createCronExpression(dinnerMedicationTime)));
+            System.out.println("하루 3번 복약 알림이 설정되었습니다.");
         } else if (maxDailyDosage == 4) {
             future = taskScheduler.schedule(() -> sendDailyMedicationAlerts(user),
                     new CronTrigger(createCronExpression(morningMedicationTime)));
@@ -267,6 +283,7 @@ public class MedicationAlarmService {
                     new CronTrigger(createCronExpression(dinnerMedicationTime)));
             future = taskScheduler.schedule(() -> sendDailyMedicationAlerts(user),
                     new CronTrigger(createCronExpression(nightMedicationTime)));
+            System.out.println("하루 4번 복약 알림이 설정되었습니다.");
         }
 
         // 새로 예약된 작업을 맵에 저장

@@ -23,6 +23,7 @@ public class RegisterService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserProfileRepository userProfileRepository;
+    private final UserProfileService userProfileService;
 
     @Transactional
     public UserEntity join(RegisterDTO registerDTO) {
@@ -37,11 +38,14 @@ public class RegisterService {
 
             userRepository.save(user);
 
+            String rawPhoneNumber = registerDTO.getPhone_number();
+            String formattedPhoneNumber = userProfileService.formatPhoneNumber(rawPhoneNumber);
+
             // 3. 유저 프로필 저장
             UserProfileEntity userProfile = UserProfileEntity.builder()
                     .full_name(registerDTO.getFull_name())
                     .date_of_birth(registerDTO.getDate_of_birth())
-                    .phone_number(registerDTO.getPhone_number())
+                    .phone_number(formattedPhoneNumber)
                     .username(user)
                     .build();
 

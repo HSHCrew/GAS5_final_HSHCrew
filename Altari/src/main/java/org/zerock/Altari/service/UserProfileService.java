@@ -92,7 +92,9 @@ public class UserProfileService {
             }
 
             if (userProfileDTO.getPhone_number() != null) {
-                userProfileEntity.setPhone_number(userProfileDTO.getPhone_number());
+                String rawPhoneNumber = userProfileDTO.getPhone_number();
+                String formattedPhoneNumber = formatPhoneNumber(rawPhoneNumber);
+                userProfileEntity.setPhone_number(formattedPhoneNumber);
             } else {
                 userProfileEntity.setPhone_number(null); // 사용자가 삭제하고 싶을 경우
             }
@@ -118,6 +120,7 @@ public class UserProfileService {
             // 업데이트된 유저 프로필 반환
             userProfileRepository.save(userProfileEntity); // 변경된 엔티티 저장 후 반환
 
+
             return UserProfileDTO.builder()
                     .user_profile_id(userProfileEntity.getUser_profile_id())
                     .full_name(userProfileEntity.getFull_name())
@@ -138,5 +141,13 @@ public class UserProfileService {
             throw new RuntimeException("Failed to update user profile");
         }
     }
+
+    public String formatPhoneNumber(String phoneNumber) {
+        if (phoneNumber.startsWith("0")) {
+            return "+82" + phoneNumber.substring(1); // "0"을 제거하고 +82 추가
+        }
+        return phoneNumber; // 이미 국가 코드가 포함된 경우 그대로 반환
+    }
+
 }
 
