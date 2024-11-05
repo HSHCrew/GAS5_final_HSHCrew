@@ -91,7 +91,7 @@ public class JWTUtil {
             Claims claims = Jwts.parser()
                     .setSigningKey(secretKey)
                     .build()
-                    .parseClaimsJws(token).getBody();
+                    .parseClaimsJws(token.substring(7)).getBody();
 
             String username = claims.get("username", String.class);
 
@@ -114,7 +114,7 @@ public class JWTUtil {
             Claims claims = Jwts.parser()
                     .setSigningKey(secretKey)
                     .build()
-                    .parseClaimsJws(token).getBody();
+                    .parseClaimsJws(token.substring(7)).getBody();
 
             String username = claims.get("username", String.class);
 

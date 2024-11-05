@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -65,6 +66,7 @@ public class CodefTestService {
 
             // 요청 헤더에 Authorization 추가
             HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
             headers.set("Authorization", "Bearer " + easyCodefToken.getAccessToken());
 
             // HttpEntity를 사용하여 요청 본문과 헤더를 포함합니다.
@@ -93,10 +95,12 @@ public class CodefTestService {
                     .is2Way(is2Way)
                     .twoWayInfo(new TwoWayInfoDTO(jobIndex, threadIndex, jti, twoWayTimestamp))
                     .build();
-
+            String accessToken = easyCodefToken.getAccessToken().trim();
+            System.out.println("Access Token: " + accessToken);
             // 요청 헤더에 Authorization 추가
             HttpHeaders headers = new HttpHeaders();
-            headers.set("Authorization", "Bearer " + easyCodefToken.getAccessToken());
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set("Authorization", "Bearer " + accessToken);
 
             // HttpEntity를 사용하여 요청 본문과 헤더를 포함합니다.
             HttpEntity<SecondApiRequestDTO> requestEntity = new HttpEntity<>(secondRequestDTO, headers);
@@ -152,6 +156,7 @@ public class CodefTestService {
                         int totalDosingDays = Integer.parseInt(drugData.get("resTotalDosingdays").asText());
                         prescriptionDrug.setTotal_dosage(dailyDosesNumber * totalDosingDays);
                         prescriptionDrug.setTaken_dosage(0);
+                        prescriptionDrug.setTodayTakenCount(0);
                         prescriptionDrugRepository.save(prescriptionDrug);
                     }
                 }
