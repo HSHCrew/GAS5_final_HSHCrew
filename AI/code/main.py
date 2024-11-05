@@ -1,8 +1,8 @@
 import os
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from sqlalchemy import Column, Integer, String, ForeignKey, select
+from sqlalchemy import Column, Integer, String, ForeignKey, select, delete
 from sqlalchemy.orm import sessionmaker, declarative_base
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.ext.declarative import as_declarative
@@ -12,6 +12,7 @@ import uvicorn
 import json
 from summarizer.Summarizer import Summarizer
 from chatbot.medication_chatbot import MedicationChatbot
+from sqlalchemy import DateTime, func
 
 load_dotenv()
 
@@ -19,38 +20,52 @@ app = FastAPI()
 
 # 데이터베이스 연결 정보
 DATABASE_URL = os.getenv("DATABASE_URL")  # 환경 변수에서 데이터베이스 URL 가져오기
+# 테스트를 위한 데이터베이스 설정
+DATABASE_URL = "sqlite+aiosqlite:///./test.db"  # 테스트용 SQLite 데이터베이스
 engine = create_async_engine(DATABASE_URL, echo=True)
 SessionLocal = sessionmaker(bind=engine, class_=AsyncSession)
 Base = declarative_base()
 
-# SQLAlchemy 모델 정의
-@as_declarative()
-class Base:
-    pass
+# 데이터베이스 세션 관리를 위한 의존성 함수 추가
+async def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        await db.close()
 
+# SQLAlchemy 모델 정의
 class User(Base):
     __tablename__ = "users"
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String(100))
+    
+    id = Column(Integer, primary_key=True)
+    name = Column(String(50))
 
 class Medication(Base):
     __tablename__ = "medications"
-    id = Column(Integer, primary_key=True, index=True)
+    
+    id = Column(Integer, primary_key=True)
     name = Column(String(100))
-    details = Column(String)
-    dur_info = Column(String)
+    details = Column(String)  # JSON 형식의 상세 정보
+    dur_info = Column(String)  # JSON 형식의 DUR 정보
 
 class UserMedication(Base):
     __tablename__ = "user_medications"
-    user_id = Column(Integer, ForeignKey('users.id'), primary_key=True)
+    
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id'))
+    medication_id = Column(Integer, ForeignKey('medications.id'))
+
+class MedicationSummary(Base):
+    __tablename__ = "medication_summaries"
+    
     medication_id = Column(Integer, ForeignKey('medications.id'), primary_key=True)
-
-class MedicationDetails(BaseModel):
-    medication_id: int
-
-class UserMedications(BaseModel):
-    user_id: int
-    medications: list[MedicationDetails]
+    index = Column(Integer, nullable=True)
+    restructured = Column(String)
+    summary = Column(String)
+    fewshots = Column(String)
+    failed = Column(String)  # str | int를 수용하기 위해 String으로 정의
+    last_updated = Column(DateTime, server_default=func.now(), onupdate=func.now())
     
 
 # CORS 미들웨어를 추가하여 모든 도메인에서의 요청을 허용
@@ -63,48 +78,129 @@ app.add_middleware(
 )
 
 
-class temp_UserMedications(BaseModel):
+class MedicationItem(BaseModel):
+    medication_id: int
+
+class UserMedicationsRequest(BaseModel):
     user_id: int
-    medications: list[str]
-    
+    medications: list[MedicationItem]
+
+    class Config:
+        from_attributes = True
+
 @app.post("/user/medications")
-async def receive_medications(user_medications: temp_UserMedications):
-    # async with SessionLocal() as db:
-    #     # 사용자 확인
-    #     user_query = await db.execute(select(User).where(User.id == user_medications.user_id))
-    #     user = user_query.scalars().first()
-    #     if not user:
-    #         raise HTTPException(status_code=404, detail="User not found")
+async def receive_medications(
+    user_medications: UserMedicationsRequest,  # Pydantic 모델 사용
+    db: AsyncSession = Depends(get_db)
+):
+    try:
+        # 사용자 확인
+        user_query = await db.execute(
+            select(User).where(User.id == user_medications.user_id)
+        )
+        user = user_query.scalar_one_or_none()
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
 
-    #     # 약물 정보 저장 및 상세 정보 검색
-    #     medication_details = []
+        # 기존 사용자-약물 관계 삭제
+        await db.execute(
+            delete(UserMedication).where(UserMedication.user_id == user_medications.user_id)
+        )
+
+        # 새로운 사용자-약물 관계 추가
+        for med in user_medications.medications:
+            new_user_med = UserMedication(
+                user_id=user_medications.user_id,
+                medication_id=med.medication_id
+            )
+            db.add(new_user_med)
         
-    #     for med in user_medications.medications:
-    #         medication_query = await db.execute(select(Medication).where(Medication.id == med.medication_id))
-    #         medication = medication_query.scalars().first()
-    #         if not medication:
-    #             raise HTTPException(status_code=404, detail=f"Medication with ID {med.medication_id} not found")
+        await db.commit()
 
-    #         medication_details.append({
-    #             "id": medication.id,
-    #             "name": medication.name,
-    #             "details": medication.details,
-    #             "dur_info": medication.dur_info
-    #         })
+        # 약물 정보 조회 및 구조화
+        medication_details = {}
+        for med in user_medications.medications:
+            med_query = await db.execute(
+                select(Medication).where(Medication.id == med.medication_id)
+            )
+            medication = med_query.scalar_one_or_none()
+            if medication:
+                # JSON 문자열을 파이썬 딕셔너리로 변환
+                details_dict = json.loads(medication.details)
+                dur_dict = json.loads(medication.dur_info)
+                
+                # 약물 정보를 구조화된 형태로 저장
+                medication_details[medication.id] = str({
+                    "약물정보": {
+                        "약물명": medication.name,
+                        **details_dict
+                    },
+                    "DUR정보": dur_dict
+                })
 
-    #     # # 사용자 약물 정보 저장 (선택적)
-    #     # for med in user_medications.medications:
-    #     #     user_medication = UserMedication(user_id=user_medications.user_id, medication_id=med.medication_id)
-    #     #     db.add(user_medication)
+        # Summarizer 처리 및 DB 저장
+        summarizer = Summarizer()
+        med_info_list = list(medication_details.values())
+        summary_results = await summarizer.mono_processes(med_info_list)
 
-    #     await db.commit()
-        
-    summarizer = Summarizer()
-    summaries = await summarizer.mono_processes(user_medications.medications)
-        
-    return {
-        "message": "Medications received successfully"
-    }
+        # 요약 결과 저장
+        async with AsyncSession(engine) as summary_session:
+            try:
+                for med_id, result in zip(medication_details.keys(), summary_results):
+                    # ProcessResult의 모든 필드를 저장
+                    summary_query = await summary_session.execute(
+                        select(MedicationSummary).where(
+                            MedicationSummary.medication_id == med_id
+                        )
+                    )
+                    existing_summary = summary_query.scalar_one_or_none()
+
+                    summary_data = {
+                        'index': result.index,
+                        'restructured': result.restructured,
+                        'summary': result.summary,
+                        'fewshots': result.fewshots,
+                        'failed': str(result.failed)  # int도 str로 변환
+                    }
+
+                    if existing_summary:
+                        # 기존 요약 업데이트
+                        for key, value in summary_data.items():
+                            setattr(existing_summary, key, value)
+                    else:
+                        # 새 요약 추가
+                        new_summary = MedicationSummary(
+                            medication_id=med_id,
+                            **summary_data
+                        )
+                        summary_session.add(new_summary)
+
+                # 변경사항 커밋
+                await summary_session.commit()
+                print(f"Successfully saved summaries to database")
+
+            except Exception as e:
+                await summary_session.rollback()
+                print(f"Error saving summaries to database: {str(e)}")
+                raise
+
+        return {
+            "message": "Medications processed successfully",
+            "medication_details": medication_details,
+            "summaries": {
+                med_id: {
+                    'index': result.index,
+                    'restructured': result.restructured,
+                    'summary': result.summary,
+                    'fewshots': result.fewshots,
+                    'failed': result.failed
+                } for med_id, result in zip(medication_details.keys(), summary_results)
+            }
+        }
+
+    except Exception as e:
+        await db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 class temp_UserMedications(BaseModel):
