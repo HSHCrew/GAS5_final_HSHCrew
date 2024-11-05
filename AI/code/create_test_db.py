@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 from main import Base, User, Medication, UserMedication, MedicationSummary
 
-# SQLite 데이터베이스 URL (메모리 DB 사용)
+# SQLite 데이터베이스 URL
 DATABASE_URL = "sqlite+aiosqlite:///./test.db"
 
 # 테스트용 샘플 데이터
@@ -48,28 +48,35 @@ async def create_test_database():
     # 데이터베이스 엔진 생성
     engine = create_async_engine(DATABASE_URL, echo=True)
     
-    # 테이블 생성
+    # 기존 테이블 삭제 후 새로 생성
     async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)  # 기존 테이블 삭제
-        await conn.run_sync(Base.metadata.create_all)  # 새로운 테이블 생성
+        await conn.run_sync(Base.metadata.drop_all)
+        await conn.run_sync(Base.metadata.create_all)
     
     # 세션 생성
     async_session = sessionmaker(engine, class_=AsyncSession)
     
     async with async_session() as session:
-        # 사용자 데이터 삽입
-        for user_data in sample_users:
-            user = User(**user_data)
-            session.add(user)
-        
-        # 약물 데이터 삽입
-        for med_data in sample_medications:
-            medication = Medication(**med_data)
-            session.add(medication)
-        
-        await session.commit()
-        
-        print("테스트 데이터베이스가 성공적으로 생성되었습니다.")
+        try:
+            # 사용자 데이터 삽입
+            for user_data in sample_users:
+                user = User(**user_data)
+                session.add(user)
+            
+            # 약물 데이터 삽입
+            for med_data in sample_medications:
+                medication = Medication(**med_data)
+                session.add(medication)
+            
+            await session.commit()
+            print("테스트 데이터베이스가 성공적으로 생성되었습니다.")
+            
+        except Exception as e:
+            await session.rollback()
+            print(f"오류 발생: {str(e)}")
+            raise
+        finally:
+            await session.close()
 
 if __name__ == "__main__":
-    asyncio.run(create_test_database()) 
+    asyncio.run(create_test_database())

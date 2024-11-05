@@ -13,6 +13,7 @@ import json
 from summarizer.Summarizer import Summarizer
 from chatbot.medication_chatbot import MedicationChatbot
 from sqlalchemy import DateTime, func
+from sqlalchemy import and_
 
 load_dotenv()
 
@@ -59,12 +60,13 @@ class UserMedication(Base):
 class MedicationSummary(Base):
     __tablename__ = "medication_summaries"
     
+    user_id = Column(Integer, ForeignKey('users.id'), primary_key=True)
     medication_id = Column(Integer, ForeignKey('medications.id'), primary_key=True)
     index = Column(Integer, nullable=True)
     restructured = Column(String)
     summary = Column(String)
     fewshots = Column(String)
-    failed = Column(String)  # str | int를 수용하기 위해 String으로 정의
+    failed = Column(String)
     last_updated = Column(DateTime, server_default=func.now(), onupdate=func.now())
     
 
@@ -147,10 +149,13 @@ async def receive_medications(
         async with AsyncSession(engine) as summary_session:
             try:
                 for med_id, result in zip(medication_details.keys(), summary_results):
-                    # ProcessResult의 모든 필드를 저장
+                    # 기존 요약 확인
                     summary_query = await summary_session.execute(
                         select(MedicationSummary).where(
-                            MedicationSummary.medication_id == med_id
+                            and_(
+                                MedicationSummary.user_id == user_medications.user_id,
+                                MedicationSummary.medication_id == med_id
+                            )
                         )
                     )
                     existing_summary = summary_query.scalar_one_or_none()
@@ -160,24 +165,26 @@ async def receive_medications(
                         'restructured': result.restructured,
                         'summary': result.summary,
                         'fewshots': result.fewshots,
-                        'failed': str(result.failed)  # int도 str로 변환
+                        'failed': str(result.failed)
                     }
 
                     if existing_summary:
                         # 기존 요약 업데이트
                         for key, value in summary_data.items():
                             setattr(existing_summary, key, value)
+                        print(f"Updated summary for user {user_medications.user_id}, medication {med_id}")
                     else:
                         # 새 요약 추가
                         new_summary = MedicationSummary(
+                            user_id=user_medications.user_id,
                             medication_id=med_id,
                             **summary_data
                         )
                         summary_session.add(new_summary)
+                        print(f"Added new summary for user {user_medications.user_id}, medication {med_id}")
 
-                # 변경사항 커밋
                 await summary_session.commit()
-                print(f"Successfully saved summaries to database")
+                print(f"Successfully saved all summaries for user {user_medications.user_id}")
 
             except Exception as e:
                 await summary_session.rollback()
@@ -186,15 +193,20 @@ async def receive_medications(
 
         return {
             "message": "Medications processed successfully",
+            "user_id": user_medications.user_id,
             "medication_details": medication_details,
             "summaries": {
-                med_id: {
-                    'index': result.index,
-                    'restructured': result.restructured,
-                    'summary': result.summary,
-                    'fewshots': result.fewshots,
-                    'failed': result.failed
-                } for med_id, result in zip(medication_details.keys(), summary_results)
+                "user_id": user_medications.user_id,
+                "medications": [
+                    {
+                        "medication_id": med_id,
+                        "index": result.index,
+                        "restructured": result.restructured,
+                        "summary": result.summary,
+                        "fewshots": result.fewshots,
+                        "failed": result.failed
+                    } for med_id, result in zip(medication_details.keys(), summary_results)
+                ]
             }
         }
 
