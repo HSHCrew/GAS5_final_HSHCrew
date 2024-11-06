@@ -17,6 +17,7 @@ from sqlalchemy import and_
 from redis import asyncio as aioredis
 from typing import Dict
 import time
+from typing import List, Optional
 
 load_dotenv()
 
@@ -57,10 +58,6 @@ async def get_db():
         yield db
     finally:
         await db.close()
-
-# Add this dependency function near the other dependency functions
-async def get_redis():
-    return redis
 
 # SQLAlchemy 모델 정의
 class User(Base):
@@ -123,6 +120,11 @@ class ChatRequest(BaseModel):
     message: str = None
     user_info: str = None
     medication_info: list[str] = None
+    
+    # 추가 필요한 검증
+    class Config:
+        min_length_message = 1
+        max_length_message = 1000
 
 @app.post("/user/medications")
 async def receive_medications(
@@ -177,7 +179,11 @@ async def receive_medications(
         # Summarizer 처리 및 DB 저장
         summarizer = Summarizer()
         med_info_list = list(medication_details.values())
-        summary_results = await summarizer.mono_processes(med_info_list)
+        summary_results = await summarizer.process_medication_infos(
+            contents=med_info_list,
+            user_id=user_medications.user_id,
+            medication_ids=[med.medication_id for med in user_medications.medications]
+        )
 
         # 요약 결과 저장
         async with AsyncSession(engine) as summary_session:
@@ -252,7 +258,7 @@ async def receive_medications(
 async def get_user_medication_summaries(
     user_id: int,
     db: AsyncSession = Depends(get_db)
-):
+) -> Dict[str, List[str]]:
     try:
         # 사용자의 모든 약물 요약 정보 조회
         query = select(MedicationSummary).where(MedicationSummary.user_id == user_id)
@@ -273,8 +279,15 @@ class ChatbotManager:
     def __init__(self, redis_client: aioredis.Redis):
         self.instances: Dict[int, MedicationChatbot] = {}
         self.redis = redis_client
-        self.cleanup_interval = 3600  # 1시간마다 정리
-        self.last_cleanup = time.time()
+        self.cleanup_interval = 3600
+        self.max_instances = 1000  # 최대 인스턴스 수 제한
+        
+    async def _cleanup_expired(self):
+        if len(self.instances) > self.max_instances:
+            # 가장 오래된 인스턴스부터 제거
+            oldest_keys = sorted(self.instances.keys())[:-self.max_instances]
+            for key in oldest_keys:
+                del self.instances[key]
 
     async def get_chatbot(self, user_id: int, db: AsyncSession = None) -> MedicationChatbot:
         # 만료된 인스턴스 정리
@@ -316,20 +329,8 @@ class ChatbotManager:
         
         return self.instances[user_id]
 
-    async def _cleanup_expired(self):
-        current_time = time.time()
-        if current_time - self.last_cleanup < self.cleanup_interval:
-            return
-
-        for user_id in list(self.instances.keys()):
-            session_key = f"chatbot:session:{user_id}"
-            if not await self.redis.exists(session_key):
-                del self.instances[user_id]
-        
-        self.last_cleanup = current_time
-
     async def reset_session(self, user_id: int, db: AsyncSession = None):
-        """사용자의 채팅 세션을 초기화합니다."""
+        """사용자의 채팅 세션을 초기화"""
         # Redis에서 세션 및 대화 기록 삭제
         session_key = f"chatbot:session:{user_id}"
         chat_key = f"chat:history:{user_id}"

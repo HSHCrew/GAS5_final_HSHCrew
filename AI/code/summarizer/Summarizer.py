@@ -14,126 +14,99 @@ from langchain_core.tracers import ConsoleCallbackHandler, LangChainTracer
 from langchain_core.runnables import RunnableConfig
 from langchain_core.callbacks.base import AsyncCallbackHandler
 from .callbacks import AsyncRunCollector
+from .config import SummarizerSettings
 
 class Summarizer:
-    def __init__(self):
+    def __init__(self, project_name: str = "medication-summarizer"):
         load_dotenv()
         logging.langsmith("gas5-fp")
         
-        self.tracer = LangChainTracer()
-        self.callback_manager = CallbackManager([self.tracer])
+        settings = SummarizerSettings()
         
+        # 콜백 설정
+        self.tracer = LangChainTracer()
+        self.callback_manager = CallbackManager([
+            self.tracer,
+            AsyncRunCollector()
+        ])
+        
+        # LLM 설정
         self.llm = ChatOpenAI(
-            temperature=0,
-            model_name="gpt-4o-mini",
-            api_key=os.getenv("OPENAI_API_KEY"),
+            temperature=settings.TEMPERATURE,
+            model_name=settings.MODEL_NAME,
             callback_manager=self.callback_manager
         )
         
+        # 프로세서 초기화
         self.prompt_manager = PromptManager(os.path.dirname(__file__))
-        self.processor = LLMProcessor(self.llm, self.prompt_manager)
+        self.processor = LLMProcessor(
+            llm=self.llm,
+            prompt_manager=self.prompt_manager,
+            callback_manager=self.callback_manager,
+            settings=settings
+        )
 
-    async def process_single(self, context: str, index: Optional[int] = None, 
-                           parent_run: Optional[AsyncCallbackHandler] = None,
-                           parent_run_id: Optional[str] = None) -> ProcessResult:
-        result = ProcessResult(index=index)
-        fewshots = ""
-        run_id = str(uuid4())
-        
+    async def process_medication_info(
+        self,
+        content: str,
+        user_id: Optional[str] = None,
+        medication_id: Optional[int] = None,
+        index: Optional[int] = None,
+        parent_run_id: Optional[str] = None
+    ) -> ProcessResult:
+        """단일 복약정보 처리"""
         config = RunnableConfig(
-            callbacks=[parent_run, self.tracer] if parent_run else self.callback_manager.handlers,
-            run_name=f"Document {index}",
-            tags=["document_processing"],
-            run_id=run_id
+            callbacks=self.callback_manager.handlers,
+            run_name=f"Process Medication Info - Med {medication_id}",
+            tags=["medication_processing"],
+            parent_run_id=parent_run_id
         )
         
-        try:
-            if parent_run:
-                await parent_run.on_chain_start(
-                    {"name": f"process_document_{index}"},
-                    {"input": context},
-                    run_id=run_id,
-                    parent_run_id=parent_run_id
-                )
-            
-            result.restructured = await self.processor.restruct(context, config)
-            result.summary = await self.processor.summarize(result.restructured, config)
-            verification = await self.processor.verify(
-                (result.restructured, result.summary),
-                config
-            )
-            
-            for attempt in range(2):
-                if verification['score'] < 80:
-                    fewshots += (
-                        f"Previous Summary (Attempt {attempt + 1}):\n"
-                        f"{result.summary}\n"
-                        f"Feedback:\n"
-                        f"{verification['feedback']}\n"
-                        f"---\n"
-                    )
-                    result.summary = await self.processor.regenerate(
-                        (result.restructured, fewshots),
-                        config
-                    )
-                    verification = await self.processor.verify(
-                        (result.restructured, result.summary),
-                        config
-                    )
-                else:
-                    break
-            
-            result.fewshots = fewshots
-            
-            if parent_run:
-                await parent_run.on_chain_end(
-                    {"output": result.summary},
-                    run_id=run_id
-                )
-            return result
-            
-        except Exception as e:
-            result.failed = str(e)
-            if parent_run:
-                await parent_run.on_chain_error(e, run_id=run_id)
-            return result
+        result = await self.processor.process_content(content, config)
+        result.index = index
+        return result
+
+    async def process_medication_infos(
+        self,
+        contents: List[str],
+        user_id: str,
+        medication_ids: List[int]
+    ) -> List[ProcessResult]:
+        """여러 복약정보 처리"""
+        if len(contents) != len(medication_ids):
+            raise ValueError("Contents and medication_ids must have the same length")
         
-    async def mono_processes(self, contexts: List[str]) -> List[ProcessResult]:
-        """Process multiple contexts as a single chain"""
-        run_collector = AsyncRunCollector()
-        batch_run_id = str(uuid4())
-        
-        await run_collector.on_chain_start(
-            {"name": "batch_summarization"},
-            {"input": f"Processing {len(contexts)} documents"},
-            run_id=batch_run_id
+        # 유저 레벨 run 생성
+        user_run_id = str(uuid4())
+        user_config = RunnableConfig(
+            callbacks=self.callback_manager.handlers,
+            run_name=f"User Medication Processing - User {user_id}",
+            tags=["user_processing"],
+            parent_run_id=None
         )
         
-        try:
-            config = RunnableConfig(
-                callbacks=[run_collector, self.tracer],
-                tags=["batch_summarization"],
-                run_name="Batch Document Processing",
-                run_id=batch_run_id
+        # 비동기 작업 생성
+        tasks = []
+        for idx, (content, med_id) in enumerate(zip(contents, medication_ids)):
+            # 약물정보 레벨 run 생성
+            med_run_id = str(uuid4())
+            med_config = RunnableConfig(
+                callbacks=self.callback_manager.handlers,
+                run_name=f"Medication {med_id} Processing",
+                tags=["medication_processing"],
+                parent_run_id=user_run_id
             )
             
-            tasks = [
-                self.process_single(
-                    context, 
-                    index, 
-                    run_collector, 
-                    batch_run_id
-                ) 
-                for index, context in enumerate(contexts)
-            ]
-            results = await asyncio.gather(*tasks)
-            
-            await run_collector.on_chain_end(
-                {"output": f"Processed {len(results)} documents"},
-                run_id=batch_run_id
+            # 비동기 태스크 생성
+            task = self.process_medication_info(
+                content=content,
+                user_id=user_id,
+                medication_id=med_id,
+                index=idx,
+                parent_run_id=med_run_id
             )
-            return results
-            
-        except Exception as e:
-            await run_collector.on_chain_error(e, run_id=batch_run_id)
-            raise e
+            tasks.append(task)
+        
+        # 모든 태스크 동시 실행
+        results = await asyncio.gather(*tasks)
+        return results
