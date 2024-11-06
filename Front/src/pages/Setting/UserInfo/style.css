@@ -1,111 +1,122 @@
-/* 전체 컨테이너 설정 */
 .userinfo-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background-color: #e5e8eb;
-    width: 100%;
-    min-height: 100vh;
-  }
-  
-  .userinfo-box {
-    width: 650px;
-    background-color: white;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  }
-  
-  /* 헤더는 Header 컴포넌트에서 정의됨 */
-  
-  /* 프로필 섹션 */
-  .profile-section {
-    padding: 20px;
-    text-align: center;
-    border-bottom: 10px solid #e5e8eb;
-  }
-  
-  .profile-image {
-    width: 140px;
-    height: 140px;
-    object-fit: cover;
-    border-radius: 50%;
-  }
-  
-  .profile-name {
-    font-size: 24px;
-    font-weight: bold;
-    margin-top: 10px;
-    color: black;
-  }
-  
-  .profile-edit {
-    font-size: 16px;
-    color: #4caf50;
-    margin-top: 5px;
-    cursor: pointer;
-    border: none;
-    background: none;
-    font-weight: bold;
-  }
-  
-  /* 정보 섹션 */
-  .info-section {
-    padding: 20px 0;
-  }
-  
-  .info-item {
-    padding: 15px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid #e5e8eb;
-  }
-  
-  .info-label {
-    font-size: 18px;
-    color: black;
-  }
-  
-  .info-value {
-    font-size: 18px;
-    color: #3b4a54;
-  }
-  
-  /* 로그아웃 및 회원탈퇴 섹션 */
-  .actions-section {
-    padding: 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: right;
-  }
-  
-  .logout-button {
-    margin-top: 15px;
-    font-size: 18px;
-    color: #f00;
-    font-weight: bold;
-    cursor: pointer;
-  }
-  
-  .delete-account {
-    font-size: 18px;
-    color: #f96565;
-    font-weight: bold;
-    cursor: pointer;
-    align-items: right;
-  }
-  
-  .logout-container {
-    position: fixed;
-    width: 100%;
-    max-width: 650px;
-    margin-top: 120px;
-    border-radius: 5px;
-    box-shadow: 0 0 4px rgba(49, 49, 49, 0.2);
-    height: 60px;
-    display: block;
-    text-align:center;
-    bottom: 0px;
-  }
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #e5e8eb;
+  width: 100%;
+  min-height: 100vh;
+}
+
+.userinfo-box {
+  width: 650px;
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 프로필 섹션 */
+.profile-section {
+  padding: 20px;
+  text-align: center;
+  border-bottom: 10px solid #e5e8eb;
+}
+
+.profile-image {
+  width: 140px;
+  height: 140px;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.profile-name {
+  font-size: 24px;
+  font-weight: bold;
+  margin-top: 10px;
+  color: black;
+}
+
+.profile-edit {
+  font-size: 16px;
+  color: #4caf50;
+  margin-top: 5px;
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-weight: bold;
+}
+
+/* 정보 섹션 */
+.info-section {
+  padding: 20px 0;
+}
+
+.info-item {
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #e5e8eb;
+}
+
+.info-label {
+  font-size: 18px;
+  color: black;
+}
+
+.info-value {
+  font-size: 18px;
+  color: #3b4a54;
+}
+
+.info-input {
+  font-size: 18px;
+  color: #333;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 5px;
+  width: 100%;
+  max-width: 200px;
+  text-align: right;
+  outline: none;
+}
+
+.info-input:focus {
+  border-color: #4CAF50;
+}
+
+/* 회원탈퇴 및 로그아웃 버튼 스타일 */
+.actions-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
+  padding: 10px;
+}
+
+.delete-account-button {
+  color: red;
+  background: none;
+  border: none;
+  font-size: 16px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  align-self: flex-end;
+  text-align: right;
+  width: 100%;
+  padding-right: 20px;
+}
+
+.logout-button {
+  color: #ff0000;
+  background: none;
+  border: none;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  width: 100%;
+  text-align: center;
+  margin-top: 20px;
+}
+

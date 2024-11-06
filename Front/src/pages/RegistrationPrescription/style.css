@@ -1,119 +1,176 @@
+/* 전체 컨테이너 스타일 */
 .userinfo-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    background-color: #e5e8eb;
+    justify-content: center;
+    background-color: #f0f0f0;
     width: 100%;
     min-height: 100vh;
+    box-sizing: border-box;
+    margin-top: -5px;
 }
 
+/* 메인 박스 스타일 */
 .userinfo-box {
-    width: 650px;
-    background-color: white;
-    display: flex;
-    flex-direction: column;
+    max-width: 500px;
+    width: 100%;
+    background-color: #ffffff;
+    padding: 30px 20px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border: 2px solid #357e85; 
+    position: relative;
+    font-family: 'Roboto', sans-serif;
 }
 
-.info-section {
-    padding: 20px 40px;
-}
+/* 상단 아이콘 및 제목 */
 
 .section-title {
     text-align: center;
-    color: #489374;
-    margin-bottom: 20px;
-    font-size: 28px;
-    font-weight: bold;
+    color: #357e85;
+    font-size: 30px;
+    font-weight: 700;
+    margin-bottom: 10px;
 }
 
+/* 약봉지 스타일 아이콘 */
+.section-title::before {
+    content: "+";
+    display: block;
+    font-size: 90px;
+    color: #357e85;
+    margin-top: -60px;
+    margin-bottom: -30px;
+}
+
+/* 입력 폼 스타일 */
 .prescription-form {
     display: flex;
     flex-direction: column;
+    gap: 20px;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    border: 1px solid #ddd;
 }
 
+/* 폼 필드 그룹 스타일 */
 .form-group {
-    margin-bottom: 15px;
     display: flex;
     flex-direction: column;
+    gap: 8px;
 }
 
 .form-group label {
-    margin-bottom: 5px;
-    font-weight: 600;
-    color: #333333;
-    font-size: 18px;
+    font-size: 14px;
+    color: #333;
+    font-weight: bold;
 }
 
+/* 기본 입력 필드 스타일 */
 .form-group input {
-    padding: 10px 15px;
-    border: 1px solid #cccccc;
-    border-radius: 5px;
+    padding: 12px 16px;
+    border: 1px solid #bbb;
+    border-radius: 8px;
     font-size: 16px;
-    transition: border-color 0.3s;
+    background-color: #fafafa;
+    transition: border-color 0.3s ease;
 }
 
 .form-group input:focus {
-    border-color: #489374;
+    border-color: #357e85;
     outline: none;
 }
 
-.error-message {
-    color: #e74c3c;
-    margin-bottom: 10px;
+/* 주민등록번호 입력 필드 스타일 */
+.identity-inputs {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.identity-inputs input[type="text"],
+.identity-inputs input[type="password"] {
+    width: calc(50% - 16px);
     text-align: center;
-    font-weight: bold;
+    border-radius: 8px;
+}
+
+.identity-inputs span {
+    font-size: 16px;
+    color: #888;
+}
+
+/* 성공 및 에러 메시지 스타일 */
+.error-message {
+    color: #e63946;
+    font-size: 14px;
+    text-align: center;
+    font-weight: 600;
+    background: #ffe5e5;
+    padding: 8px;
+    border-radius: 8px;
+    margin-top: -10px;
 }
 
 .success-message {
-    color: #2ecc71;
-    margin-bottom: 10px;
+    color: #2a9d8f;
+    font-size: 14px;
     text-align: center;
-    font-weight: bold;
+    font-weight: 600;
+    background: #e6fffa;
+    padding: 8px;
+    border-radius: 8px;
+    margin-top: -10px;
 }
 
+/* 버튼 스타일 */
 .button-group {
     display: flex;
     justify-content: space-between;
+    gap: 10px;
     margin-top: 20px;
 }
 
 .auth-button, .complete-auth-button {
     padding: 12px 20px;
-    background-color: #489374;
+    background-color: #357e85;
     color: #ffffff;
     border: none;
-    border-radius: 5px;
+    border-radius: 8px;
     font-size: 16px;
+    font-weight: bold;
     cursor: pointer;
-    transition: background-color 0.3s;
-    width: 48%;
+    transition: background-color 0.3s ease;
+    flex: 1;
 }
 
 .auth-button:hover, .complete-auth-button:hover {
-    background-color: #3a6d63;
+    background-color: #2a6e75;
 }
 
 .complete-auth-button:disabled {
-    background-color: #a5d6a7;
+    background-color: #b8d8da;
     cursor: not-allowed;
 }
 
+/* 반응형 디자인 */
 @media (max-width: 700px) {
     .userinfo-box {
-        width: 90%;
+        padding: 20px 15px;
     }
 
     .section-title {
-        font-size: 24px;
-    }
-
-    .form-group label, .form-group input {
-        font-size: 16px;
+        font-size: 20px;
     }
 
     .auth-button, .complete-auth-button {
         font-size: 14px;
         padding: 10px 15px;
+    }
+
+    .identity-inputs input[type="text"],
+    .identity-inputs input[type="password"] {
+        width: calc(50% - 8px);
     }
 }
