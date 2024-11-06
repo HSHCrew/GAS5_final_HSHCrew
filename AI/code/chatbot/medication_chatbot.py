@@ -19,71 +19,95 @@ from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 from langchain_teddynote import logging
 from pydantic import BaseModel, Field
 import traceback
+from redis import asyncio as aioredis
+import pickle
+from datetime import datetime, timedelta
 
 
 class MedicationChatbot:
-    def __init__(self, user):
+    def __init__(self, user_id: int, redis_client: aioredis.Redis, user_info: str = None, medication_info: list[str] = None):
         load_dotenv()
         logging.langsmith("gas5-fp-chatbot")
-        self.user_id = user.user_id
-        self.user_info = user.user_info
-        self.medication_info = str(user.medication_info)
-        self.current_dir = os.path.dirname(__file__)
+        self.user_id = user_id
+        self.user_info = user_info
+        if medication_info is None:
+            medication_info = []
+        elif isinstance(medication_info, str):
+            try:
+                medication_info = json.loads(medication_info)
+            except json.JSONDecodeError:
+                medication_info = [medication_info]
+        self.medication_info = medication_info
+        print(f"Initialized chatbot for user {user_id} with {len(self.medication_info)} medications")
+        self.redis = redis_client
+        self.message_ttl = timedelta(days=7)  # 메시지 보관 기간
         self.llm = ChatOpenAI(
             temperature=0,
             model_name='gpt-4o',
             callbacks=[StreamingStdOutCallbackHandler()],
         )
-        self.conversation_history = {}  # 대화 이력 초기화
+        self.current_dir = os.path.dirname(__file__)
         self.prompt_path = os.path.join(self.current_dir, 'prompts')
-        
+
+    async def get_chat_key(self, user_id: int) -> str:
+        return f"chat:history:{user_id}"
+
     async def get_session_history(self, session_id):
-        print(f"[대화 세션ID]: {session_id}")
-        if session_id not in self.conversation_history:  # 세션 ID가 store에 없는 경우
-            # 새로운 ChatMessageHistory 객체를 생성하여 store에 저장
-            self.conversation_history[session_id] = ChatMessageHistory()
-        return self.conversation_history[session_id]  # 해당 세션 ID에 대한 세션 기록 반환
-    
-    async def start_chat(self):
-        '''초기화 혹은 대화 시작 로직'''
-        return f'챗봇 시작. 사용자 : {self.user_id}'
-    
-    # async def get_conversation_chain(self):
-    #     system_prompt = load_prompt(os.path.join(self.prompt_path, 'system_template.yaml'), encoding='utf-8')
-    #     # fewshot_example = 
-    #     # example_prompt = ChatPromptTemplate.from_messages(
-    #     #     [
-    #     #         ("human", "{question}"),
-    #     #         ("ai", "{answer}"),
-    #     #     ]
-    #     # )
-    #     # few_shot_prompt = FewShotChatMessagePromptTemplate(
-    #     #     example_prompt=example_prompt,
-    #     #     examples=few_shot_examples,
-    #     # )
-    #     messages = [
-    #         SystemMessagePromptTemplate.from_template(system_prompt),
-    #         # few_shot_prompt,
-    #     ]
+        chat_key = await self.get_chat_key(session_id)
+        history = ChatMessageHistory()
         
-    #     chat_prompt = ChatPromptTemplate.from_messages([
-    #             messages,
-    #             MessagesPlaceholder(variable_name="chat_history"),
-    #             ("human", "#Question:\n{question}"),  # 사용자 입력을 변수로 사용
-    #         ])
-    #     chain = chat_prompt | self.llm | StrOutputParser()
-    #     return chain
-    
-    import traceback
+        # Redis에서 대화 이력 가져오기
+        messages = await self.redis.lrange(chat_key, 0, -1)
+        for msg_bytes in messages:
+            try:
+                msg = pickle.loads(msg_bytes)
+                content = msg.get("content")
+                # content가 None이거나 비어있지 않은 경우에만 메시지 추가
+                if content:
+                    if msg["role"] == "human":
+                        history.add_user_message(content)
+                    else:
+                        history.add_ai_message(content)
+            except Exception as e:
+                print(f"Error processing message: {e}")
+                continue
+        
+        return history
+
+    async def save_message(self, role: str, content: str):
+        if not content:  # content가 None이거나 비어있으면 저장하지 않음
+            return
+        
+        chat_key = await self.get_chat_key(self.user_id)
+        message = {
+            "role": role,
+            "content": content,
+            "timestamp": datetime.utcnow().isoformat()
+        }
+        
+        # 메시지를 Redis에 저장
+        await self.redis.rpush(chat_key, pickle.dumps(message))
+        await self.redis.expire(chat_key, self.message_ttl)
+
+    async def start_chat(self):
+        """대화 시작 메시지를 반환합니다."""
+        initial_message = (
+            f"안녕하세요! 복약 상담 챗봇입니다.\n"
+            f"현재 {len(self.medication_info) if isinstance(self.medication_info, list) else 0}개의 "
+            f"약물 정보가 등록되어 있습니다."
+        )
+        await self.save_message("assistant", initial_message)
+        return initial_message
 
     async def get_conversation_chain(self):
         try:
-            # 시스템 프롬프트를 로드합니다.
             prompt_path = os.path.join(self.prompt_path, 'system_template.yaml')
+            if not os.path.exists(prompt_path):
+                raise FileNotFoundError(f"System prompt template not found at {prompt_path}")
+                
             system_prompt = load_prompt(prompt_path, encoding='utf-8')
             system_message = SystemMessagePromptTemplate.from_template(system_prompt.template)
-          
-            # 대화 프롬프트 템플릿을 생성합니다.
+            
             chat_prompt = ChatPromptTemplate.from_messages([
                 system_message, 
                 MessagesPlaceholder(variable_name="chat_history"),
@@ -95,7 +119,6 @@ class MedicationChatbot:
         
         except Exception as e:
             raise Exception(f'Error loading conversation chain: {str(e)}\n{traceback.format_exc()}')
-
 
     async def conversation_with_history(self):
         try:
@@ -115,10 +138,12 @@ class MedicationChatbot:
         except Exception as e:
             raise Exception(f'Error during conversation with history: {str(e)}\n{traceback.format_exc()}')
 
-
     async def respond(self, message: str):
         try:
-            chain = await self.conversation_with_history()  # 비동기 호출로 대화 체인 가져오기
+            # 사용자 메시지 저장
+            await self.save_message("human", message)
+            
+            chain = await self.conversation_with_history()
             response = await chain.ainvoke(
                 {
                     "question": message,
@@ -127,46 +152,16 @@ class MedicationChatbot:
                 },
                 config={"configurable": {"session_id": self.user_id}},
             )
+            
+            # AI 응답 저장
+            await self.save_message("assistant", response)
+            
             return response
         except Exception as e:
             raise Exception(f'Error during responding: {str(e)}')
 
-
-
-    # 약물정보 요약본 요청
-    def ask_question(self, user_id, user_question):
-        conn = self.db_manager.connect()
-        cursor = conn.cursor()
-        cursor.execute("SELECT summary FROM summaries WHERE user_id = ?", (user_id,))
-        result = cursor.fetchall()
-        # print('debugging: ask_question: result:',result)
-        summary = result[-1] if result else None
-        conn.close()
-        
-        if summary:
-            # print('debugging: ask_question:',summary)
-            return self.chatbot_manager.get_user_question_response(user_id, user_question, summary)
-        else:
-            return "요약된 약물 정보가 없습니다. 약물 정보를 먼저 저장하세요."
-
-# class temp_UserMedications(BaseModel):
-#     user_id: int
-#     user_info : str
-#     medication_info: list[str]
-# # 테스트용 코드
-# async def main():
-#     user = temp_UserMedications(
-#         user_id = 0,
-#     user_info =  "나이 : 87세,  성별 : 남성, 질병 : 고혈압",
-#     medication_info = [
-#         "고혈압약",
-#         "아스피린"
-#     ]
-#     )
-#     chatbot = MedicationChatbot(user)
-#     # print(f'get_session_history \n {chatbot.get_session_history()}')
-#     print(f'get_conversation_chain \n {await chatbot.get_conversation_chain()}')
-#     print(f'conversation_with_history \n {await chatbot.conversation_with_history()}')
-    
-# if __name__ == "__main__":
-#     asyncio.run(main())
+    async def reset_chat(self):
+        """채팅 기록을 초기화하고 시작 메시지를 반환합니다."""
+        chat_key = await self.get_chat_key(self.user_id)
+        await self.redis.delete(chat_key)
+        return await self.start_chat()

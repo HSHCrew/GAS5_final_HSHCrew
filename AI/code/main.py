@@ -14,10 +14,33 @@ from summarizer.Summarizer import Summarizer
 from chatbot.medication_chatbot import MedicationChatbot
 from sqlalchemy import DateTime, func
 from sqlalchemy import and_
+from redis import asyncio as aioredis
+from typing import Dict
+import time
 
 load_dotenv()
 
 app = FastAPI()
+
+# Redis 클라이언트 초기화
+redis = aioredis.from_url(
+    os.getenv("REDIS_URL"),
+    encoding="utf-8",
+    decode_responses=False
+)
+
+async def get_redis():
+    return redis
+
+
+# Redis 상태 확인 엔드포인트
+@app.get("/redis-health")
+async def check_redis():
+    try:
+        await redis.ping()
+        return {"status": "healthy"}
+    except Exception as e:
+        return {"status": "unhealthy", "error": str(e)}
 
 # 데이터베이스 연결 정보
 DATABASE_URL = os.getenv("DATABASE_URL")  # 환경 변수에서 데이터베이스 URL 가져오기
@@ -34,6 +57,10 @@ async def get_db():
         yield db
     finally:
         await db.close()
+
+# Add this dependency function near the other dependency functions
+async def get_redis():
+    return redis
 
 # SQLAlchemy 모델 정의
 class User(Base):
@@ -89,6 +116,13 @@ class UserMedicationsRequest(BaseModel):
 
     class Config:
         from_attributes = True
+
+# Add the ChatRequest model here
+class ChatRequest(BaseModel):
+    user_id: int
+    message: str = None
+    user_info: str = None
+    medication_info: list[str] = None
 
 @app.post("/user/medications")
 async def receive_medications(
@@ -214,42 +248,155 @@ async def receive_medications(
         await db.rollback()
         raise HTTPException(status_code=500, detail=str(e))
 
-
-class temp_UserMedications(BaseModel):
-    user_id: int
-    user_info : str
-    medication_info: list[str]
-    
-class temp_Message(BaseModel):
-    user_id: int
-    message: str
-
-chatbot_instances = {}
-
-@app.post('/user/medications/chat_start')
-async def chat_start(user: temp_UserMedications):
+@app.get("/user/{user_id}/medication-summaries")
+async def get_user_medication_summaries(
+    user_id: int,
+    db: AsyncSession = Depends(get_db)
+):
     try:
-        chatbot = MedicationChatbot(user)
-        chatbot_instances[user.user_id] = chatbot 
-        initial_response = await chatbot.start_chat()
-        return {"message": initial_response, "user_id": user.user_id}
+        # 사용자의 모든 약물 요약 정보 조회
+        query = select(MedicationSummary).where(MedicationSummary.user_id == user_id)
+        result = await db.execute(query)
+        summaries = result.all()
+        
+        if not summaries:
+            raise HTTPException(status_code=404, detail="No medication summaries found for this user")
+        
+        # restructured 정보만 추출
+        medication_info = [summary[0].restructured for summary in summaries]
+        
+        return {"medication_info": medication_info}
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e))
+
+class ChatbotManager:
+    def __init__(self, redis_client: aioredis.Redis):
+        self.instances: Dict[int, MedicationChatbot] = {}
+        self.redis = redis_client
+        self.cleanup_interval = 3600  # 1시간마다 정리
+        self.last_cleanup = time.time()
+
+    async def get_chatbot(self, user_id: int, db: AsyncSession = None) -> MedicationChatbot:
+        # 만료된 인스턴스 정리
+        await self._cleanup_expired()
+        
+        if user_id not in self.instances:
+            # Redis에서 세션 확인
+            session_key = f"chatbot:session:{user_id}"
+            session_exists = await self.redis.exists(session_key)
+            
+            # DB에서 사용자의 약물 정보 조회
+            if db:
+                try:
+                    query = select(MedicationSummary).where(
+                        MedicationSummary.user_id == user_id
+                    )
+                    result = await db.execute(query)
+                    summaries = result.all()
+                    
+                    if summaries:
+                        medication_info = [summary[0].restructured for summary in summaries]
+                        print(f"Found {len(medication_info)} medication summaries for user {user_id}")
+                    else:
+                        print(f"No medication summaries found for user {user_id}")
+                except Exception as e:
+                    print(f"Error fetching medication summaries: {str(e)}")
+                    # 에러가 발생해도 빈 리스트로 계속 진행
+
+            # 새 인스턴스 생성
+            self.instances[user_id] = MedicationChatbot(
+                user_id=user_id,
+                redis_client=self.redis,
+                medication_info=medication_info
+            )
+            
+            if not session_exists:
+                # 새 세션 시작
+                await self.redis.set(session_key, "active", ex=3600)
+        
+        return self.instances[user_id]
+
+    async def _cleanup_expired(self):
+        current_time = time.time()
+        if current_time - self.last_cleanup < self.cleanup_interval:
+            return
+
+        for user_id in list(self.instances.keys()):
+            session_key = f"chatbot:session:{user_id}"
+            if not await self.redis.exists(session_key):
+                del self.instances[user_id]
+        
+        self.last_cleanup = current_time
+
+    async def reset_session(self, user_id: int, db: AsyncSession = None):
+        """사용자의 채팅 세션을 초기화합니다."""
+        # Redis에서 세션 및 대화 기록 삭제
+        session_key = f"chatbot:session:{user_id}"
+        chat_key = f"chat:history:{user_id}"
+        await self.redis.delete(session_key, chat_key)
+        
+        # 기존 인스턴스 제거
+        if user_id in self.instances:
+            del self.instances[user_id]
+        
+        # 새 인스턴스 생성 및 반환
+        return await self.get_chatbot(user_id, db)
+
+# FastAPI 앱에서 사용
+chatbot_manager = ChatbotManager(redis)
 
 @app.post('/user/medications/chat_message')
-async def chat_message(request: temp_Message):
-    user_id = request.user_id
-    message = request.message
+async def chat_message(
+    request: ChatRequest,
+    db: AsyncSession = Depends(get_db)
+):
+    try:
+        chatbot = await chatbot_manager.get_chatbot(request.user_id, db)
+        response = await chatbot.respond(request.message)
+        return {"response": response}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
-    if user_id not in chatbot_instances:
-        raise HTTPException(status_code=404, detail="챗봇 인스턴스가 존재하지 않습니다. 먼저 /chat_start를 호출하세요.")
+@app.post('/user/medications/chat_start')
+async def chat_start(
+    request: ChatRequest,
+    db: AsyncSession = Depends(get_db)
+):
+    try:
+        chatbot = await chatbot_manager.get_chatbot(request.user_id, db)
+        initial_response = await chatbot.start_chat()
+        return {"message": initial_response, "user_id": request.user_id}
+    except Exception as e:
+        # ChatbotManager 내부에서 Redis 관련 오류를 포함한 모든 오류 처리
+        raise HTTPException(status_code=500, detail=str(e))
 
-    chatbot = chatbot_instances[user_id]  # 사용자 ID로 챗봇 인스턴스를 불러옴
-    response = await chatbot.respond(message)  # 비동기 호출
-    
-    return {"response": response}
-    
-
+@app.post('/user/medications/chat_reset')
+async def chat_reset(
+    request: ChatRequest,
+    db: AsyncSession = Depends(get_db)
+):
+    try:
+        # 기존 세션 및 대화 기록 삭제
+        session_key = f"chatbot:session:{request.user_id}"
+        chat_key = f"chat:history:{request.user_id}"
+        
+        # Redis에서 세션 및 대화 기록 삭제
+        await redis.delete(session_key, chat_key)
+        
+        # ChatbotManager에서 인스턴스 제거
+        if request.user_id in chatbot_manager.instances:
+            del chatbot_manager.instances[request.user_id]
+        
+        # 새로운 세션 시작
+        chatbot = await chatbot_manager.get_chatbot(request.user_id, db)
+        initial_response = await chatbot.start_chat()
+        
+        return {
+            "message": "Chat session reset successfully",
+            "initial_response": initial_response
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 def main():
     uvicorn.run(app, host="0.0.0.0", port=8000)
