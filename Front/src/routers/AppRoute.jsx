@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom';
 
 import FooterOnlyLayout from '../layouts/FooterOnlyLayout/index.jsx';
 import EmptyLayout from '../layouts/EmptyLayout/index.jsx';
@@ -20,8 +20,10 @@ import EndMedication from '../pages/Prescription/EndMedication/index.jsx';
 import UserInfo from '../pages/Setting/UserInfo/index.jsx'
 import HealthNoteProfile from '../pages/Setting/HealthNoteProfile/index.jsx';
 import TermsPage from '../pages/Setting/TermsPage/index.jsx';
-import SetAlarm from '../pages/Setting/SetAlarm/index.jsx';;
-
+import SetAlarm from '../pages/Setting/SetAlarm/index.jsx';
+import NewsCurationPopup from '../layouts/Newsletter/index.jsx';
+import NewsCurationList from '../pages/NewsCuration/index.jsx';
+import NewsCurationDetail from '../pages/NewsCuration/Curation/index.jsx';
 
 const staticMenuRoute = [
     {
@@ -102,6 +104,18 @@ const staticMenuRoute = [
                 element: <SetAlarm />,
                 path: '/setAlarm',
             },
+            {
+                key: 'NewsCurationList',
+                name: 'NewsCurationList',
+                element: <NewsCurationList />,
+                path: '/news-curation',
+            },
+            {
+                key: 'NewsCurationDetail',
+                name: 'NewsCurationDetail',
+                element: <NewsCurationDetail />,
+                path: '/news-curation/:id', // 뉴스 큐레이션 상세 페이지 경로
+            },
         ],
     },
     {
@@ -163,6 +177,7 @@ const staticMenuRoute = [
 
 const AppRoute = () => {
     const [menuList, setMenuList] = useState([]);
+    const location = useLocation();
 
     const createMenuRoutes = useCallback((menus) => {
         return (
@@ -199,11 +214,13 @@ const AppRoute = () => {
     useEffect(() => {
         getMenuList();
     }, [getMenuList, setMenuList]);
-
+    
     return (
-        <BrowserRouter>
+        <>
             <Routes>{menuList.length && menuRoutes}</Routes>
-        </BrowserRouter>
+            {/* 현재 경로가 "/home"일 때만 NewsCurationPopup 렌더링 */}
+            {location.pathname === '/home' && <NewsCurationPopup />}
+        </>
     );
 };
 

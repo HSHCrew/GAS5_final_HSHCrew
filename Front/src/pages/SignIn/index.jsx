@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './SignIn.css'; 
 import { useNavigate } from 'react-router-dom';
-import axiosInstance from '../../api/axiosInstance'; // Axios 인스턴스 임포트
+import apiRequest from '../../utils/apiRequest';
 
 import altariLogo from '../../assets/altari-logo.svg';
 import lockerIcon from '../../assets/locker.svg';
@@ -16,57 +16,67 @@ function SignIn() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // localStorage와 sessionStorage에서 토큰을 확인
     const token = localStorage.getItem('token') || sessionStorage.getItem('token');
     if (token) {
-      // 선택적으로, 토큰의 유효성을 검증할 수 있습니다.
-      navigate('/home');
+      validateToken(token);
     }
   }, [navigate]);
 
-  const handleLogin = async () => {
-    setErrorMessage('');
-
-    if (username.trim() === '') {
-      setErrorMessage('아이디를 입력해주세요.');
-      return;
-    }
-
-    if (password.trim() === '') {
-      setErrorMessage('비밀번호를 입력해주세요.');
-      return;
-    }
-
-    setIsLoading(true);
-
+  const validateToken = async (token) => {
     try {
-      // Axios 인스턴스를 사용하여 API 호출
-      console.log(axiosInstance.defaults.baseURL)
-      const response = await axiosInstance.post('/api/v1/token/make', { username, password });
-      const { accessToken } = response.data;
-
-      if (accessToken) {
-        if (rememberMe) {
-          localStorage.setItem('token', accessToken); // "자동 로그인" 선택 시 localStorage에 저장
-        } else {
-          sessionStorage.setItem('token', accessToken); // 그렇지 않으면 sessionStorage에 저장
-        }
-        alert('로그인 성공!');
+      const response = await apiRequest('/api/v1/token/validate', { headers: { 'Authorization': `Bearer ${token}` } });
+      if (response.status === 200) {
         navigate('/home');
       } else {
-        setErrorMessage('로그인 실패: 올바른 아이디와 비밀번호를 입력해주세요.');
+        console.error('토큰이 유효하지 않습니다.');
       }
     } catch (error) {
-      if (error.response?.data?.message) {
-        setErrorMessage(error.response.data.message);
-      } else {
-        setErrorMessage('로그인 실패: 서버 오류가 발생했습니다.');
-      }
-    } finally {
-      setIsLoading(false);
+      console.error('토큰 검증 오류:', error);
+      localStorage.removeItem('token');
+      sessionStorage.removeItem('token');
     }
   };
 
+  const handleLogin = async () => {
+    setErrorMessage('');
+    setIsLoading(true);
+
+    try {
+        // Axios 인스턴스를 사용하여 로그인 API 호출
+        const response = await apiRequest('/api/v1/token/make', {
+            method: 'POST',
+            data: { username, password }
+        });
+
+        // 서버로부터 토큰 응답을 받은 후 저장
+        const { accessToken, refreshToken } = response.data;
+
+        if (accessToken && refreshToken) {
+            if (rememberMe) {
+                localStorage.setItem('token', accessToken);
+                localStorage.setItem('refreshToken', refreshToken);
+                localStorage.setItem('username', username);
+            } else {
+                sessionStorage.setItem('token', accessToken);
+                sessionStorage.setItem('refreshToken', refreshToken);
+                sessionStorage.setItem('username', username);
+            }
+            alert('로그인 성공!');
+            navigate('/home');
+        } else {
+            setErrorMessage('로그인 실패: 올바른 아이디와 비밀번호를 입력해주세요.');
+        }
+    } catch (error) {
+        if (error.response && error.response.data && error.response.data.msg) {
+            setErrorMessage(error.response.data.msg); // 서버에서 온 오류 메시지 사용
+        } else {
+            setErrorMessage('로그인 실패: 서버 오류가 발생했습니다.');
+        }
+    } finally {
+        setIsLoading(false);
+    }
+};
+  
   const handleSignUp = () => {
     navigate('/signUp');
   };

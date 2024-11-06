@@ -3,7 +3,6 @@ import { useSwipeable } from 'react-swipeable';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { useNavigate } from 'react-router-dom';
 import './Home.css';
-
 import tylenolIcon from '../../assets/tylenol.svg';
 import clockIcon from '../../assets/clock.svg';
 
@@ -11,8 +10,9 @@ function Home() {
     const [day, setDay] = useState(0);
     const [direction, setDirection] = useState('');
     const [notification, setNotification] = useState(true);
+    const [medicationConfirmed, setMedicationConfirmed] = useState(false);
     const navigate = useNavigate();
-    const nodeRef = useRef(null); // 추가된 코드
+    const nodeRef = useRef(null);
 
     const handlers = useSwipeable({
         onSwipedLeft: () => {
@@ -47,12 +47,16 @@ function Home() {
         navigate('/medicineinfo');
     };
 
+    const handleConfirmMedication = () => {
+        setMedicationConfirmed(true);
+    };
+
     return (
         <div className="home-container" {...handlers}>
             <TransitionGroup component={null}>
                 <CSSTransition
                     key={day}
-                    nodeRef={nodeRef} // 추가된 코드
+                    nodeRef={nodeRef}
                     classNames={direction === 'left' ? 'home-slide-left' : 'home-slide-right'}
                     timeout={300}
                 >
@@ -61,7 +65,7 @@ function Home() {
 
                         <div className="home-medication-card">
                             <img src={clockIcon} alt="Clock" className="home-clock-icon" />
-                            <p className="home-time">오전 : 8:00</p>
+                            <p className="home-time">오전  8:00</p>
 
                             <div className="home-medication-image-container" onClick={handleMedicationClick}>
                                 <img src={tylenolIcon} alt="Tylenol" className="home-medication-image" />
@@ -82,6 +86,15 @@ function Home() {
                                     <span className="home-slider"></span>
                                 </label>
                             </div>
+
+                            {/* 복약 확인 버튼을 같은 라인에 추가 */}
+                            <button 
+                                className="home-confirm-button" 
+                                onClick={handleConfirmMedication} 
+                                disabled={medicationConfirmed}
+                            >
+                                {medicationConfirmed ? "복약 완료" : "확인"}
+                            </button>
                         </div>
                     </div>
                 </CSSTransition>

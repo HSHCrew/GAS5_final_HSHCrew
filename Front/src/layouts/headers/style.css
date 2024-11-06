@@ -11,7 +11,7 @@
     box-sizing: border-box;
     display: flex;
     justify-content: space-between; /* divide left - right */
-
+    z-index: 10;
     background-color: inherit;
     border-bottom: 0.125rem solid var(--primary-color);
     align-items: center;
