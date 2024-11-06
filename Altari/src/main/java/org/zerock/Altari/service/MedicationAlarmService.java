@@ -1,5 +1,6 @@
 package org.zerock.Altari.service;
 
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -50,6 +51,37 @@ public class MedicationAlarmService {
 //    public void init() {
 //        scheduleAlerts(); // 알림 스케줄링
 //    }
+
+    @Scheduled(cron = "0 0 0 * * *")
+    @Transactional
+    public void updateTakenDosingDays() {
+        List<UserPrescriptionEntity> prescriptions = userPrescriptionRepository.findAll();
+
+        for (UserPrescriptionEntity prescription : prescriptions) {
+            List<PrescriptionDrugEntity> drugs = prescriptionDrugRepository.findByPrescriptionId(prescription);
+
+            boolean allDrugsCompleted = true; // 모든 약의 taken_dosing_days가 total_dosing_days와 같은지 확인
+
+            for (PrescriptionDrugEntity drug : drugs) {
+                // taken_dosing_days가 total_dosing_days보다 작으면 하루 증가
+                if (drug.getTaken_dosing_days() < drug.getTotal_dosing_days()) {
+                    drug.setTaken_dosing_days(drug.getTotal_dosing_days() + 1);
+                    prescriptionDrugRepository.save(drug);
+                }
+
+                // taken_dosing_days가 total_dosing_days와 같지 않으면 모든 약이 완료되지 않음
+                if (drug.getTaken_dosing_days() < drug.getTotal_dosing_days()) {
+                    allDrugsCompleted = false;
+                }
+            }
+
+            // 모든 약의 taken_dosing_days가 total_dosing_days에 도달하면 처방전 완료
+            if (allDrugsCompleted) {
+                prescription.setIsTaken(true);
+                userPrescriptionRepository.save(prescription);
+            }
+        }
+    }
 
     public void scheduleAlerts() {
         List<UserEntity> users = userRepository.findAll();
@@ -123,14 +155,26 @@ public class MedicationAlarmService {
         for (UserPrescriptionEntity prescription : activePrescriptions) {
             List<PrescriptionDrugEntity> prescriptionDrugs = prescriptionDrugRepository.findByPrescriptionId(prescription);
 
-            for (PrescriptionDrugEntity prescriptionDrug : prescriptionDrugs) {
-                    if (prescriptionDrug.getTodayTakenCount() < prescriptionDrug.getDailyDosesNumber()) {
-                        prescriptionDrug.setTodayTakenCount(prescriptionDrug.getTodayTakenCount() + 1);
-                        prescriptionDrug.setTaken_dosage(prescriptionDrug.getTaken_dosage() + 1);
-                        prescriptionDrug.setLastTakenDate(today); // 마지막 복용일 업데이트
-                        prescriptionDrugRepository.save(prescriptionDrug);
-                    }
+            boolean allDrugsTaken = true; // 모든 약물이 복용 완료된 상태인지 여부를 추적
 
+            for (PrescriptionDrugEntity prescriptionDrug : prescriptionDrugs) {
+                if (prescriptionDrug.getTodayTakenCount() < prescriptionDrug.getDailyDosesNumber()) {
+                    prescriptionDrug.setTodayTakenCount(prescriptionDrug.getTodayTakenCount() + 1);
+                    prescriptionDrug.setTaken_dosage(prescriptionDrug.getTaken_dosage() + 1);
+                    prescriptionDrug.setLastTakenDate(today); // 마지막 복용일 업데이트
+                    prescriptionDrugRepository.save(prescriptionDrug);
+                }
+
+                // taken_dosage와 total_dosage가 같으면 모든 약물이 완료된 것으로 간주
+                if (prescriptionDrug.getTaken_dosage() < prescriptionDrug.getTotal_dosage()) {
+                    allDrugsTaken = false; // 한 개라도 복용이 완료되지 않으면 false
+                }
+            }
+
+            // 모든 약물이 완료되었으면, 처방전의 is_taken을 1로 업데이트
+            if (allDrugsTaken) {
+                prescription.setIsTaken(true); // is_taken을 1로 설정 (true로 변경)
+                userPrescriptionRepository.save(prescription);
             }
         }
 
@@ -150,15 +194,15 @@ public class MedicationAlarmService {
     @Transactional
     public List<Integer> setDailyNotificationCount(UserEntity username) {
         UserProfileEntity userProfile = userProfileRepository.findByUsername(username);
-        // 사용자의 모든 활성 상태인 처방전을 조회합니다.
-        List<UserPrescriptionEntity> activePrescriptions = userPrescriptionRepository.findByUserProfile(userProfile);
+        // is_taken이 false인 활성 상태의 처방전을 조회합니다.
+        List<UserPrescriptionEntity> activePrescriptions = userPrescriptionRepository.findByUserProfileAndIsTakenFalse(userProfile);
 
         int maxDailyDosage = 0; // 초기 하루 복약 알림 횟수
         int maxTotalDays = 0;   // 초기 알림 제공 최대 일수
 
         boolean allDrugsTaken = true; // 모든 약물 복용 확인 플래그
 
-        // 처방전 내 모든 약물에 대해 최대 하루 복용 횟수와 총 복용 일수 설정
+        // is_taken이 false인 처방전 내 모든 약물에 대해 최대 하루 복용 횟수와 총 복용 일수 설정
         for (UserPrescriptionEntity prescription : activePrescriptions) {
             List<PrescriptionDrugEntity> prescriptionDrugs = prescriptionDrugRepository.findByPrescriptionId(prescription);
 
@@ -208,22 +252,36 @@ public class MedicationAlarmService {
     }
 
 
-    public double calculateProgress(UserEntity username) {
-        UserProfileEntity userProfile = userProfileRepository.findByUsername(username);
+    public Map<String, Object> calculateProgressByPrescription(UserEntity userEntity) {
+        UserProfileEntity userProfile = userProfileRepository.findByUsername(userEntity);
         List<UserPrescriptionEntity> prescriptions = userPrescriptionRepository.findByUserProfile(userProfile);
 
-        int totalTaken = 0;
-        int totalRequired = 0;
+        Map<String, Object> result = new HashMap<>();
+        List<Map<String, Object>> prescriptionProgressList = new ArrayList<>();
 
         for (UserPrescriptionEntity prescription : prescriptions) {
+            int totalTaken = 0;
+            int totalRequired = 0;
+
             List<PrescriptionDrugEntity> medications = prescriptionDrugRepository.findByPrescriptionId(prescription);
             for (PrescriptionDrugEntity medication : medications) {
                 totalTaken += medication.getTaken_dosage();
                 totalRequired += medication.getTotal_dosage();
             }
+
+            double progress = totalRequired == 0 ? 0 : (double) totalTaken / totalRequired * 100;
+
+            // 각 처방전의 진행률을 담은 Map을 생성하여 리스트에 추가
+            Map<String, Object> prescriptionData = new HashMap<>();
+            prescriptionData.put("prescriptionId", prescription.getUser_prescription_id());
+            prescriptionData.put("progress", progress);
+            prescriptionProgressList.add(prescriptionData);
         }
 
-        return totalRequired == 0 ? 0 : (double) totalTaken / totalRequired * 100;
+        // 결과 Map에 처방전 리스트 추가
+        result.put("prescription_progress: ", prescriptionProgressList);
+
+        return result;
     }
 
     String createCronExpression(LocalTime alertTime) {

@@ -7,8 +7,13 @@ import org.zerock.Altari.entity.UserPrescriptionEntity;
 import org.zerock.Altari.entity.UserProfileEntity;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface UserPrescriptionRepository extends JpaRepository<UserPrescriptionEntity, Integer> {
     List<UserPrescriptionEntity> findByUserProfile(UserProfileEntity profile_id);
+
+    Optional<UserPrescriptionEntity> findByPrescribeNo(String prescribeNo);
+
+    List<UserPrescriptionEntity> findByUserProfileAndIsTakenFalse(UserProfileEntity userProfile);
 }

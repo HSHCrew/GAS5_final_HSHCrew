@@ -12,6 +12,7 @@ import org.zerock.Altari.repository.MedicationRepository;
 import org.zerock.Altari.service.MedicationAlarmService;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -44,5 +45,13 @@ public class MedicationController {
         }
     }
 
+    @GetMapping("/medication-progress/{username}")
+    public ResponseEntity<Map<String, Object>> getProgressByPrescription(@PathVariable String username) {
+        UserEntity userEntity = new UserEntity();
+        userEntity.setUsername(username);
 
+        Map<String, Object> userProgress = medicationAlarmService.calculateProgressByPrescription(userEntity);
+
+        return ResponseEntity.ok(userProgress);
+    }
 }

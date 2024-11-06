@@ -32,6 +32,8 @@ public class PrescriptionDrugEntity {
     @Column(nullable = false)
     private int dailyDosesNumber;
 
+    private int taken_dosing_days;
+
     @Column(nullable = false)
     private int total_dosing_days;
 

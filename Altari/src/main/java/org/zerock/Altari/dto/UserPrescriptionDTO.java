@@ -31,6 +31,6 @@ public class UserPrescriptionDTO {
     private List<PrescriptionDrugDTO> drugs;
     private String prescription_info;
     private String ai_summary;
-    private String adherence_score;
+    private Boolean isTaken;
 }
 
