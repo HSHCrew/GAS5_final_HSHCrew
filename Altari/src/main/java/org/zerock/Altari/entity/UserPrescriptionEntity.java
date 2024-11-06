@@ -26,7 +26,8 @@ public class UserPrescriptionEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer user_prescription_id;
 
-    private String prescribe_no;
+    @Column(name = "prescribe_no",unique = true)
+    private String prescribeNo;
     private String prescribe_org;
     private String comm_brand_name;
     private LocalDate manufacture_date;
@@ -34,7 +35,8 @@ public class UserPrescriptionEntity {
     private String tel_no1;
     private String prescription_info;
     private String ai_summary;
-    private String adherence_score;
+    @Column(name = "is_taken")
+    private Boolean isTaken;
     @ManyToOne
     @JoinColumn(name = "user_profile_id")
     private UserProfileEntity userProfile;

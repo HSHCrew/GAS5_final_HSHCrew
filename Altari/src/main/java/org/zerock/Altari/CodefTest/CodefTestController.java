@@ -75,8 +75,16 @@ public class CodefTestController {
                 secondRequestDTO.getTwoWayInfo().getTwoWayTimestamp(),
                 userProfile
         );
-        medicationAlarmService.userScheduleAlerts(user);
+
+        try {
+            medicationAlarmService.userScheduleAlerts(user);
+        } catch (Exception e) {
+            // 예외 발생 시 로그를 남기고 계속 진행
+            System.err.println("복약 알림 예약 중 오류 발생: " + e.getMessage());
+            e.printStackTrace(); // 상세한 오류 메시지를 콘솔에 출력 (필요에 따라 생략 가능)
+        }
 
         return ResponseEntity.ok(response);
     }
 }
+
