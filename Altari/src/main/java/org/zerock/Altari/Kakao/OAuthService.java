@@ -35,7 +35,7 @@ public class OAuthService {
     private static final String KAKAO_TOKEN_URL = "https://kauth.kakao.com/oauth/token";
     private static final String KAKAO_USERINFO_URL = "https://kapi.kakao.com/v2/user/me";
 
-    public String kakaoLogin(String authorizationCode) {
+    public ResponseEntity<Map<String, String>> kakaoLogin(String authorizationCode) {
         // Access Token 요청
         String accessToken = getAccessToken(authorizationCode);
 
@@ -79,9 +79,10 @@ public class OAuthService {
             claims.put("username", id);  // 'username' 클레임에 닉네임을 추가
 
             // 기존 createToken 메서드 사용
-            String jwtToken = jwtUtil.createToken(claims, 1440);  // 토큰 유효 시간(분) 설정
+            String jwtToken = jwtUtil.createToken(claims, 60);
+            String refreshToken = jwtUtil.createToken(Map.of("username", userEntity), 60 * 24 * 30); //
 
-            return accessToken;
+            return ResponseEntity.ok(Map.of("accessToken", jwtToken, "refreshToken", refreshToken));
         } else {
             throw new RuntimeException("카카오 사용자 정보 조회 실패");
         }
