@@ -47,7 +47,7 @@ template: |
 
   Return the transformed data in this markdown structure:
 
-  # 약품명 (Medicine Name)
+  # 복약중인 약물 이름 (Medicine Name)
   ## 기본 정보 (Basic Information)
   ## 성분 정보 (Ingredient Information)
   ## 사용법 (Usage)
