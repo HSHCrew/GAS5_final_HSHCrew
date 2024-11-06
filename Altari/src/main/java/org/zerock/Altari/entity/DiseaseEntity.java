@@ -24,8 +24,8 @@ public class DiseaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer diseaseId;
+    private String disease_code;
     private String disease_name;
-    private String disease_info;
     @CreatedDate
     private LocalDateTime disease_created_at;
     @LastModifiedDate
