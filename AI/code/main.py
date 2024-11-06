@@ -12,6 +12,7 @@ import uvicorn
 import json
 from summarizer.Summarizer import Summarizer
 from chatbot.medication_chatbot import MedicationChatbot
+from chatbot.config import ChatbotSettings
 from sqlalchemy import DateTime, func
 from sqlalchemy import and_
 from redis import asyncio as aioredis
@@ -275,57 +276,90 @@ async def get_user_medication_summaries(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+class ChatbotError(Exception):
+    """챗봇 관련 기본 예외"""
+    pass
+
+class ChatbotSessionError(ChatbotError):
+    """세션 관리 관련 예외"""
+    pass
+
 class ChatbotManager:
     def __init__(self, redis_client: aioredis.Redis):
-        self.instances: Dict[int, MedicationChatbot] = {}
         self.redis = redis_client
-        self.cleanup_interval = 3600
-        self.max_instances = 1000  # 최대 인스턴스 수 제한
-        
+        self.instances: Dict[int, MedicationChatbot] = {}
+        self.settings = ChatbotSettings()
+        self.last_cleanup = time.time()
+
     async def _cleanup_expired(self):
-        if len(self.instances) > self.max_instances:
-            # 가장 오래된 인스턴스부터 제거
-            oldest_keys = sorted(self.instances.keys())[:-self.max_instances]
-            for key in oldest_keys:
-                del self.instances[key]
+        current_time = time.time()
+        # 정리 간격 확인
+        if current_time - self.last_cleanup < self.settings.cleanup_interval:
+            return
+
+        try:
+            # 활성 세션 확인
+            for user_id in list(self.instances.keys()):
+                session_key = f"chatbot:session:{user_id}"
+                if not await self.redis.exists(session_key):
+                    del self.instances[user_id]
+                    
+            # 용량 제한 확인
+            if len(self.instances) > self.settings.max_instances:
+                oldest_keys = sorted(self.instances.keys())[:-self.settings.max_instances]
+                for key in oldest_keys:
+                    del self.instances[key]
+                    
+            self.last_cleanup = current_time
+        except Exception as e:
+            print(f"Cleanup error: {str(e)}")
 
     async def get_chatbot(self, user_id: int, db: AsyncSession = None) -> MedicationChatbot:
         # 만료된 인스턴스 정리
         await self._cleanup_expired()
         
-        if user_id not in self.instances:
-            # Redis에서 세션 확인
-            session_key = f"chatbot:session:{user_id}"
-            session_exists = await self.redis.exists(session_key)
+        if user_id in self.instances:
+            return self.instances[user_id]
             
-            # DB에서 사용자의 약물 정보 조회
-            if db:
-                try:
-                    query = select(MedicationSummary).where(
+        medication_info = []
+        if db:
+            try:
+                # 읽기 전용 트랜잭션 사용
+                async with db.begin_nested():
+                    query = select(
+                        MedicationSummary.restructured,
+                        Medication.name,
+                        Medication.details
+                    ).join(
+                        Medication,
+                        MedicationSummary.medication_id == Medication.id
+                    ).where(
                         MedicationSummary.user_id == user_id
                     )
                     result = await db.execute(query)
                     summaries = result.all()
                     
-                    if summaries:
-                        medication_info = [summary[0].restructured for summary in summaries]
-                        print(f"Found {len(medication_info)} medication summaries for user {user_id}")
-                    else:
-                        print(f"No medication summaries found for user {user_id}")
-                except Exception as e:
-                    print(f"Error fetching medication summaries: {str(e)}")
-                    # 에러가 발생해도 빈 리스트로 계속 진행
+                    medication_info = [
+                        {
+                            "summary": summary.restructured,
+                            "name": summary.name,
+                            "details": json.loads(summary.details)
+                        }
+                        for summary in summaries
+                    ]
+                # 트랜잭션 커밋
+                await db.commit()
+            except Exception as e:
+                await db.rollback()
+                raise ChatbotSessionError(f"Database error: {str(e)}")
 
-            # 새 인스턴스 생성
-            self.instances[user_id] = MedicationChatbot(
-                user_id=user_id,
-                redis_client=self.redis,
-                medication_info=medication_info
-            )
-            
-            if not session_exists:
-                # 새 세션 시작
-                await self.redis.set(session_key, "active", ex=3600)
+        # 새 인스턴스 생성 시 settings 전달
+        self.instances[user_id] = MedicationChatbot(
+            user_id=user_id,
+            redis_client=self.redis,
+            medication_info=medication_info,
+            settings=self.settings  # 설정 전달
+        )
         
         return self.instances[user_id]
 
@@ -355,6 +389,8 @@ async def chat_message(
         chatbot = await chatbot_manager.get_chatbot(request.user_id, db)
         response = await chatbot.respond(request.message)
         return {"response": response}
+    except ChatbotSessionError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -398,6 +434,21 @@ async def chat_reset(
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.on_event("startup")
+async def startup_event():
+    # Redis 연결 확인
+    try:
+        await redis.ping()
+    except Exception as e:
+        raise Exception(f"Redis connection failed: {str(e)}")
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    # 리소스 정리
+    for instance in chatbot_manager.instances.values():
+        await instance.cleanup()
+    await redis.close()
 
 def main():
     uvicorn.run(app, host="0.0.0.0", port=8000)

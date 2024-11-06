@@ -22,12 +22,26 @@ import traceback
 from redis import asyncio as aioredis
 import pickle
 from datetime import datetime, timedelta
+from .exceptions import SessionError, MessageError
+from .models import ChatMessage
+from .config import ChatbotSettings
 
 
 class MedicationChatbot:
-    def __init__(self, user_id: int, redis_client: aioredis.Redis, user_info: str = None, medication_info: list[str] = None):
+    def __init__(
+        self, 
+        user_id: int, 
+        redis_client: aioredis.Redis, 
+        user_info: str = None, 
+        medication_info: list[str] = None,
+        settings: ChatbotSettings = None
+    ):
         load_dotenv()
         logging.langsmith("gas5-fp-chatbot")
+        
+        # 설정 초기화
+        self.settings = settings or ChatbotSettings()
+        
         self.user_id = user_id
         self.user_info = user_info
         if medication_info is None:
@@ -38,8 +52,8 @@ class MedicationChatbot:
             except json.JSONDecodeError:
                 medication_info = [medication_info]
         self.medication_info = medication_info
-        print(f"Initialized chatbot for user {user_id} with {len(self.medication_info)} medications")
         self.redis = redis_client
+        print(f"Initialized chatbot for user {user_id} with {len(self.medication_info)} medications")
         self.message_ttl = timedelta(days=7)  # 메시지 보관 기간
         self.llm = ChatOpenAI(
             temperature=0,
@@ -52,52 +66,111 @@ class MedicationChatbot:
     async def get_chat_key(self, user_id: int) -> str:
         return f"chat:history:{user_id}"
 
-    async def get_session_history(self, session_id):
+    async def get_session_history(self, session_id: int) -> ChatMessageHistory:
         chat_key = await self.get_chat_key(session_id)
         history = ChatMessageHistory()
         
-        # Redis에서 대화 이력 가져오기
-        messages = await self.redis.lrange(chat_key, 0, -1)
+        # 파이프라인으로 메시지 일괄 처리
+        async with self.redis.pipeline(transaction=True) as pipe:
+            await pipe.lrange(chat_key, 0, -1)
+            await pipe.expire(chat_key, timedelta(days=self.settings.MESSAGE_TTL))
+            messages, _ = await pipe.execute()
+            
         for msg_bytes in messages:
             try:
-                msg = pickle.loads(msg_bytes)
-                content = msg.get("content")
-                # content가 None이거나 비어있지 않은 경우에만 메시지 추가
-                if content:
-                    if msg["role"] == "human":
-                        history.add_user_message(content)
+                msg = ChatMessage.parse_raw(msg_bytes)
+                if msg.content:
+                    if msg.role == "human":
+                        history.add_user_message(msg.content)
                     else:
-                        history.add_ai_message(content)
+                        history.add_ai_message(msg.content)
             except Exception as e:
                 print(f"Error processing message: {e}")
                 continue
         
         return history
 
-    async def save_message(self, role: str, content: str):
+    async def _update_session_timestamp(self) -> None:
+        """세션 마지막 접근 시간 업데이트"""
+        session_key = f"chatbot:session:{self.user_id}"
+        await self.redis.hset(
+            session_key,
+            mapping={
+                "last_accessed": datetime.utcnow().isoformat(),
+                "medication_count": len(self.medication_info)
+            }
+        )
+        await self.redis.expire(session_key, self.settings.SESSION_TTL)
+
+    async def _validate_session(self) -> bool:
+        """세션 유효성 검증"""
+        session_key = f"chatbot:session:{self.user_id}"
+        chat_key = await self.get_chat_key(self.user_id)
+        
+        async with self.redis.pipeline(transaction=True) as pipe:
+            await pipe.exists(session_key)
+            await pipe.exists(chat_key)
+            session_exists, chat_exists = await pipe.execute()
+            
+        if not session_exists:
+            # 세션이 없으면 새로 시작
+            await self.start_chat()
+            return True
+        
+        if not chat_exists:
+            # 채팅 기록이 없으면 초기화
+            await self.reset_chat()
+            return True
+            
+        await self._update_session_timestamp()
+        return True
+
+    async def save_message(self, role: str, content: str) -> None:
         if not content:  # content가 None이거나 비어있으면 저장하지 않음
             return
         
-        chat_key = await self.get_chat_key(self.user_id)
-        message = {
-            "role": role,
-            "content": content,
-            "timestamp": datetime.utcnow().isoformat()
-        }
-        
-        # 메시지를 Redis에 저장
-        await self.redis.rpush(chat_key, pickle.dumps(message))
-        await self.redis.expire(chat_key, self.message_ttl)
+        try:
+            message = ChatMessage(
+                role=role,
+                content=content,
+                timestamp=datetime.utcnow()
+            )
+            
+            chat_key = await self.get_chat_key(self.user_id)
+            
+            async with self.redis.pipeline(transaction=True) as pipe:
+                # JSON으로 직렬화
+                await pipe.rpush(chat_key, message.json())  # pickle.dumps 대신 json() 사용
+                await pipe.ltrim(chat_key, -self.settings.MAX_HISTORY_LENGTH, -1)
+                await pipe.expire(chat_key, timedelta(days=self.settings.MESSAGE_TTL))
+                await pipe.execute()
+                
+        except Exception as e:
+            raise MessageError(f"Failed to save message: {str(e)}")
 
     async def start_chat(self):
         """대화 시작 메시지를 반환합니다."""
-        initial_message = (
-            f"안녕하세요! 복약 상담 챗봇입니다.\n"
-            f"현재 {len(self.medication_info) if isinstance(self.medication_info, list) else 0}개의 "
-            f"약물 정보가 등록되어 있습니다."
-        )
-        await self.save_message("assistant", initial_message)
-        return initial_message
+        try:
+            # 세션 초기화
+            session_key = f"chatbot:session:{self.user_id}"
+            await self.redis.hset(
+                session_key,
+                mapping={
+                    "created_at": datetime.utcnow().isoformat(),
+                    "last_accessed": datetime.utcnow().isoformat(),
+                    "medication_count": len(self.medication_info)
+                }
+            )
+            await self.redis.expire(session_key, self.settings.session_ttl_seconds)
+            
+            initial_message = (
+                f"안녕하세요! 복약 상담 챗봇입니다.\n"
+                f"현재 {len(self.medication_info)}개의 약물 정보가 등록되어 있습니다."
+            )
+            await self.save_message("assistant", initial_message)
+            return initial_message
+        except Exception as e:
+            raise SessionError(f"Failed to start chat: {str(e)}")
 
     async def get_conversation_chain(self):
         try:
@@ -165,3 +238,17 @@ class MedicationChatbot:
         chat_key = await self.get_chat_key(self.user_id)
         await self.redis.delete(chat_key)
         return await self.start_chat()
+
+    async def cleanup(self) -> None:
+        """리소스 정리"""
+        try:
+            chat_key = await self.get_chat_key(self.user_id)
+            session_key = f"chatbot:session:{self.user_id}"
+            
+            # Redis에서 세션 및 채팅 기록 삭제
+            await asyncio.gather(
+                self.redis.delete(chat_key),
+                self.redis.delete(session_key)
+            )
+        except Exception as e:
+            print(f"Cleanup error for user {self.user_id}: {str(e)}")
