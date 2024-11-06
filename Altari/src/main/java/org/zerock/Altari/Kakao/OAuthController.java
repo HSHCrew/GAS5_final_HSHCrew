@@ -23,8 +23,11 @@ public class OAuthController {
         @PostMapping("/kakao/login")
     public ResponseEntity<Map<String, String>> kakaoLogin(@RequestParam("code") String authorizationCode) {
         try {
-            String jwtToken = oAuthService.kakaoLogin(authorizationCode);
-            return ResponseEntity.ok(Map.of("accessToken", jwtToken));
+            ResponseEntity<Map<String, String>> jwtToken = oAuthService.kakaoLogin(authorizationCode);
+            Map<String, String> tokenMap = jwtToken.getBody();  // Map<String, String> 반환
+            String accessToken = tokenMap.get("accessToken");
+            String refreshToken = tokenMap.get("refreshToken");
+            return ResponseEntity.ok(Map.of("accessToken", accessToken, "refreshToken", refreshToken));
         } catch (Exception e) {
             log.error("카카오 로그인 오류", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "카카오 로그인 실패"));

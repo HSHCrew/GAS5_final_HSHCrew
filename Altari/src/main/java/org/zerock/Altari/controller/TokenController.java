@@ -39,9 +39,9 @@ public class TokenController {
 
         Map<String, Object> newClaims = userDTO.getDataMap();
 
-        String newAccessToken = jwtUtil.createToken(newClaims, 10);
+        String newAccessToken = jwtUtil.createToken(newClaims, 60);
 
-        String newRefreshToken = jwtUtil.createToken(Map.of("username", username), 60 * 24 * 7); //
+        String newRefreshToken = jwtUtil.createToken(Map.of("username", username), 60 * 24 * 30); //
 
         return makeData(username, newAccessToken, newRefreshToken); //
     }
@@ -58,9 +58,9 @@ public class TokenController {
 
         Map<String, Object> dataMap = userDTOResult.getDataMap();
 
-        String accessToken = jwtUtil.createToken(dataMap, 10);
+        String accessToken = jwtUtil.createToken(dataMap, 60);
 
-        String refreshToken = jwtUtil.createToken(Map.of("username", username), 60 * 24 * 7); //
+        String refreshToken = jwtUtil.createToken(Map.of("username", username), 60 * 24 * 30); //
 
         log.info("accessToken: " + accessToken);
         log.info("refreshToken: " + refreshToken);

@@ -49,63 +49,11 @@ public class JWTCheckFilter extends OncePerRequestFilter {
             return;
         }
 
-        if (request.getRequestURI().equals("/api/v1/drugs")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
         if (request.getRequestURI().equals("/api/v1/check-username")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        if (request.getRequestURI().equals("/api/codef/first")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-        if (request.getRequestURI().equals("/api/codef/second")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        if (request.getRequestURI().equals("/api/v1/medications")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        if (request.getRequestURI().equals("/api/v1/update-userProfile/test2")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        if (request.getRequestURI().equals("/api/v1/get-userProfile/test2")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-        if (request.getRequestURI().equals("/api/v1/get-userHealth/test2")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-        if (request.getRequestURI().equals("/api/v1/update-userHealth/test2")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-        if (request.getRequestURI().equals("/api/v1/get-userPrescription/test2")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-        if (request.getRequestURI().equals("/oauth/kakao/login")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-        if (request.getRequestURI().equals("/api/v1/delete/user2")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-        if (request.getRequestURI().equals("/api/kakao/send")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
 
 
         // 특정 엔드포인트에 대한 접근 제한 해제
