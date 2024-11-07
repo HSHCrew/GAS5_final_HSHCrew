@@ -11,7 +11,7 @@ class ProcessResult:
     summary: str = ""
     fewshots: str = ""
     failed: str = ""
-    processed_at: datetime = Field(default_factory=datetime.utcnow)
+    processed_at: datetime = datetime.utcnow()
     
     def is_successful(self) -> bool:
         return not bool(self.failed)

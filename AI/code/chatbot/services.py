@@ -43,31 +43,41 @@ class SessionService:
 
     async def get_session(self, user_id: int) -> Optional[ChatSession]:
         """사용자 세션 정보 조회"""
-        session_key = f"chatbot:session:{user_id}"
-        session_data = await self.redis.hgetall(session_key)
-        
-        if not session_data:
-            return None
-            
         try:
-            # Redis에서 가져온 데이터에 user_id가 없으면 추가
-            if 'user_id' not in session_data:
-                session_data['user_id'] = str(user_id)
+            print(f"\n[DEBUG] Getting session for user {user_id}")
+            session_key = f"chatbot:session:{user_id}"
+            session_data = await self.redis.hgetall(session_key)
             
-            # medication_info가 문자열이면 JSON으로 파싱
-            if 'medication_info' in session_data and isinstance(session_data['medication_info'], str):
-                try:
-                    session_data['medication_info'] = json.loads(session_data['medication_info'])
-                except json.JSONDecodeError:
-                    session_data['medication_info'] = []
+            print(f"[DEBUG] Raw session data from Redis:")
+            print(session_data)
             
-            return ChatSession.from_redis_hash(session_data)
+            if not session_data:
+                print("[DEBUG] No session data found")
+                return None
+                
+            session = ChatSession.from_redis_hash(session_data)
+            print(f"[DEBUG] Session loaded with {len(session.medication_info)} medication info entries")
+            
+            return session
+            
         except Exception as e:
+            print(f"[ERROR] Failed to load session: {str(e)}")
             raise ChatbotSessionError(f"Failed to load session: {str(e)}")
 
     async def create_session(self, user_id: int, medication_info: List[str], user_info: str = "") -> ChatSession:
         """새로운 세션 생성"""
         try:
+            print(f"\n[DEBUG] Creating session for user {user_id}")
+            print(f"Medication info count: {len(medication_info)}")
+            
+            # medication_info가 문자열 리스트인지 확인
+            if medication_info and isinstance(medication_info[0], str):
+                print("[DEBUG] Medication info is valid string list")
+            else:
+                print(f"[WARNING] Unexpected medication_info type: {type(medication_info)}")
+                if medication_info:
+                    print(f"First item type: {type(medication_info[0])}")
+            
             session = ChatSession(
                 user_id=user_id,
                 medication_info=medication_info,
@@ -79,13 +89,21 @@ class SessionService:
             session_key = f"chatbot:session:{user_id}"
             session_data = session.to_redis_hash()
             
-            # Redis hash로 변환하여 저장
-            await self.redis.hset(
-                session_key,
-                mapping=session_data
-            )
+            # Redis 저장 전 데이터 확인
+            print("\n[DEBUG] Session data before Redis save:")
+            for key, value in session_data.items():
+                print(f"{key}: {str(value)[:10]}...")
+            
+            await self.redis.hset(session_key, mapping=session_data)
             await self.redis.expire(session_key, self.settings.session_ttl_seconds)
             
+            # 저장된 데이터 확인
+            saved_data = await self.redis.hgetall(session_key)
+            print("\n[DEBUG] Saved Redis data:")
+            print(saved_data)
+            
             return session
+            
         except Exception as e:
+            print(f"[ERROR] Failed to create session: {str(e)}")
             raise ChatbotSessionError(f"Failed to create session: {str(e)}")
