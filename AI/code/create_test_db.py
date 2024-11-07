@@ -1,16 +1,25 @@
 import asyncio
 import json
+from datetime import datetime
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
-from main import Base, User, Medication, UserMedication, MedicationSummary
+from chatbot.database.models import Base, User, Medication, UserMedication, MedicationSummary
 
 # SQLite 데이터베이스 URL
 DATABASE_URL = "sqlite+aiosqlite:///./test.db"
 
 # 테스트용 샘플 데이터
 sample_users = [
-    {"id": 1, "name": "김환자"},
-    {"id": 2, "name": "이환자"}
+    {
+        "id": 1, 
+        "name": "김환자",
+        "created_at": datetime.utcnow()
+    },
+    {
+        "id": 2, 
+        "name": "이환자",
+        "created_at": datetime.utcnow()
+    }
 ]
 
 sample_medications = [
@@ -26,7 +35,8 @@ sample_medications = [
             "주의사항": "간장애 또는 그 병력이 있는 환자",
             "이상반응": "쇼크, 아나필락시스 유사증상",
             "상호작용": "다른 해열진통제, 감기약과 병용 투여하지 않음"
-        })
+        }),
+        "created_at": datetime.utcnow()
     },
     {
         "id": 2,
@@ -40,7 +50,22 @@ sample_medications = [
             "주의사항": "다른 감기약, 해열진통제와 함께 복용하지 않음",
             "이상반응": "졸음, 어지러움, 구역, 구토",
             "상호작용": "MAO 억제제, 알코올"
-        })
+        }),
+        "created_at": datetime.utcnow()
+    }
+]
+
+# 사용자-약물 연결 데이터
+sample_user_medications = [
+    {
+        "user_id": 1,
+        "medication_id": 1,
+        "created_at": datetime.utcnow()
+    },
+    {
+        "user_id": 1,
+        "medication_id": 2,
+        "created_at": datetime.utcnow()
     }
 ]
 
@@ -67,6 +92,11 @@ async def create_test_database():
             for med_data in sample_medications:
                 medication = Medication(**med_data)
                 session.add(medication)
+            
+            # 사용자-약물 연결 데이터 삽입
+            for um_data in sample_user_medications:
+                user_medication = UserMedication(**um_data)
+                session.add(user_medication)
             
             await session.commit()
             print("테스트 데이터베이스가 성공적으로 생성되었습니다.")
