@@ -4,7 +4,7 @@ class ChatbotError(Exception):
         super().__init__(message)
         self.code = code or self.__class__.__name__
 
-class SessionError(ChatbotError):
+class ChatbotSessionError(ChatbotError):
     """세션 관련 예외"""
     pass
 
