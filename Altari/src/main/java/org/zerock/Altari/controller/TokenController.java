@@ -14,7 +14,7 @@ import org.zerock.Altari.service.UserService;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/v1/token")
+@RequestMapping("/altari")
 @Log4j2
 @RequiredArgsConstructor
 public class TokenController {
@@ -46,7 +46,7 @@ public class TokenController {
         return makeData(username, newAccessToken, newRefreshToken); //
     }
 
-    @PostMapping("/make")
+    @PostMapping("/login")
     public ResponseEntity<Map<String, String>> makeToken(@RequestBody UserDTO userDTO) { //
         log.info("make token.....");
 

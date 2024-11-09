@@ -21,10 +21,11 @@ public class KeywordRegistrationEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer keyword_registration_id;
+    @Column(name = "keyword_registration_id")
+    private Integer keywordRegistrationId;
     @ManyToOne
     @JoinColumn(name = "user_profile_id")
-    private UserProfileEntity user_profile_id;
+    private UserProfileEntity userProfile;
 
     @CreatedDate
     private LocalDateTime keyword_registration_created_at;

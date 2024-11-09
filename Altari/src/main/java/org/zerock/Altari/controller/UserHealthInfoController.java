@@ -16,7 +16,7 @@ import org.zerock.Altari.service.UserHealthInfoService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/altari")
 @Log4j2
 @RequiredArgsConstructor
 public class UserHealthInfoController {
@@ -24,14 +24,14 @@ public class UserHealthInfoController {
     @Autowired
     private final UserHealthInfoService userHealthInfoService;
 
-    @GetMapping("/get-userHealth/{username}")
+    @GetMapping("/getInfo/userHealth/{username}")
     public ResponseEntity<UserHealthInfoDTO> getUserHealthInfo(@PathVariable String username) {
         UserEntity userEntity = new UserEntity(username);
         UserHealthInfoDTO userHealthInfoDTO = userHealthInfoService.getUserHealthInfo(userEntity);
         return ResponseEntity.ok(userHealthInfoDTO);
     }
 
-    @PutMapping("/update-userHealth/{username}")
+    @PutMapping("/updateInfo/userHealth/{username}")
     public ResponseEntity<List<UserDiseaseEntity>> updateUserProfile(@PathVariable String username,
                                                            @Valid @RequestBody UserHealthInfoDTO userHealthInfoDTO) {
         UserEntity userEntity = new UserEntity(username);

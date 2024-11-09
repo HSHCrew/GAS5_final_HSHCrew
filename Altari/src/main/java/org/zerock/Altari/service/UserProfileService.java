@@ -22,132 +22,81 @@ public class UserProfileService {
 
     @Transactional
     public UserProfileDTO getUserProfile(UserEntity username) {
-        Optional<UserProfileEntity> optionalUserProfile = Optional.ofNullable(userProfileRepository.findByUsername(username));
-        if (optionalUserProfile.isEmpty()) {
-            throw UserExceptions.NOT_FOUND.get();
-        }
-
+        // findByUsername을 한 번만 호출하고 Optional을 처리
         UserProfileEntity userProfileEntity = userProfileRepository.findByUsername(username);
 
         return UserProfileDTO.builder()
-                .user_profile_id(userProfileEntity.getUser_profile_id())
-                .full_name(userProfileEntity.getFull_name())
-                .date_of_birth(userProfileEntity.getDate_of_birth())
-                .phone_number(userProfileEntity.getPhone_number())
+                .userProfileId(userProfileEntity.getUserProfileId())
+                .fullName(userProfileEntity.getFullName())
+                .dateOfBirth(userProfileEntity.getDateOfBirth())
+                .phoneNumber(userProfileEntity.getPhoneNumber())
                 .height(userProfileEntity.getHeight())
                 .weight(userProfileEntity.getWeight())
-                .blood_type(userProfileEntity.getBlood_type())
-                .morning_medication_time(userProfileEntity.getMorning_medication_time())
-                .lunch_medication_time(userProfileEntity.getLunch_medication_time())
-                .dinner_medication_time(userProfileEntity.getDinner_medication_time())
+                .bloodType(userProfileEntity.getBloodType())
+                .morningMedicationTime(userProfileEntity.getMorningMedicationTime())
+                .lunchMedicationTime(userProfileEntity.getLunchMedicationTime())
+                .dinnerMedicationTime(userProfileEntity.getDinnerMedicationTime())
                 .user_profile_created_at(userProfileEntity.getUser_profile_created_at())
                 .user_profile_updated_at(userProfileEntity.getUser_profile_updated_at())
                 .build();
-
     }
-
 
     @Transactional
-    public UserProfileDTO updateUserProfile(UserEntity username,
-                                               UserProfileDTO userProfileDTO) {
+    public UserProfileDTO updateUserProfile(UserEntity username, UserProfileDTO userProfileDTO) {
+        // 프로필 조회: Optional로 처리
+        UserProfileEntity userProfileEntity = userProfileRepository.findByUsername(username);
 
-        // 사용자 프로필 조회
-        Optional<UserProfileEntity> optionalUserProfile = Optional.ofNullable(userProfileRepository.findByUsername(username));
-        if (optionalUserProfile.isEmpty()) {
-            throw UserExceptions.NOT_FOUND.get();
-        }
+        // DTO를 기반으로 값이 있으면 업데이트, 없으면 null로 처리
+        updateField(userProfileDTO.getFullName(), userProfileEntity::setFullName);
+        updateField(userProfileDTO.getDateOfBirth(), userProfileEntity::setDateOfBirth);
+        updateField(userProfileDTO.getHeight(), userProfileEntity::setHeight);
+        updateField(userProfileDTO.getWeight(), userProfileEntity::setWeight);
+        updateField(userProfileDTO.getBloodType(), userProfileEntity::setBloodType);
+        updatePhoneNumber(userProfileDTO.getPhoneNumber(), userProfileEntity);
+        updateField(userProfileDTO.getMorningMedicationTime(), userProfileEntity::setMorningMedicationTime);
+        updateField(userProfileDTO.getLunchMedicationTime(), userProfileEntity::setLunchMedicationTime);
+        updateField(userProfileDTO.getDinnerMedicationTime(), userProfileEntity::setDinnerMedicationTime);
 
-        try {
-            UserProfileEntity userProfileEntity = optionalUserProfile.get();
+        // 프로필 업데이트 후 저장
+        userProfileRepository.save(userProfileEntity);
 
-            // DTO의 값으로 프로필 업데이트, 삭제하고 싶은 필드는 null로 설정
-            if (userProfileDTO.getFull_name() != null) {
-                userProfileEntity.setFull_name(userProfileDTO.getFull_name());
-            } else {
-                userProfileEntity.setFull_name(null); // 사용자가 삭제하고 싶을 경우
-            }
+        return UserProfileDTO.builder()
+                .userProfileId(userProfileEntity.getUserProfileId())
+                .fullName(userProfileEntity.getFullName())
+                .dateOfBirth(userProfileEntity.getDateOfBirth())
+                .phoneNumber(userProfileEntity.getPhoneNumber())
+                .height(userProfileEntity.getHeight())
+                .weight(userProfileEntity.getWeight())
+                .bloodType(userProfileEntity.getBloodType())
+                .morningMedicationTime(userProfileEntity.getMorningMedicationTime())
+                .lunchMedicationTime(userProfileEntity.getLunchMedicationTime())
+                .dinnerMedicationTime(userProfileEntity.getDinnerMedicationTime())
+                .user_profile_created_at(userProfileEntity.getUser_profile_created_at())
+                .user_profile_updated_at(userProfileEntity.getUser_profile_updated_at())
+                .build();
+    }
 
-            if (userProfileDTO.getDate_of_birth() != null) {
-                userProfileEntity.setDate_of_birth(userProfileDTO.getDate_of_birth());
-            } else {
-                userProfileEntity.setDate_of_birth(null); // 사용자가 삭제하고 싶을 경우
-            }
-
-            if (userProfileDTO.getHeight() != null) {
-                userProfileEntity.setHeight(userProfileDTO.getHeight());
-            } else {
-                userProfileEntity.setHeight(null); // 사용자가 삭제하고 싶을 경우
-            }
-
-            if (userProfileDTO.getWeight() != null) {
-                userProfileEntity.setWeight(userProfileDTO.getWeight());
-            } else {
-                userProfileEntity.setWeight(null); // 사용자가 삭제하고 싶을 경우
-            }
-
-            if (userProfileDTO.getBlood_type() != null) {
-                userProfileEntity.setBlood_type(userProfileDTO.getBlood_type());
-            } else {
-                userProfileEntity.setBlood_type(null); // 사용자가 삭제하고 싶을 경우
-            }
-
-            if (userProfileDTO.getPhone_number() != null) {
-                String rawPhoneNumber = userProfileDTO.getPhone_number();
-                String formattedPhoneNumber = formatPhoneNumber(rawPhoneNumber);
-                userProfileEntity.setPhone_number(formattedPhoneNumber);
-            } else {
-                userProfileEntity.setPhone_number(null); // 사용자가 삭제하고 싶을 경우
-            }
-            if (userProfileDTO.getMorning_medication_time() != null) {
-                userProfileEntity.setMorning_medication_time(userProfileDTO.getMorning_medication_time());
-            } else {
-                userProfileEntity.setMorning_medication_time(null); // 사용자가 삭제하고 싶을 경우
-            }
-            if (userProfileDTO.getLunch_medication_time() != null) {
-                userProfileEntity.setLunch_medication_time(userProfileDTO.getLunch_medication_time());
-            } else {
-                userProfileEntity.setLunch_medication_time(null); // 사용자가 삭제하고 싶을 경우
-            }
-            if (userProfileDTO.getDinner_medication_time() != null) {
-                userProfileEntity.setDinner_medication_time(userProfileDTO.getDinner_medication_time());
-            } else {
-                userProfileEntity.setDinner_medication_time(null); // 사용자가 삭제하고 싶을 경우
-            }
-
-            // 나머지 필드도 유사하게 처리
-            // 필요에 따라 다른 필드도 업데이트
-
-            // 업데이트된 유저 프로필 반환
-            userProfileRepository.save(userProfileEntity); // 변경된 엔티티 저장 후 반환
-
-
-            return UserProfileDTO.builder()
-                    .user_profile_id(userProfileEntity.getUser_profile_id())
-                    .full_name(userProfileEntity.getFull_name())
-                    .date_of_birth(userProfileEntity.getDate_of_birth())
-                    .phone_number(userProfileEntity.getPhone_number())
-                    .height(userProfileEntity.getHeight())
-                    .weight(userProfileEntity.getWeight())
-                    .blood_type(userProfileEntity.getBlood_type())
-                    .morning_medication_time(userProfileEntity.getMorning_medication_time())
-                    .lunch_medication_time(userProfileEntity.getLunch_medication_time())
-                    .dinner_medication_time(userProfileEntity.getDinner_medication_time())
-                    .user_profile_created_at(userProfileEntity.getUser_profile_created_at())
-                    .user_profile_updated_at(userProfileEntity.getUser_profile_updated_at())
-                    .build();
-
-        } catch (Exception e) {
-            log.error("Error updating user profile", e);
-            throw new RuntimeException("Failed to update user profile");
+    // 필드를 업데이트하는 메서드
+    private <T> void updateField(T value, java.util.function.Consumer<T> setter) {
+        if (value != null) {
+            setter.accept(value);
         }
     }
 
+    // 전화번호 포맷 처리
+    private void updatePhoneNumber(String phoneNumber, UserProfileEntity userProfileEntity) {
+        if (phoneNumber != null) {
+            userProfileEntity.setPhoneNumber(formatPhoneNumber(phoneNumber));
+        } else {
+            userProfileEntity.setPhoneNumber(null);
+        }
+    }
+
+    // 전화번호 포맷
     public String formatPhoneNumber(String phoneNumber) {
         if (phoneNumber.startsWith("0")) {
             return "+82" + phoneNumber.substring(1); // "0"을 제거하고 +82 추가
         }
         return phoneNumber; // 이미 국가 코드가 포함된 경우 그대로 반환
     }
-
 }
-

@@ -9,7 +9,7 @@ import org.zerock.Altari.entity.DiseaseEntity;
 @NoArgsConstructor
 @ToString
 public class UserPastDiseaseDTO {
-    private Integer user_past_disease_id;
-    private UserProfileDTO user_profile_id;
-    private DiseaseEntity disease_id;
+    private Integer userPastDiseaseId;
+    private UserProfileDTO userProfile;
+    private DiseaseEntity disease;
 }

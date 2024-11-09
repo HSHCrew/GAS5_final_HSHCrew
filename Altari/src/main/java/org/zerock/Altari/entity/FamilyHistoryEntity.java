@@ -21,7 +21,8 @@ public class FamilyHistoryEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer family_history_id;
+    @Column(name = "family_history_id")
+    private Integer familyHistoryId;
     @ManyToOne
     @JoinColumn(name = "disease_id")
     private DiseaseEntity disease;
@@ -29,7 +30,8 @@ public class FamilyHistoryEntity {
     @JoinColumn(name = "user_profile_id")
     private UserProfileEntity userProfile;
 
-    private String family_relation;
+    @Column(name = "family_relation")
+    private String familyRelation;
     @CreatedDate
     private LocalDateTime family_history_created_at;
     @LastModifiedDate

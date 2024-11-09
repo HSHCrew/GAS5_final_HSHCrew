@@ -27,30 +27,37 @@ public class UserProfileEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-
-    private int user_profile_id;
+    @Column(name = "user_profile_id")
+    private int userProfileId;
 
     @OneToOne
     @JoinColumn(name = "username", referencedColumnName = "username")
     private UserEntity username;
 
-    private String full_name;
+    @Column(name = "full_name")
+    private String fullName;
 
-    private LocalDate date_of_birth;
+    @Column(name = "date_of_birth")
+    private LocalDate dateOfBirth;
 
-    private String phone_number;
-    @Column(nullable = true)
+    @Column(name = "phone_number")
+    private String phoneNumber;
+
     private Float height;
 
     private Float weight;
 
-    private String blood_type;
+    @Column(name = "blood_type")
+    private String bloodType;
 
-    private LocalTime morning_medication_time;
+    @Column(name = "morning_medication_time")
+    private LocalTime morningMedicationTime;
 
-    private LocalTime lunch_medication_time;
+    @Column(name = "lunch_medication_time")
+    private LocalTime lunchMedicationTime;
 
-    private LocalTime dinner_medication_time;
+    @Column(name = "dinner_medication_time")
+    private LocalTime dinnerMedicationTime;
 
 
     @CreatedDate

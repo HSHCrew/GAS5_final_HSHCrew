@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/altari")
 @Log4j2
 @RequiredArgsConstructor
 public class MedicationController {
@@ -23,7 +23,7 @@ public class MedicationController {
     private final MedicationRepository medicationRepository;
     private final MedicationAlarmService medicationAlarmService;
 
-    @GetMapping("/drugs")
+    @GetMapping("/drug/list")
     public List<MedicationEntity> getAllDrugs() {
         List<MedicationEntity> drugs = medicationRepository.findAll();
         if (drugs.isEmpty()) {
@@ -45,13 +45,25 @@ public class MedicationController {
         }
     }
 
-    @GetMapping("/medication-progress/{username}")
+    @GetMapping("/medication/progress/{username}")
     public ResponseEntity<Map<String, Object>> getProgressByPrescription(@PathVariable String username) {
-        UserEntity userEntity = new UserEntity();
-        userEntity.setUsername(username);
+        UserEntity userEntity = new UserEntity(username);
 
         Map<String, Object> userProgress = medicationAlarmService.calculateProgressByPrescription(userEntity);
 
         return ResponseEntity.ok(userProgress);
     }
+
+    @PostMapping("/medication/onAlarm/{username}")
+    public ResponseEntity<Boolean> setOnAlarm(@PathVariable String username,
+                                                        @RequestBody Boolean onAlarm) {
+
+        UserEntity user = new UserEntity(username);
+        onAlarm = medicationAlarmService.onAlarm(user, onAlarm);
+
+        return ResponseEntity.ok(onAlarm);
+    }
+    ///알람 활성화 true 반환
+    ///알림 비활성화 false 반환
+
 }

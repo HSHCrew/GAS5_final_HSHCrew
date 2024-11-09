@@ -6,13 +6,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/kakao")
+@RequestMapping("/altari")
 public class KakaoMessageController {
 
     @Autowired
     private KakaoMessageService kakaoMessageService;
 
-    @GetMapping("/send")
+    @GetMapping("/kakao/send")
     public String sendMessage() {
         kakaoMessageService.sendKakaoMessage();
         return "메시지 전송 요청 완료";

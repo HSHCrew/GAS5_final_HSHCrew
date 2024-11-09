@@ -5,9 +5,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.zerock.Altari.dto.PrescriptionDTO;
 import org.zerock.Altari.dto.PrescriptionDrugDTO;
-import org.zerock.Altari.dto.UserHealthInfoDTO;
 import org.zerock.Altari.dto.UserPrescriptionDTO;
 import org.zerock.Altari.entity.*;
 import org.zerock.Altari.exception.UserExceptions;
@@ -16,7 +14,6 @@ import org.zerock.Altari.repository.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @Log4j2
@@ -62,11 +59,11 @@ public class UserPrescriptionService {
                 for (PrescriptionDrugEntity prescriptionDrug : prescriptionDrugs) {
                     PrescriptionDrugDTO prescriptionDrugDTO = PrescriptionDrugDTO.builder()
                             .dailyDosesNumber(prescriptionDrug.getDailyDosesNumber())
-                            .medication_direction(prescriptionDrug.getMedication_direction())
-                            .one_dose(prescriptionDrug.getOne_dose())
-                            .total_dosing_days(prescriptionDrug.getTotal_dosing_days())
-                            .medicationId(prescriptionDrug.getMedicationId())
-                            .prescription_id(userPrescription.getUser_prescription_id())
+                            .medicationDirection(prescriptionDrug.getMedicationDirection())
+                            .oneDose(prescriptionDrug.getOneDose())
+                            .totalDosingDays(prescriptionDrug.getTotalDosingDays())
+                            .MedicationId(prescriptionDrug.getMedicationId())
+                            .prescriptionId(userPrescription.getUserPrescriptionId())
                             .build();
 
                     prescriptionDrugDTOs.add(prescriptionDrugDTO);
@@ -74,16 +71,16 @@ public class UserPrescriptionService {
 
                 // 각 처방전과 해당 처방전의 약 리스트를 UserPrescriptionDTO로 매핑
                 UserPrescriptionDTO userPrescriptionDTO = UserPrescriptionDTO.builder()
-                        .user_prescription_id(userPrescription.getUser_prescription_id())
-                        .comm_brand_name(userPrescription.getComm_brand_name())
-                        .manufacture_date(userPrescription.getManufacture_date())
-                        .prescribe_no(userPrescription.getPrescribeNo())
-                        .prescribe_org(userPrescription.getPrescribe_org())
-                        .tel_no(userPrescription.getTel_no())
-                        .tel_no1(userPrescription.getTel_no1())
+                        .userPrescriptionId(userPrescription.getUserPrescriptionId())
+                        .commBrandName(userPrescription.getCommBrandName())
+                        .manufactureDate(userPrescription.getManufactureDate())
+                        .prescriptionNo(userPrescription.getPrescribeNo())
+                        .prescriptionOrg(userPrescription.getPrescribeOrg())
+                        .telNo(userPrescription.getTelNo())
+                        .telNo1(userPrescription.getTelNo2())
                         .isTaken(userPrescription.getIsTaken())
-                        .ai_summary(userPrescription.getAi_summary())
-                        .prescription_info(userPrescription.getPrescription_info())
+                        .aiSummary(userPrescription.getAiSummary())
+                        .prescriptionInfo(userPrescription.getPrescriptionInfo())
                         .drugs(prescriptionDrugDTOs)
                         .build();
 
@@ -98,16 +95,6 @@ public class UserPrescriptionService {
         }
     }
 
-    @Transactional
-    public List<UserPrescriptionDTO> calculateMedicationSuccessRate(UserPrescriptionEntity userPrescription) {
-
-        
-
-
-        return null;
-
-
-        }
     }
 
 

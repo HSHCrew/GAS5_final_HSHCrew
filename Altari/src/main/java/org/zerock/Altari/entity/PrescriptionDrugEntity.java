@@ -2,8 +2,11 @@ package org.zerock.Altari.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "prescription_drug")
@@ -16,7 +19,8 @@ public class PrescriptionDrugEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer prescription_drug_id;
+    @Column(name = "prescription_drug_id")
+    private Integer prescriptionDrugId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_prescription_id", nullable = false)
@@ -26,28 +30,37 @@ public class PrescriptionDrugEntity {
     @JoinColumn(name = "item_seq", nullable = false)
     private MedicationEntity MedicationId;
 
-    @Column(nullable = false)
-    private String one_dose;
+    @Column(nullable = false, name = "one_dose")
+    private String oneDose;
 
     @Column(nullable = false)
     private int dailyDosesNumber;
 
-    private int taken_dosing_days;
+    @Column(name = "taken_dosing_days")
+    private int takenDosingDays;
 
-    @Column(nullable = false)
-    private int total_dosing_days;
+    @Column(nullable = false, name = "total_dosing_days")
+    private int totalDosingDays;
 
-    private int total_dosage;
+    @Column(name = "total_dosage")
+    private int totalDosage;
 
-    private int taken_dosage;
+    @Column(name = "taken_dosage")
+    private int takenDosage;
 
-    private String medication_direction;
+    @Column(name = "medication_direction")
+    private String medicationDirection;
 
     @Column(name = "today_taken_count")
     private int todayTakenCount; // 오늘 복용한 횟수
 
     @Column(name = "last_taken_date")
     private LocalDate lastTakenDate; // 또는 Timestamp 타입으로 설정 가능
+
+    @CreatedDate
+    private LocalDateTime prescription_drug_created_at;
+    @LastModifiedDate
+    private LocalDateTime prescription_drug_updated_at;
 
     public boolean canIncreaseTakenDosage() {
         // 오늘 날짜를 가져옵니다.

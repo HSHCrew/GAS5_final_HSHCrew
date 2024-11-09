@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/altari")
 @Log4j2
 @RequiredArgsConstructor
 public class RegisterController {
@@ -33,7 +33,7 @@ public class RegisterController {
         return ResponseEntity.status(HttpStatus.CREATED).body(registerService.join(registerDTO));
 
     }
-    @PostMapping("/check-username")
+    @PostMapping("/check/username")
     public ResponseEntity<Boolean> checkUsername(@RequestBody Map<String, String> requestBody) {
         String username = requestBody.get("username");
         boolean isDuplicate = registerService.isUsernameDuplicate(username);

@@ -38,14 +38,14 @@ public class RegisterService {
 
             userRepository.save(user);
 
-            String rawPhoneNumber = registerDTO.getPhone_number();
+            String rawPhoneNumber = registerDTO.getPhoneNumber();
             String formattedPhoneNumber = userProfileService.formatPhoneNumber(rawPhoneNumber);
 
             // 3. 유저 프로필 저장
             UserProfileEntity userProfile = UserProfileEntity.builder()
-                    .full_name(registerDTO.getFull_name())
-                    .date_of_birth(registerDTO.getDate_of_birth())
-                    .phone_number(formattedPhoneNumber)
+                    .fullName(registerDTO.getFullName())
+                    .dateOfBirth(registerDTO.getDateOfBirth())
+                    .phoneNumber(formattedPhoneNumber)
                     .username(user)
                     .build();
 

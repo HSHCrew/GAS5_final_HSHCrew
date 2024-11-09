@@ -18,19 +18,20 @@ import java.util.List;
 public class UserPrescriptionDTO {
 
 
-    private Integer user_prescription_id;
-    private String prescribe_no;
-    private String prescribe_org;
-    private String comm_brand_name;
-    private LocalDate manufacture_date;
-    private String tel_no;
-    private String tel_no1;
-    private UserProfileEntity user_profile_id;
+    private Integer userPrescriptionId;
+    private String prescriptionNo;
+    private String prescriptionOrg;
+    private String commBrandName;
+    private LocalDate manufactureDate;
+    private String telNo;
+    private String telNo1;
+    private UserProfileEntity userProfile;
     private LocalDateTime user_prescription_created_at;
     private LocalDateTime user_prescription_updated_at;
     private List<PrescriptionDrugDTO> drugs;
-    private String prescription_info;
-    private String ai_summary;
+    private String prescriptionInfo;
+    private String aiSummary;
     private Boolean isTaken;
+    private Boolean onAlarm;
 }
 

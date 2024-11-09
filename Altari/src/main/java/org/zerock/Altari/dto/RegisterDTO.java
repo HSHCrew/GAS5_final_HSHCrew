@@ -1,8 +1,14 @@
 package org.zerock.Altari.dto;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.zerock.Altari.entity.DiseaseEntity;
 import org.zerock.Altari.entity.MedicationEntity;
+import org.zerock.Altari.entity.UserEntity;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -21,22 +27,19 @@ public class RegisterDTO {
     private LocalDateTime user_created_at;
     private LocalDateTime user_updated_at;
     // user_profile 테이블
-    private Integer user_profile_id;
-    private String full_name;
-    private LocalDate date_of_birth;
-    private String phone_number;
-    private Integer height;
-    private Integer weight;
-    private String blood_type;
-    private LocalTime morning_medication_time;
-    private LocalTime lunch_medication_time;
-    private LocalTime dinner_medication_time;
+    private int userProfileId;
+    private UserEntity user;
+    private String fullName;
+    private LocalDate dateOfBirth;
+    private String phoneNumber;
+    private Float height;
+    private Float weight;
+    private String bloodType;
+    private LocalTime morningMedicationTime;
+    private LocalTime lunchMedicationTime;
+    private LocalTime dinnerMedicationTime;
     private LocalDateTime user_profile_created_at;
     private LocalDateTime user_profile_updated_at;
-    private Integer auth_id;
-    // allergy 테이블
-    private String food_name;
-    // medication 테이블
     private String medication_name;
     private DiseaseEntity disease_id;
     private String family_relation;

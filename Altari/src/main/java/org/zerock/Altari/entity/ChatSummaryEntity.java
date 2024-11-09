@@ -21,16 +21,22 @@ public class ChatSummaryEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer chat_summary_id;
+    @Column(name = "chat_summary_id")
+    private Integer chatSummaryId;
+
     @ManyToOne
     @JoinColumn(name = "user_profile_id")
     private UserProfileEntity userProfile;
 
-    private String chat_date;
-    private String summary_content;
+    @Column(name = "chat_date")
+    private String chatDate;
+
+    @Column(name = "summary_content")
+    private String summaryContent;
 
     @CreatedDate
     private LocalDateTime chat_summary_created_at;
+
     @LastModifiedDate
     private LocalDateTime chat_summary_updated_at;
 

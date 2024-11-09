@@ -9,7 +9,7 @@ import org.zerock.Altari.security.util.JWTUtil;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/oauth")
+@RequestMapping("/altari ")
 @RequiredArgsConstructor
 @Log4j2
 public class OAuthController {

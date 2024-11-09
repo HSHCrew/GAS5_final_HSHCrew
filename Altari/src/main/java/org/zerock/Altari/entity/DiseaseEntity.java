@@ -24,13 +24,21 @@ public class DiseaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer diseaseId;
-    private String disease_code;
-    private String disease_name;
+
+    @Column(name = "disease_code")
+    private String diseaseCode;
+
+    @Column(name = "disease_name")
+    private String diseaseName;
+
     @CreatedDate
     private LocalDateTime disease_created_at;
+
     @LastModifiedDate
     private LocalDateTime disease_updated_at;
-    private Boolean is_hereditary;
+
+    @Column(name = "is_hereditary")
+    private Boolean isHereditary;
 
     public DiseaseEntity(int diseaseId) {
         this.diseaseId = diseaseId;

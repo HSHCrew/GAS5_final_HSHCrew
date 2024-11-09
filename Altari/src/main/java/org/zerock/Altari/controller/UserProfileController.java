@@ -18,7 +18,7 @@ import org.zerock.Altari.service.MedicationAlarmService;
 import org.zerock.Altari.service.UserProfileService;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/altari")
 @Log4j2
 @RequiredArgsConstructor
 public class UserProfileController {
@@ -28,7 +28,7 @@ public class UserProfileController {
     private final MedicationAlarmService medicationAlarmService;
 
     //
-    @GetMapping("/get-userProfile/{username}")
+    @GetMapping("/getInfo/userProfile/{username}")
     public ResponseEntity<UserProfileDTO> getUserProfile(@PathVariable String username
     ) {
         UserEntity userEntity = new UserEntity(username);

@@ -21,7 +21,9 @@ public class UserEntity {
 
     @Id
     private String username;
+
     private String password;
+
     private String role;
     @CreatedDate
     private LocalDateTime user_created_at;

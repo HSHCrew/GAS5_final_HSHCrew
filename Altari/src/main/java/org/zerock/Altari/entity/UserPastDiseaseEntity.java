@@ -21,7 +21,8 @@ public class UserPastDiseaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer user_past_disease_id;
+    @Column(name = "user_past_disease_id")
+    private Integer userPastDiseaseId;
     @ManyToOne
     @JoinColumn(name = "user_profile_id")
     private UserProfileEntity userProfile;

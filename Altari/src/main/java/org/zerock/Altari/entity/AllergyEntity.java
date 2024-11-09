@@ -22,15 +22,20 @@ public class AllergyEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer allergy_id;
+    @Column(name = "allergy_id")
+    private Integer allergyId;
+
     @ManyToOne
     @JoinColumn(name = "user_profile_id")
     private UserProfileEntity userProfile;
+
     @ManyToOne
     @JoinColumn(name = "item_seq")
     private MedicationEntity medicationId;
+
     @CreatedDate
     private LocalDateTime allergy_created_at;
+
     @LastModifiedDate
     private LocalDateTime allergy_updated_at;
 

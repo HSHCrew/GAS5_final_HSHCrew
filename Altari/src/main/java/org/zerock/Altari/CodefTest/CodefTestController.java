@@ -15,7 +15,7 @@ import org.zerock.Altari.service.UserService;
 import java.io.UnsupportedEncodingException;
 
 @RestController
-@RequestMapping("/api/codef")
+@RequestMapping("/altari")
 public class CodefTestController {
 
     @Autowired
@@ -32,7 +32,7 @@ public class CodefTestController {
     private MedicationAlarmService medicationAlarmService;
 
     // 첫 번째 API 호출을 위한 엔드포인트
-    @PostMapping("/first")
+    @PostMapping("/prescriptions/enter-info")
     /// {
     ///     "identity": "001**********",
     ///     "userName": "전**",
@@ -50,7 +50,7 @@ public class CodefTestController {
     }
 
     // 두 번째 API 호출을 위한 엔드포인트
-    @PostMapping("/second")
+    @PostMapping("/prescriptions/verify-auth")
 ///    {
 ///        "is2Way": true,
 ///     "twoWayInfo": {

@@ -24,19 +24,39 @@ public class UserPrescriptionEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer user_prescription_id;
+    @Column(name = "user_prescription_id")
+    private Integer userPrescriptionId;
 
     @Column(name = "prescribe_no",unique = true)
     private String prescribeNo;
-    private String prescribe_org;
-    private String comm_brand_name;
-    private LocalDate manufacture_date;
-    private String tel_no;
-    private String tel_no1;
-    private String prescription_info;
-    private String ai_summary;
+
+    @Column(name = "prescribe_org")
+    private String prescribeOrg;
+
+    @Column(name = "comm_brand_name")
+    private String commBrandName;
+
+    @Column(name = "manufacture_date")
+    private LocalDate manufactureDate;
+
+    @Column(name = "tel_no")
+    private String telNo;
+
+    @Column(name = "tel_no1")
+    private String telNo2;
+
+    @Column(name = "prescription_info")
+    private String prescriptionInfo;
+
+    @Column(name = "ai_summary")
+    private String aiSummary;
+
     @Column(name = "is_taken")
     private Boolean isTaken;
+
+    @Column(name = "on_alarm")
+    private Boolean onAlarm;
+
     @ManyToOne
     @JoinColumn(name = "user_profile_id")
     private UserProfileEntity userProfile;
@@ -45,9 +65,6 @@ public class UserPrescriptionEntity {
     private LocalDateTime user_prescription_created_at;
     @LastModifiedDate
     private LocalDateTime user_prescription_updated_at;
-
-//    @OneToMany(mappedBy = "prescriptionId", cascade = CascadeType.ALL)
-//    private List<PrescriptionDrugEntity> prescriptionDrugs = new ArrayList<>();
 
 
 }

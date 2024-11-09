@@ -64,13 +64,13 @@ public class MedicationAlarmService {
 
             for (PrescriptionDrugEntity drug : drugs) {
                 // taken_dosing_days가 total_dosing_days보다 작으면 하루 증가
-                if (drug.getTaken_dosing_days() < drug.getTotal_dosing_days()) {
-                    drug.setTaken_dosing_days(drug.getTotal_dosing_days() + 1);
+                if (drug.getTakenDosingDays() < drug.getTotalDosingDays()) {
+                    drug.setTakenDosingDays(drug.getTotalDosingDays() + 1);
                     prescriptionDrugRepository.save(drug);
                 }
 
                 // taken_dosing_days가 total_dosing_days와 같지 않으면 모든 약이 완료되지 않음
-                if (drug.getTaken_dosing_days() < drug.getTotal_dosing_days()) {
+                if (drug.getTakenDosingDays() < drug.getTotalDosingDays()) {
                     allDrugsCompleted = false;
                 }
             }
@@ -103,9 +103,9 @@ public class MedicationAlarmService {
             }
 
             int maxDailyDosage = dosagesCount.get(0);
-            LocalTime morningMedicationTime = userProfile.getMorning_medication_time();
-            LocalTime lunchMedicationTime = userProfile.getLunch_medication_time();
-            LocalTime dinnerMedicationTime = userProfile.getDinner_medication_time();
+            LocalTime morningMedicationTime = userProfile.getMorningMedicationTime();
+            LocalTime lunchMedicationTime = userProfile.getLunchMedicationTime();
+            LocalTime dinnerMedicationTime = userProfile.getDinnerMedicationTime();
             LocalTime nightMedicationTime = dinnerMedicationTime.plusHours(3);
 
             // 기존 예약된 알람 취소
@@ -153,6 +153,7 @@ public class MedicationAlarmService {
         LocalDate today = LocalDate.now(); // 오늘 날짜
 
         for (UserPrescriptionEntity prescription : activePrescriptions) {
+
             List<PrescriptionDrugEntity> prescriptionDrugs = prescriptionDrugRepository.findByPrescriptionId(prescription);
 
             boolean allDrugsTaken = true; // 모든 약물이 복용 완료된 상태인지 여부를 추적
@@ -160,13 +161,13 @@ public class MedicationAlarmService {
             for (PrescriptionDrugEntity prescriptionDrug : prescriptionDrugs) {
                 if (prescriptionDrug.getTodayTakenCount() < prescriptionDrug.getDailyDosesNumber()) {
                     prescriptionDrug.setTodayTakenCount(prescriptionDrug.getTodayTakenCount() + 1);
-                    prescriptionDrug.setTaken_dosage(prescriptionDrug.getTaken_dosage() + 1);
+                    prescriptionDrug.setTakenDosage(prescriptionDrug.getTakenDosage() + 1);
                     prescriptionDrug.setLastTakenDate(today); // 마지막 복용일 업데이트
                     prescriptionDrugRepository.save(prescriptionDrug);
                 }
 
                 // taken_dosage와 total_dosage가 같으면 모든 약물이 완료된 것으로 간주
-                if (prescriptionDrug.getTaken_dosage() < prescriptionDrug.getTotal_dosage()) {
+                if (prescriptionDrug.getTakenDosage() < prescriptionDrug.getTotalDosage()) {
                     allDrugsTaken = false; // 한 개라도 복용이 완료되지 않으면 false
                 }
             }
@@ -177,6 +178,7 @@ public class MedicationAlarmService {
                 userPrescriptionRepository.save(prescription);
             }
         }
+
 
         userScheduleAlerts(username);
     }
@@ -204,18 +206,19 @@ public class MedicationAlarmService {
 
         // is_taken이 false인 처방전 내 모든 약물에 대해 최대 하루 복용 횟수와 총 복용 일수 설정
         for (UserPrescriptionEntity prescription : activePrescriptions) {
+            if (prescription.getOnAlarm()) {
             List<PrescriptionDrugEntity> prescriptionDrugs = prescriptionDrugRepository.findByPrescriptionId(prescription);
 
             for (PrescriptionDrugEntity prescriptionDrug : prescriptionDrugs) {
                 // 현재 약물의 총 복용 횟수와 지금까지 복용한 횟수를 비교
-                if (prescriptionDrug.getTaken_dosage() < prescriptionDrug.getTotal_dosage()) {
+                if (prescriptionDrug.getTakenDosage() < prescriptionDrug.getTotalDosage()) {
                     // 아직 복용이 끝나지 않은 약물만 고려하여 최대 하루 복용 횟수와 총 복용 일수 갱신
                     allDrugsTaken = false; // 아직 복용이 끝나지 않은 약물이 있음
 
                     maxDailyDosage = Math.max(maxDailyDosage, prescriptionDrug.getDailyDosesNumber());
-                    maxTotalDays = Math.max(maxTotalDays, prescriptionDrug.getTotal_dosing_days());
+                    maxTotalDays = Math.max(maxTotalDays, prescriptionDrug.getTotalDosingDays());
                 }
-            }
+            }}
         }
 
         // 모든 약물의 복용이 끝났으면 null 반환
@@ -244,7 +247,7 @@ public class MedicationAlarmService {
 
     public void checkMedications(UserEntity username) {
         UserProfileEntity userProfile = userProfileRepository.findByUsername(username);
-        String toPhoneNumber = userProfile.getPhone_number(); // 사용자 전화번호
+        String toPhoneNumber = userProfile.getPhoneNumber(); // 사용자 전화번호
         String messageBody = "안녕하세요! 알타리 서비스 입니다. 지금은 약 복용 시간이니, 잊지 말고 약을 드세요. 건강을 지키는 데 도움이 될 거예요!";
 
         // 전화 걸기
@@ -265,15 +268,15 @@ public class MedicationAlarmService {
 
             List<PrescriptionDrugEntity> medications = prescriptionDrugRepository.findByPrescriptionId(prescription);
             for (PrescriptionDrugEntity medication : medications) {
-                totalTaken += medication.getTaken_dosage();
-                totalRequired += medication.getTotal_dosage();
+                totalTaken += medication.getTakenDosage();
+                totalRequired += medication.getTotalDosage();
             }
 
             double progress = totalRequired == 0 ? 0 : (double) totalTaken / totalRequired * 100;
 
             // 각 처방전의 진행률을 담은 Map을 생성하여 리스트에 추가
             Map<String, Object> prescriptionData = new HashMap<>();
-            prescriptionData.put("prescriptionId", prescription.getUser_prescription_id());
+            prescriptionData.put("prescriptionId", prescription.getUserPrescriptionId());
             prescriptionData.put("progress", progress);
             prescriptionProgressList.add(prescriptionData);
         }
@@ -302,9 +305,9 @@ public class MedicationAlarmService {
         }
 
         int maxDailyDosage = dosagesCount.get(0);
-        LocalTime morningMedicationTime = userProfile.getMorning_medication_time();
-        LocalTime lunchMedicationTime = userProfile.getLunch_medication_time();
-        LocalTime dinnerMedicationTime = userProfile.getDinner_medication_time();
+        LocalTime morningMedicationTime = userProfile.getMorningMedicationTime();
+        LocalTime lunchMedicationTime = userProfile.getLunchMedicationTime();
+        LocalTime dinnerMedicationTime = userProfile.getDinnerMedicationTime();
         LocalTime nightMedicationTime = dinnerMedicationTime.plusHours(3);
 
         // 기존 예약된 알람 취소
@@ -346,5 +349,17 @@ public class MedicationAlarmService {
 
         // 새로 예약된 작업을 맵에 저장
         scheduledTasks.put(user, future);
+    }
+
+    public Boolean onAlarm( UserEntity user, Boolean onAlarm) {
+
+        if (onAlarm) {
+            userScheduleAlerts(user);
+            return true;
+        } else {
+            cancelScheduledAlerts(user);
+            return false;
+        }
+
     }
 }

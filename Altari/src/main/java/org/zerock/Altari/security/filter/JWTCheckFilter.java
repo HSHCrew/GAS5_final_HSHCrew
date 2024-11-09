@@ -54,6 +54,11 @@ public class JWTCheckFilter extends OncePerRequestFilter {
             return;
         }
 
+        if (request.getRequestURI().equals("/api/v1/test")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
 
 
         // 특정 엔드포인트에 대한 접근 제한 해제

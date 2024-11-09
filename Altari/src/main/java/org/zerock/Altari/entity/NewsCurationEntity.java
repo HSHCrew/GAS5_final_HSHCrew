@@ -21,13 +21,15 @@ public class NewsCurationEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer news_curation_id;
+    @Column(name = "news_curation_id")
+    private Integer newsCurationId;
 
     @ManyToOne
     @JoinColumn(name = "medication_id")
-    private MedicationEntity medication_id;
+    private MedicationEntity medication;
 
-    private String news_content;
+    @Column(name = "news_content")
+    private String newsContent;
     @CreatedDate
     private LocalDateTime news_curation_created_at;
 

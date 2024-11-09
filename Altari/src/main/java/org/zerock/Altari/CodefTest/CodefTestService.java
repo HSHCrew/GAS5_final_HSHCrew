@@ -19,6 +19,7 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 
@@ -138,14 +139,15 @@ public class CodefTestService {
                 LocalDate manufactureDate = LocalDate.parse(manufactureDateStr, dateTimeFormatter);
 
                 UserPrescriptionEntity userPrescription = new UserPrescriptionEntity();
-                userPrescription.setComm_brand_name(commBrandName);
-                userPrescription.setTel_no(telNo);
-                userPrescription.setPrescribe_org(prescribeOrg);
+                userPrescription.setCommBrandName(commBrandName);
+                userPrescription.setTelNo(telNo);
+                userPrescription.setPrescribeOrg(prescribeOrg);
                 userPrescription.setPrescribeNo(prescribeNo);
-                userPrescription.setTel_no1(telNo1);
-                userPrescription.setManufacture_date(manufactureDate);
+                userPrescription.setTelNo2(telNo1);
+                userPrescription.setManufactureDate(manufactureDate);
                 userPrescription.setUserProfile(userProfile);
                 userPrescription.setIsTaken(false);
+                userPrescription.setOnAlarm(true);
 
                 userPrescriptionRepository.save(userPrescription);
 
@@ -153,24 +155,24 @@ public class CodefTestService {
                 int totalDosingDays = 0;
 
                 for (JsonNode drugData : drugList) {
-                    Integer drugCode = Integer.parseInt(drugData.get("resDrugCode").asText());
+                    String drugCodeStr = drugData.get("resDrugCode").asText();  // drugCode는 String으로 받기
+                    MedicationEntity drugItemSeq = medicationRepository.findByMedicationId(drugCodeStr);  // String으로 비교
 
-                    MedicationEntity drugItemSeq = medicationRepository.findByMedicationId(drugCode);
                     if (drugItemSeq != null) {
                         PrescriptionDrugEntity prescriptionDrug = new PrescriptionDrugEntity();
                         prescriptionDrug.setPrescriptionId(userPrescription);
                         prescriptionDrug.setMedicationId(drugItemSeq);
-                        prescriptionDrug.setOne_dose(drugData.get("resOneDose").asText());
-                        prescriptionDrug.setDailyDosesNumber(Integer.parseInt(drugData.get("resDailyDosesNumber").asText()));
-                        int drugTotalDosingDays = Integer.parseInt(drugData.get("resTotalDosingdays").asText());
-                        prescriptionDrug.setTaken_dosing_days(0);
-                        prescriptionDrug.setTotal_dosing_days(drugTotalDosingDays);
-                        prescriptionDrug.setMedication_direction(drugData.get("resMedicationDirection").asText());
-                        prescriptionDrug.setTotal_dosage(drugTotalDosingDays * prescriptionDrug.getDailyDosesNumber());
-                        prescriptionDrug.setTaken_dosage(0);
+                        prescriptionDrug.setOneDose(drugData.get("resOneDose").asText());
+                        prescriptionDrug.setDailyDosesNumber(Integer.parseInt(drugData.get("resDailyDosesNumber").asText())); // dailyDosesNumber는 여전히 int로 받아야 하므로 Integer로 파싱
+                        String drugTotalDosingDaysStr = drugData.get("resTotalDosingdays").asText();
+                        prescriptionDrug.setTotalDosingDays(0);
+                        prescriptionDrug.setTotalDosingDays(Integer.parseInt(drugTotalDosingDaysStr)); // totalDosingDays도 여전히 int로 받음
+                        prescriptionDrug.setMedicationDirection(drugData.get("resMedicationDirection").asText());
+                        prescriptionDrug.setTotalDosage(prescriptionDrug.getTotalDosingDays() * prescriptionDrug.getDailyDosesNumber());
+                        prescriptionDrug.setTakenDosage(0);
                         prescriptionDrug.setTodayTakenCount(0);
 
-                        totalDosingDays = Math.max(totalDosingDays, drugTotalDosingDays);
+                        totalDosingDays = Math.max(totalDosingDays, prescriptionDrug.getTotalDosingDays());
                         prescriptionDrugRepository.save(prescriptionDrug);
                     }
                 }
@@ -179,16 +181,38 @@ public class CodefTestService {
                 LocalDate endDate = manufactureDate.plusDays(totalDosingDays);
                 if (endDate.isBefore(LocalDate.now())) {
                     userPrescription.setIsTaken(true); // 복용 완료
+                    userPrescription.setOnAlarm(false); // 지난 처방전이므로 알림 비활성화
 
                     // 처방전의 약물 리스트에 대해 taken_dosage를 total_dosage와 같게 설정
                     List<PrescriptionDrugEntity> prescriptionDrugs = prescriptionDrugRepository.findByPrescriptionId(userPrescription);
                     for (PrescriptionDrugEntity prescriptionDrug : prescriptionDrugs) {
-                        prescriptionDrug.setTaken_dosing_days(prescriptionDrug.getTotal_dosing_days());
-                        prescriptionDrug.setTaken_dosage(prescriptionDrug.getTotal_dosage());
+                        prescriptionDrug.setTakenDosingDays(prescriptionDrug.getTotalDosingDays());
+                        prescriptionDrug.setTakenDosage(prescriptionDrug.getTotalDosage());
                         prescriptionDrugRepository.save(prescriptionDrug);
                     }
                 } else {
                     userPrescription.setIsTaken(false); // 복용 미완료
+                    userPrescription.setOnAlarm(true);  // 복용 중이므로 알림 활성화
+
+                    List<PrescriptionDrugEntity> prescriptionDrugs = prescriptionDrugRepository.findByPrescriptionId(userPrescription);
+                    for (PrescriptionDrugEntity prescriptionDrug : prescriptionDrugs) {
+                        // 제조일로부터 경과된 일수 계산
+                        long daysSinceManufacture = ChronoUnit.DAYS.between(prescriptionDrug.getPrescriptionId().getManufactureDate(), LocalDate.now());
+
+                        // 경과된 일수가 총 복용 일수보다 적을 경우, 경과된 일수를 taken_dosing_days로 설정
+                        int takenDosingDays = (int) Math.min(daysSinceManufacture, prescriptionDrug.getTotalDosingDays());
+
+                        // 복용 일수에 해당하는 taken_dosage 계산
+                        int takenDosage = takenDosingDays * prescriptionDrug.getDailyDosesNumber();
+
+                        // 복용 횟수와 총 복용량을 업데이트
+                        prescriptionDrug.setTakenDosingDays(takenDosingDays);
+                        prescriptionDrug.setTakenDosage(takenDosage);
+
+                        // 변경 사항 저장
+                        prescriptionDrugRepository.save(prescriptionDrug);
+                    }
+
                 }
 
                 // 변경된 is_taken 값 업데이트
@@ -202,7 +226,6 @@ public class CodefTestService {
             return null;
         }
     }
-
 
 }
 
