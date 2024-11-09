@@ -23,11 +23,11 @@ public class UserDiseaseEntity {
     @Column(name = "user_disease_id")
     private Integer userDiseaseId;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "user_profile_id")
     private UserProfileEntity userProfile;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "disease_id")
     private DiseaseEntity disease;
 

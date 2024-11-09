@@ -24,7 +24,7 @@ public class ChatSummaryEntity {
     @Column(name = "chat_summary_id")
     private Integer chatSummaryId;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "user_profile_id")
     private UserProfileEntity userProfile;
 

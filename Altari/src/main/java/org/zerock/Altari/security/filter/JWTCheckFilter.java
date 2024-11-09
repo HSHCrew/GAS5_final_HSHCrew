@@ -44,17 +44,27 @@ public class JWTCheckFilter extends OncePerRequestFilter {
         log.info("JWTCheckFilter doFilter..........");
         log.info("requestURI: " + request.getRequestURI());
 
-        if (request.getRequestURI().equals("/api/v1/register")) {
+        if (request.getRequestURI().equals("/altari/login")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        if (request.getRequestURI().equals("/api/v1/check-username")) {
+        if (request.getRequestURI().equals("/altari/kakao/login")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        if (request.getRequestURI().equals("/api/v1/test")) {
+        if (request.getRequestURI().equals("/altari/register")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        if (request.getRequestURI().equals("/altari/check/username")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        if (request.getRequestURI().equals("/altari/test")) {
             filterChain.doFilter(request, response);
             return;
         }

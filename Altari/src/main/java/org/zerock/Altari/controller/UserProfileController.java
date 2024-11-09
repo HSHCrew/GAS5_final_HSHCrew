@@ -36,7 +36,7 @@ public class UserProfileController {
         return ResponseEntity.ok(userProfile);
     }
 
-    @PutMapping("/update-userProfile/{username}")
+    @PutMapping("/updateInfo/userProfile/{username}")
     public ResponseEntity<UserProfileDTO> updateUserProfile(@PathVariable String username,
                                                                @Valid @RequestBody UserProfileDTO userProfileDTO) {
         UserEntity userEntity = new UserEntity(username);

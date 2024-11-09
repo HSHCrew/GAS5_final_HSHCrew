@@ -22,11 +22,11 @@ public class PrescriptionDrugEntity {
     @Column(name = "prescription_drug_id")
     private Integer prescriptionDrugId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY , cascade = CascadeType.REMOVE)
     @JoinColumn(name = "user_prescription_id", nullable = false)
     private UserPrescriptionEntity prescriptionId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @JoinColumn(name = "item_seq", nullable = false)
     private MedicationEntity MedicationId;
 

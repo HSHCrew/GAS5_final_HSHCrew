@@ -23,10 +23,10 @@ public class UserPastDiseaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_past_disease_id")
     private Integer userPastDiseaseId;
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "user_profile_id")
     private UserProfileEntity userProfile;
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "disease_id")
     private DiseaseEntity disease;
     @CreatedDate

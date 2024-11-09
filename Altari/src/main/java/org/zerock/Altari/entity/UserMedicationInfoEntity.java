@@ -26,15 +26,15 @@ public class UserMedicationInfoEntity {
     @Column(name = "user_medication_info_id")
     private Integer userMedicationInfoId;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "user_prescription_id")
     private UserPrescriptionEntity userPrescriptionId;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "item_seq")
     private MedicationEntity mediacationId;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "user_profile_id")
     private UserProfileEntity userProfile;
 

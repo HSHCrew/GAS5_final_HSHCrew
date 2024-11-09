@@ -23,7 +23,7 @@ public class KeywordRegistrationEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "keyword_registration_id")
     private Integer keywordRegistrationId;
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "user_profile_id")
     private UserProfileEntity userProfile;
 

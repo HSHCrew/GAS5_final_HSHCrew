@@ -2,6 +2,8 @@ package org.zerock.Altari.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +26,8 @@ public class RegisterService {
     private final PasswordEncoder passwordEncoder;
     private final UserProfileRepository userProfileRepository;
     private final UserProfileService userProfileService;
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     @Transactional
     public UserEntity join(RegisterDTO registerDTO) {
@@ -68,18 +72,28 @@ public class RegisterService {
     }
 
     public void deleteUser(String username) {
-        UserEntity userEntity = userRepository.findByUsername(username);
-        UserProfileEntity userProfile = userProfileRepository.findByUsername(userEntity);
-        if (userEntity == null) {
-            throw new RuntimeException("사용자를 찾을 수 없습니다.");
-        }
-        if (userProfile != null) {
-            userProfileRepository.delete(userProfile);
-        }
+        // 외래 키 제약을 비활성화
+        jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 0");
 
-        userRepository.delete(userEntity);
+        try {
+            UserEntity userEntity = userRepository.findByUsername(username);
+            if (userEntity == null) {
+                throw new RuntimeException("사용자를 찾을 수 없습니다.");
+            }
 
+            UserProfileEntity userProfile = userProfileRepository.findByUsername(userEntity);
+            if (userProfile != null) {
+                // 관련 데이터 삭제
+                userProfileRepository.delete(userProfile);
+            }
+
+            userRepository.delete(userEntity);
+        } finally {
+            // 외래 키 제약을 다시 활성화
+            jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 1");
+        }
     }
+
 
 
 }

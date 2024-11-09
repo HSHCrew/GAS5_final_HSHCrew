@@ -23,10 +23,10 @@ public class FamilyHistoryEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "family_history_id")
     private Integer familyHistoryId;
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "disease_id")
     private DiseaseEntity disease;
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "user_profile_id")
     private UserProfileEntity userProfile;
 

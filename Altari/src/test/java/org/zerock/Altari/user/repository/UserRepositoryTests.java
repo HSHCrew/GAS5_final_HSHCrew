@@ -34,8 +34,7 @@ public class UserRepositoryTests {
         for (int i = 4; i <= 14; i++) {
             DiseaseEntity diseaseEntity = DiseaseEntity.builder()
                     .diseaseId(1)
-                    .disease_name("당뇨")
-                    .disease_info("위험")
+                    .diseaseName("당뇨")
                     .build();
 
             diseaseRepository.save(diseaseEntity);
@@ -48,10 +47,8 @@ public class UserRepositoryTests {
         for (int i = 4; i <= 14; i++) {
             // 테스트 데이터 추가
             MedicationEntity medicationEntity = MedicationEntity.builder()
-                    .medicationId(i)
-                    .medication_name("타이레놀")
-                    .medication_info("감기약")
-                    .interaction_info("사과")
+                    .medicationId(Integer.toString(i))
+                    .medicationName("타이레놀")
                     .build();
 
             medicationRepository.save(medicationEntity);

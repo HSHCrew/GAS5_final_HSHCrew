@@ -24,7 +24,7 @@ public class NewsCurationEntity {
     @Column(name = "news_curation_id")
     private Integer newsCurationId;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "medication_id")
     private MedicationEntity medication;
 

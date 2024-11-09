@@ -25,11 +25,11 @@ public class AllergyEntity {
     @Column(name = "allergy_id")
     private Integer allergyId;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "user_profile_id")
     private UserProfileEntity userProfile;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "item_seq")
     private MedicationEntity medicationId;
 

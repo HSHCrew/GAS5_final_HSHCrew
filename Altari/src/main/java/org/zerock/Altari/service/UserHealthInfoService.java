@@ -74,8 +74,8 @@ public class UserHealthInfoService {
 
 
     @Transactional
-    public List<UserDiseaseEntity> updateUserHealthInfo(UserEntity username,
-                                                        UserHealthInfoDTO userHealthInfoDTO) {
+    public String updateUserHealthInfo(UserEntity username,
+                                       UserHealthInfoDTO userHealthInfoDTO) {
 
 
         // 사용자 프로필 조회
@@ -187,7 +187,8 @@ public class UserHealthInfoService {
 
             allergyRepository.saveAll(newAllergyMedications);
 
-            return null;
+            return "Health info updated successfully";
+
 
         } catch (Exception e) {
             throw new RuntimeException(e);

@@ -32,10 +32,10 @@ public class UserHealthInfoController {
     }
 
     @PutMapping("/updateInfo/userHealth/{username}")
-    public ResponseEntity<List<UserDiseaseEntity>> updateUserProfile(@PathVariable String username,
+    public ResponseEntity<String> updateUserProfile(@PathVariable String username,
                                                            @Valid @RequestBody UserHealthInfoDTO userHealthInfoDTO) {
         UserEntity userEntity = new UserEntity(username);
-        List<UserDiseaseEntity> result = userHealthInfoService.updateUserHealthInfo(userEntity, userHealthInfoDTO);
+        String result = userHealthInfoService.updateUserHealthInfo(userEntity, userHealthInfoDTO);
 
         return ResponseEntity.ok(result);
     }

@@ -17,7 +17,7 @@ public class TwilioTests {
         String messageBody = "This is a test SMS from TwilioSMSService.";
 
         // SMS 보내기
-        twilioSMSService.sendSMS(toPhoneNumber, messageBody);
+        twilioSMSService.sendCall(toPhoneNumber, messageBody);
     }
 
     @Test
@@ -27,6 +27,6 @@ public class TwilioTests {
         String messageBody = "This is a test SMS from TwilioSMSService.";
 
         // SMS 보내기
-        twilioSMSService.sendSMS(toPhoneNumber, messageBody);
+        twilioSMSService.sendCall(toPhoneNumber, messageBody);
     }
 }

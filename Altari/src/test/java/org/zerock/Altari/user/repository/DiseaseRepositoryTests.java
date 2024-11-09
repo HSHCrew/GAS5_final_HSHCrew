@@ -19,8 +19,7 @@ public class DiseaseRepositoryTests {
         for (int i = 1; i <= 10; i++) {
             DiseaseEntity diseaseEntity = DiseaseEntity.builder()
                     .diseaseId(i)
-                    .disease_name("고혈압")
-                    .disease_info("혈압이 높음")
+                    .diseaseName("고혈압")
                     .build();
 
             diseaseRepository.save(diseaseEntity);

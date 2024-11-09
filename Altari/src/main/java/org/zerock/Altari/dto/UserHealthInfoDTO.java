@@ -17,13 +17,9 @@ import java.util.List;
 @NoArgsConstructor
 @ToString
 public class UserHealthInfoDTO {
-    @JsonProperty("disease_id")
     private List<Integer> diseaseId;
-    @JsonProperty("past_disease_id")
     private List<Integer> pastDiseaseId;
-    @JsonProperty("family_disease_id")
     private List<Integer> familyDiseaseId;
-    @JsonProperty("allergy_medication_id")
     private List<String> allergyMedicationId;
 
 

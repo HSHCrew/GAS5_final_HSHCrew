@@ -2,6 +2,8 @@ package org.zerock.Altari.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -57,7 +59,8 @@ public class UserPrescriptionEntity {
     @Column(name = "on_alarm")
     private Boolean onAlarm;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.REMOVE)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "user_profile_id")
     private UserProfileEntity userProfile;
 
