@@ -46,31 +46,33 @@ public class UserHealthInfoService {
 
         UserProfileEntity userProfile = optionalUserProfile.get();
 
+        // 사용자 프로필에 따라 관련된 모든 엔티티를 가져옴
         List<UserDiseaseEntity> userDiseases = userDiseaseRepository.findByUserProfile(userProfile);
         List<UserPastDiseaseEntity> userPastDiseases = userPastDiseaseRepository.findByUserProfile(userProfile);
         List<FamilyHistoryEntity> userFamilyDiseases = familyHistoryRepository.findByUserProfile(userProfile);
         List<AllergyEntity> userAllergies = allergyRepository.findByUserProfile(userProfile);
 
+        // 각 엔티티 리스트를 DTO에 설정
         UserHealthInfoDTO userHealthInfoDTO = new UserHealthInfoDTO();
-
-        userHealthInfoDTO.setDiseaseId(userDiseases.stream()
-                .map(disease -> disease.getDisease().getDiseaseId())
+        userHealthInfoDTO.setDiseases(userDiseases.stream()
+                .map(UserDiseaseEntity::getDisease)
                 .collect(Collectors.toList()));
 
-        userHealthInfoDTO.setPastDiseaseId(userPastDiseases.stream()
-                .map(pastDisease -> pastDisease.getDisease().getDiseaseId())
+        userHealthInfoDTO.setPastDiseases(userPastDiseases.stream()
+                .map(pastDisease -> pastDisease.getDisease())
                 .collect(Collectors.toList()));
 
-        userHealthInfoDTO.setFamilyDiseaseId(userFamilyDiseases.stream()
-                .map(familyDisease -> familyDisease.getDisease().getDiseaseId())
+        userHealthInfoDTO.setFamilyDiseases(userFamilyDiseases.stream()
+                .map(FamilyHistoryEntity::getDisease)
                 .collect(Collectors.toList()));
 
-        userHealthInfoDTO.setAllergyMedicationId(userAllergies.stream()
-                .map(disease -> disease.getMedicationId().getMedicationId())
+        userHealthInfoDTO.setAllergyMedications(userAllergies.stream()
+                .map(AllergyEntity::getMedicationId) // Medication 전체를 반환
                 .collect(Collectors.toList()));
 
         return userHealthInfoDTO;
     }
+
 
 
     @Transactional
@@ -89,10 +91,10 @@ public class UserHealthInfoService {
 
             UserProfileEntity userProfileEntity = userProfileRepository.findByUsername(username);
 
-            List<Integer> inputDiseaseIds = userHealthInfoDTO.getDiseaseId();
-            List<Integer> inputPastDiseaseIds = userHealthInfoDTO.getPastDiseaseId();
-            List<Integer> inputFamilyDiseaseIds = userHealthInfoDTO.getFamilyDiseaseId();
-            List<String> inputMedicationIds = userHealthInfoDTO.getAllergyMedicationId();
+            List<DiseaseEntity> inputDiseaseIds = userHealthInfoDTO.getDiseases();
+            List<DiseaseEntity> inputPastDiseaseIds = userHealthInfoDTO.getPastDiseases();
+            List<DiseaseEntity> inputFamilyDiseaseIds = userHealthInfoDTO.getFamilyDiseases();
+            List<MedicationEntity> inputMedicationIds = userHealthInfoDTO.getAllergyMedications();
 
             List<UserDiseaseEntity> userDiseases = userDiseaseRepository.findByUserProfile(userProfileEntity);
             List<UserPastDiseaseEntity> userPastDiseases = userPastDiseaseRepository.findByUserProfile(userProfileEntity);
@@ -139,11 +141,11 @@ public class UserHealthInfoService {
             List<FamilyHistoryEntity> newFamilyDiseases = new ArrayList<>();
             List<AllergyEntity> newAllergyMedications = new ArrayList<>();
 
-            for (Integer diseaseId : inputDiseaseIds) {
+            for (DiseaseEntity diseaseId : inputDiseaseIds) {
                 if (userDiseases.stream().noneMatch(disease -> disease.getDisease().getDiseaseId().equals(diseaseId))) {
                     UserDiseaseEntity userDisease = UserDiseaseEntity.builder()
                             .userProfile(userProfileEntity)
-                            .disease(new DiseaseEntity(diseaseId))
+                            .disease(new DiseaseEntity(diseaseId.getDiseaseId()))
                             .build();
                     newUserDiseases.add(userDisease);
                 }
@@ -151,11 +153,11 @@ public class UserHealthInfoService {
 
             userDiseaseRepository.saveAll(newUserDiseases);
 
-            for (Integer pastDiseaseId : inputPastDiseaseIds) {
+            for (DiseaseEntity pastDiseaseId : inputPastDiseaseIds) {
                 if (userPastDiseases.stream().noneMatch(disease -> disease.getDisease().getDiseaseId().equals(pastDiseaseId))) {
                     UserPastDiseaseEntity userPastDisease = UserPastDiseaseEntity.builder()
                             .userProfile(userProfileEntity)
-                            .disease(new DiseaseEntity(pastDiseaseId))
+                            .disease(new DiseaseEntity(pastDiseaseId.getDiseaseId()))
                             .build();
                     newUserPastDiseases.add(userPastDisease);
                 }
@@ -163,11 +165,11 @@ public class UserHealthInfoService {
 
             userPastDiseaseRepository.saveAll(newUserPastDiseases);
 
-            for (Integer familyDiseaseId : inputFamilyDiseaseIds) {
+            for (DiseaseEntity familyDiseaseId : inputFamilyDiseaseIds) {
                 if (userFamilyDiseases.stream().noneMatch(disease -> disease.getDisease().getDiseaseId().equals(familyDiseaseId))) {
                     FamilyHistoryEntity familyDisease = FamilyHistoryEntity.builder()
                             .userProfile(userProfileEntity)
-                            .disease(new DiseaseEntity(familyDiseaseId))
+                            .disease(new DiseaseEntity(familyDiseaseId.getDiseaseId()))
                             .build();
                     newFamilyDiseases.add(familyDisease);
                 }
@@ -175,11 +177,11 @@ public class UserHealthInfoService {
 
             familyHistoryRepository.saveAll(newFamilyDiseases);
 
-            for (String medicationId : inputMedicationIds) {
+            for (MedicationEntity medicationId : inputMedicationIds) {
                 if (userAllergies.stream().noneMatch(allergy -> allergy.getMedicationId().getMedicationId().equals(medicationId))) {
                     AllergyEntity allergy = AllergyEntity.builder()
                             .userProfile(userProfileEntity)
-                            .medicationId(medicationRepository.findByMedicationId(medicationId))
+                            .medicationId(medicationRepository.findByMedicationId(String.valueOf(medicationId)))
                             .build();
                     newAllergyMedications.add(allergy);
                 }

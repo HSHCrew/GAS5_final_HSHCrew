@@ -17,10 +17,10 @@ import java.util.List;
 @NoArgsConstructor
 @ToString
 public class UserHealthInfoDTO {
-    private List<Integer> diseaseId;
-    private List<Integer> pastDiseaseId;
-    private List<Integer> familyDiseaseId;
-    private List<String> allergyMedicationId;
+    private List<DiseaseEntity> diseases;
+    private List<DiseaseEntity> pastDiseases;
+    private List<DiseaseEntity> familyDiseases;
+    private List<MedicationEntity> allergyMedications;
 
 
 }
