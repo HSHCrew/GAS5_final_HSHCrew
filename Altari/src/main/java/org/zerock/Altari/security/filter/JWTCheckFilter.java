@@ -44,29 +44,33 @@ public class JWTCheckFilter extends OncePerRequestFilter {
         log.info("JWTCheckFilter doFilter..........");
         log.info("requestURI: " + request.getRequestURI());
 
-        if (request.getRequestURI().equals("/api/v1/register")) {
+        if (request.getRequestURI().equals("/altari/login")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        if (request.getRequestURI().equals("/api/v1/medications")) {
+        if (request.getRequestURI().equals("/altari/kakao/login")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        if (request.getRequestURI().equals("/api/v1/check-username")) {
+        if (request.getRequestURI().equals("/altari/register")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        if (request.getRequestURI().equals("/api/codef/first")) {
+        if (request.getRequestURI().equals("/altari/check/username")) {
             filterChain.doFilter(request, response);
             return;
         }
-        if (request.getRequestURI().equals("/api/codef/second")) {
+
+        if (request.getRequestURI().equals("/altari/test")) {
             filterChain.doFilter(request, response);
             return;
         }
+
+
+
         // 특정 엔드포인트에 대한 접근 제한 해제
 
         String headerStr = request.getHeader("Authorization");

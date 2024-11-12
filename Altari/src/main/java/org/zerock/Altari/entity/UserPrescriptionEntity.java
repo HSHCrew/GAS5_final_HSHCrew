@@ -2,11 +2,15 @@ package org.zerock.Altari.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -17,27 +21,53 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@EntityListeners(AuditingEntityListener.class)
 public class UserPrescriptionEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int user_prescription_id;
+    @Column(name = "user_prescription_id")
+    private Integer userPrescriptionId;
 
-    private String prescribe_no;
-    private String prescribe_org;
-    private String comm_brand_name;
-    private LocalDate manufacture_date;
-    private String tel_no;
-    private String tel_no1;
-    @ManyToOne
+    @Column(name = "prescribe_no",unique = true)
+    private String prescribeNo;
+
+    @Column(name = "prescribe_org")
+    private String prescribeOrg;
+
+    @Column(name = "comm_brand_name")
+    private String commBrandName;
+
+    @Column(name = "manufacture_date")
+    private LocalDate manufactureDate;
+
+    @Column(name = "tel_no")
+    private String telNo;
+
+    @Column(name = "tel_no1")
+    private String telNo2;
+
+    @Column(name = "prescription_info")
+    private String prescriptionInfo;
+
+    @Column(name = "ai_summary")
+    private String aiSummary;
+
+    @Column(name = "is_taken")
+    private Boolean isTaken;
+
+    @Column(name = "on_alarm")
+    private Boolean onAlarm;
+
+    @ManyToOne(cascade = CascadeType.REMOVE)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "user_profile_id")
-    private UserProfileEntity user_profile_id;
+    private UserProfileEntity userProfile;
 
     @CreatedDate
     private LocalDateTime user_prescription_created_at;
     @LastModifiedDate
     private LocalDateTime user_prescription_updated_at;
 
-    @OneToMany(mappedBy = "user_prescription_id", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<MedicineEntity> medicines;
+
 }

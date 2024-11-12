@@ -1,34 +1,55 @@
+import React, { useState } from 'react';
 import './style.css';
 import { Link } from 'react-router-dom';
+import Popup from '../Popup/index.jsx';
+
+import HomeIcon from '../../assets/Home.svg';
+import MedicationIcon from '../../assets/Planner.svg';
+import ChatbotIcon from '../../assets/Chatbot.svg';
+import UserIcon from '../../assets/Person.svg';
 
 const Navigation = () => {
-    return (
-        <nav
-            style={{
-                position: 'relative',
-                backgroundColor: 'inherit',
-                height: '70px', // safe-area-inset-bottom 높이 적절하게 조절
-            }}
-        >
-            <div className={'navigation'}>
-                <div>
-                    <Link to={'/home'}>홈</Link>
+    const [isPopupVisible, setPopupVisible] = useState(false);
+ 
+    const togglePopup = () => {
+       setPopupVisible(!isPopupVisible);
+    };
+
+   return (
+       <nav className="navigation-bar">
+           <div className="navigation-item">
+               <Link to={'/home'}>
+                   <img src={HomeIcon} alt="Home" className="navigation-icon" />
+                   <p>홈</p>
+               </Link>
+           </div>
+           <div className="navigation-item">
+               <Link to={'/medicationManagement'}>
+                   <img src={MedicationIcon} alt="Medication Management" className="navigation-icon" />
+                   <p>복약관리</p>
+               </Link>
+           </div>
+           <div className="navigation-item">
+                <div className="navigation-plus-button" onClick={togglePopup}>
+                    <span className="navigation-plus-icon">+</span>
                 </div>
-                <div>
-                    <Link to={'/medicationManagement'}>복약관리</Link>
-                </div>
-                <div>
-                    <Link to={'/registrationPrescription'}>+</Link>
-                </div>
-                <div>
-                    <Link to={'/chatting'}>챗봇</Link>
-                </div>
-                <div>
-                    <Link to={'/setting'}>설정</Link>
-                </div>
-            </div>
-        </nav>
-    );
+           </div>
+           <div className="navigation-item">
+               <Link to={'/chatting'}>
+                   <img src={ChatbotIcon} alt="Chatbot" className="navigation-icon" />
+                   <p>챗봇</p>
+               </Link>
+           </div>
+           <div className="navigation-item">
+               <Link to={'/setting'}>
+                   <img src={UserIcon} alt="User" className="navigation-icon" />
+                   <p>내정보</p>
+               </Link>
+           </div>
+            {/* Popup 컴포넌트 호출 */}
+           <Popup isVisible={isPopupVisible} closePopup={() => setPopupVisible(false)} />
+       </nav>
+   );
 };
 
 export default Navigation;

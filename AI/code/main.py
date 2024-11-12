@@ -30,6 +30,7 @@ from chatbot.database.models import (
 )
 
 # 환경 변수 로드
+
 load_dotenv()
 
 @asynccontextmanager

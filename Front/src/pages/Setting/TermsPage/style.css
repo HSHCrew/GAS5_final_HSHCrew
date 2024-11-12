@@ -1,0 +1,63 @@
+/* 전체 컨테이너 스타일 */
+.terms-container {
+    max-width: 650px;
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    color: #f8f9fa;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* 내용 컨테이너 스타일 */
+  .terms-content {
+    margin-top: 20px;
+    padding: 20px;
+  }
+  
+  /* 섹션 스타일 */
+  .terms-section {
+    margin-bottom: 20px;
+  }
+  
+  .terms-section h2 {
+    font-size: 1.4em;
+    color: #489374;
+    margin-bottom: 10px;
+    border-bottom: 2px solid #489374;
+    padding-bottom: 5px;
+  }
+  
+  .terms-section p {
+    font-size: 1em;
+    color: #444;
+    text-align: justify;
+  }
+  
+  /* 푸터 스타일 */
+  .terms-footer {
+    text-align: center;
+    font-size: 0.9em;
+    color: #777;
+    margin-top: 30px;
+  }
+  
+  .terms-footer p {
+    margin: 5px 0;
+  }
+  
+  /* 반응형 디자인 */
+  @media (max-width: 768px) {
+    .terms-container {
+      padding: 15px;
+    }
+  
+    .terms-section h2 {
+      font-size: 1.2em;
+    }
+  
+    .terms-section p {
+      font-size: 0.9em;
+    }
+  }
+  

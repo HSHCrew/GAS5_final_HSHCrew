@@ -21,13 +21,12 @@ public class KeywordRegistrationEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int keyword_registration_id;
-    @ManyToOne
+    @Column(name = "keyword_registration_id")
+    private Integer keywordRegistrationId;
+    @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "user_profile_id")
-    private UserProfileEntity user_profile_id;
-    @ManyToOne
-    @JoinColumn(name = "health_keyword_id")
-    private HealthKeywordEntity health_keyword_id;
+    private UserProfileEntity userProfile;
+
     @CreatedDate
     private LocalDateTime keyword_registration_created_at;
     @LastModifiedDate

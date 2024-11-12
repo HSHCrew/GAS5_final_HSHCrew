@@ -1,7 +1,10 @@
 package org.zerock.Altari.controller;
 
+import io.jsonwebtoken.Claims;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 import org.zerock.Altari.dto.UserDTO;
@@ -11,7 +14,7 @@ import org.zerock.Altari.service.UserService;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/v1/token")
+@RequestMapping("/altari")
 @Log4j2
 @RequiredArgsConstructor
 public class TokenController {
@@ -36,14 +39,14 @@ public class TokenController {
 
         Map<String, Object> newClaims = userDTO.getDataMap();
 
-        String newAccessToken = jwtUtil.createToken(newClaims, 10);
+        String newAccessToken = jwtUtil.createToken(newClaims, 60);
 
-        String newRefreshToken = jwtUtil.createToken(Map.of("username", username), 60 * 24 * 7); //
+        String newRefreshToken = jwtUtil.createToken(Map.of("username", username), 60 * 24 * 30); //
 
         return makeData(username, newAccessToken, newRefreshToken); //
     }
 
-    @PostMapping("/make")
+    @PostMapping("/login")
     public ResponseEntity<Map<String, String>> makeToken(@RequestBody UserDTO userDTO) { //
         log.info("make token.....");
 
@@ -55,9 +58,9 @@ public class TokenController {
 
         Map<String, Object> dataMap = userDTOResult.getDataMap();
 
-        String accessToken = jwtUtil.createToken(dataMap, 10);
+        String accessToken = jwtUtil.createToken(dataMap, 60);
 
-        String refreshToken = jwtUtil.createToken(Map.of("username", username), 60 * 24 * 7); //
+        String refreshToken = jwtUtil.createToken(Map.of("username", username), 60 * 24 * 30); //
 
         log.info("accessToken: " + accessToken);
         log.info("refreshToken: " + refreshToken);
@@ -113,4 +116,5 @@ public class TokenController {
     private ResponseEntity<Map<String, String>> handleException(String msg, int status) {
         return ResponseEntity.status(status).body(Map.of("msg", msg)); //
     }
+
 }

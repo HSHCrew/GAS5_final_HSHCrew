@@ -12,14 +12,14 @@ import org.zerock.Altari.repository.DiseaseRepository;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/altari")
 @Log4j2
 @RequiredArgsConstructor
 public class DiseaseController {
 
     private final DiseaseRepository diseaseRepository;
 
-    @GetMapping("/diseases")
+    @GetMapping("/disease/list")
     public List<DiseaseEntity> getAllDiseases() {
         List<DiseaseEntity> diseases = diseaseRepository.findAll();
         if (diseases.isEmpty()) {

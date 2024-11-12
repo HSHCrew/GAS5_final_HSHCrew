@@ -11,16 +11,16 @@ export const UserProfile = () => {
     }, []);
 
     return (
-        <>
+        <div className={'user-profile-container'}>
             <div className={'user-name'}>{userName}</div>
             <div className={'profile-image-container'}>
                 <StyledImage
                     src={UserProfile_default}
                     alt={'User Profile'}
                     height={'100%'}
-                    width={'100%'}
+                    width={''}
                 />
             </div>
-        </>
+        </div>
     );
 };

@@ -1,0 +1,125 @@
+/* 전체 페이지 컨테이너 */
+.chatting-page-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f0f0f5;
+  width: 100%;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+/* 채팅 메인 박스 */
+.chatting-container {
+  width: 100%;
+  max-width: 650px;
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  min-height: 100vh;
+  margin-bottom: 140px;
+}
+
+/* 메시지 표시 영역 */
+.message-section {
+  flex-grow: 1;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+  background-color: #f9f9f9;
+}
+
+/* 메시지와 아이콘을 포함하는 컨테이너 */
+.message-container {
+  display: flex;
+  align-items: flex-end; /* 아이콘과 메시지 하단을 맞춤 */
+  margin-bottom: 10px;
+}
+
+.message-container.sent {
+  justify-content: flex-end;
+}
+
+.message-container.received {
+  justify-content: flex-start;
+}
+
+/* 답장 아이콘 스타일 */
+.message-icon {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  margin-right: 10px;
+  transform: scaleX(-1);
+}
+
+/* 메시지 스타일 */
+.chatting-message {
+  max-width: 70%;
+  padding: 10px 15px;
+  border-radius: 15px;
+  font-size: 14px;
+  line-height: 1.4;
+  word-wrap: break-word;
+}
+
+/* 수신한 메시지 */
+.chatting-message-received {
+  background-color: #e1e1e6;
+  border-bottom-left-radius: 0;
+  display: flex;
+  align-items: center;
+}
+
+/* 보낸 메시지 */
+.chatting-message-sent {
+  background-color: #4CAF50;
+  color: white;
+  align-self: flex-end;
+  border-bottom-right-radius: 0;
+}
+
+/* 메시지 입력 영역 */
+.input-section {
+  position: fixed;
+  width: 100%;
+  max-width: 630px;
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border-top: 1px solid #ddd;
+  background-color: #fff;
+  bottom: 70px;
+}
+
+.input-box {
+  flex: 1;
+  height: 40px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  font-size: 14px;
+  outline: none;
+  margin-right: 10px;
+  box-sizing: border-box;
+  resize: none;
+}
+
+.send-button {
+  background-color: #4CAF50;
+  color: white;
+  padding: 8px 15px;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+.send-button:hover {
+  background-color: #45a049;
+}

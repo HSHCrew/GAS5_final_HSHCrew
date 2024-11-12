@@ -21,16 +21,22 @@ public class ChatSummaryEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int chat_summary_id;
-    @ManyToOne
-    @JoinColumn(name = "user_profile_id")
-    private UserProfileEntity user_profile_id;
+    @Column(name = "chat_summary_id")
+    private Integer chatSummaryId;
 
-    private String chat_date;
-    private String summary_content;
+    @ManyToOne(cascade = CascadeType.REMOVE)
+    @JoinColumn(name = "user_profile_id")
+    private UserProfileEntity userProfile;
+
+    @Column(name = "chat_date")
+    private String chatDate;
+
+    @Column(name = "summary_content")
+    private String summaryContent;
 
     @CreatedDate
     private LocalDateTime chat_summary_created_at;
+
     @LastModifiedDate
     private LocalDateTime chat_summary_updated_at;
 

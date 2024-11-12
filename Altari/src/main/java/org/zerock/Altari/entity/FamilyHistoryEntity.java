@@ -21,15 +21,17 @@ public class FamilyHistoryEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int family_history_id;
-    @ManyToOne
+    @Column(name = "family_history_id")
+    private Integer familyHistoryId;
+    @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "disease_id")
-    private DiseaseEntity disease_id;
-    @ManyToOne
+    private DiseaseEntity disease;
+    @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "user_profile_id")
-    private UserProfileEntity user_profile_id;
+    private UserProfileEntity userProfile;
 
-    private String family_relation;
+    @Column(name = "family_relation")
+    private String familyRelation;
     @CreatedDate
     private LocalDateTime family_history_created_at;
     @LastModifiedDate

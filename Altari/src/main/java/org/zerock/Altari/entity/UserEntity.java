@@ -21,7 +21,9 @@ public class UserEntity {
 
     @Id
     private String username;
+
     private String password;
+
     private String role;
     @CreatedDate
     private LocalDateTime user_created_at;
@@ -32,11 +34,12 @@ public class UserEntity {
         this.password = password;
     }
 
-    public UserEntity(String username, String password, String role, UserProfileEntity userProfile) {
+    public UserEntity(String username) {
         this.username = username;
         this.password = password;
         this.role = role;
     }
+
 
 
 }
