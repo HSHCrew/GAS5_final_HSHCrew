@@ -1,57 +1,48 @@
 import os
-from fastapi import FastAPI, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
-from sqlalchemy import create_engine, Column, Integer, String, ForeignKey
-from sqlalchemy.orm import sessionmaker, declarative_base
-from sqlalchemy.exc import NoResultFound
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.ext.declarative import as_declarative
-from sqlalchemy.orm import sessionmaker
+from typing import Dict, List, Optional
 from dotenv import load_dotenv
-import uvicorn
-from summarizer import Summarizer
+from fastapi import FastAPI, HTTPException, Depends
+from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy.ext.asyncio import AsyncSession
+from redis import asyncio as aioredis
+from sqlalchemy import select, delete, and_, update
+from sqlalchemy import func
+import json
 
+# Local imports
+from summarizer.Summarizer import Summarizer
+from chatbot.config import RedisSettings, ChatbotSettings
+from chatbot.manager import ChatbotManager
+from chatbot.exceptions import ChatbotSessionError
+from chatbot.models import ChatRequest, UserMedicationsRequest
+from chatbot.database import (
+    engine,
+    AsyncSessionLocal,
+    get_db,
+    Base
+)
+from chatbot.database.models import (
+    User,
+    Medication,
+    UserMedication,
+    MedicationSummary
+)
+
+# 환경 변수 로드
 load_dotenv()
 
 app = FastAPI()
 
-# 데이터베이스 연결 정보
-DATABASE_URL = os.getenv("DATABASE_URL")  # 환경 변수에서 데이터베이스 URL 가져오기
-engine = create_async_engine(DATABASE_URL, echo=True)
-SessionLocal = sessionmaker(bind=engine, class_=AsyncSession)
-Base = declarative_base()
+# Redis 설정 및 초기화
+redis_settings = RedisSettings()
+redis = aioredis.from_url(
+    url=redis_settings.REDIS_URL,
+    password=redis_settings.REDIS_PASSWORD,
+    encoding=redis_settings.REDIS_ENCODING,
+    decode_responses=redis_settings.REDIS_DECODE_RESPONSES
+)
 
-# SQLAlchemy 모델 정의
-@as_declarative()
-class Base:
-    pass
-
-class User(Base):
-    __tablename__ = "users"
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String(100))
-
-class Medication(Base):
-    __tablename__ = "medications"
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String(100))
-    details = Column(String)
-    dur_info = Column(String)
-
-class UserMedication(Base):
-    __tablename__ = "user_medications"
-    user_id = Column(Integer, ForeignKey('users.id'), primary_key=True)
-    medication_id = Column(Integer, ForeignKey('medications.id'), primary_key=True)
-
-class MedicationDetails(BaseModel):
-    medication_id: int
-
-class UserMedications(BaseModel):
-    user_id: int
-    medications: list[MedicationDetails]
-
-# CORS 미들웨어를 추가하여 모든 도메인에서의 요청을 허용
+# CORS 설정
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -60,50 +51,215 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.post("/user/medications")
-async def receive_medications(user_medications: UserMedications):
-    async with SessionLocal() as db:
-        # 사용자 확인
-        user_query = await db.execute(select(User).where(User.id == user_medications.user_id))
-        user = user_query.scalars().first()
-        if not user:
-            raise HTTPException(status_code=404, detail="User not found")
-
-        # 약물 정보 저장 및 상세 정보 검색
-        medication_details = []
-        
-        for med in user_medications.medications:
-            medication_query = await db.execute(select(Medication).where(Medication.id == med.medication_id))
-            medication = medication_query.scalars().first()
-            if not medication:
-                raise HTTPException(status_code=404, detail=f"Medication with ID {med.medication_id} not found")
-
-            medication_details.append({
-                "id": medication.id,
-                "name": medication.name,
-                "details": medication.details,
-                "dur_info": medication.dur_info
-            })
-
-        # # 사용자 약물 정보 저장 (선택적)
-        # for med in user_medications.medications:
-        #     user_medication = UserMedication(user_id=user_medications.user_id, medication_id=med.medication_id)
-        #     db.add(user_medication)
-
-        await db.commit()
-
-    return {
-        "message": "Medications received successfully",
-        "medication_details": medication_details
-    }
-
-
+# 서비스 초기화
+chatbot_manager = ChatbotManager(redis)
 summarizer = Summarizer()
 
+# 헬스체크 엔드포인트
+@app.get("/health")
+async def health_check():
+    try:
+        await redis.ping()
+        async with AsyncSessionLocal() as db:
+            await db.execute("SELECT 1")
+        return {"status": "healthy"}
+    except Exception as e:
+        return {"status": "unhealthy", "error": str(e)}
 
+# 챗봇 엔드포인트
+@app.post('/user/medications/chat_message')
+async def chat_message(
+    request: ChatRequest,
+    db: AsyncSession = Depends(get_db)
+):
+    try:
+        chatbot = await chatbot_manager.get_chatbot(request.user_id, db)
+        response = await chatbot.respond(request.message)
+        return {"response": response}
+    except ChatbotSessionError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post('/user/medications/chat_start')
+async def chat_start(
+    request: ChatRequest,
+    db: AsyncSession = Depends(get_db)
+):
+    try:
+        chatbot = await chatbot_manager.get_chatbot(request.user_id, db)
+        initial_response = await chatbot.start_chat()
+        return {"message": initial_response, "user_id": request.user_id}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post('/user/medications/chat_reset')
+async def chat_reset(
+    request: ChatRequest,
+    db: AsyncSession = Depends(get_db)
+):
+    try:
+        # 기존 챗봇 인스턴스 가져오기
+        chatbot = await chatbot_manager.get_chatbot(request.user_id, db)
+        
+        # 세션 및 채팅 기록 초기화
+        await chatbot.cleanup()
+        
+        # ChatbotManager에서 인스턴스 제거
+        if request.user_id in chatbot_manager.instances:
+            del chatbot_manager.instances[request.user_id]
+        
+        # 새로운 챗봇 인스턴스 생성 및 세션 시작
+        new_chatbot = await chatbot_manager.get_chatbot(request.user_id, db)
+        initial_response = await new_chatbot.start_chat()
+        
+        return {
+            "message": "Chat session reset successfully",
+            "initial_response": initial_response
+        }
+    except Exception as e:
+        print(f"Error resetting chat: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# 약물 정보 처리 엔드포인트
+@app.post("/user/medications")
+async def receive_medications(
+    user_medications: UserMedicationsRequest,
+    db: AsyncSession = Depends(get_db)
+):
+    try:
+        async with db.begin():
+            # 사용자 확인
+            user_query = await db.execute(
+                select(User).where(User.id == user_medications.user_id)
+            )
+            user = user_query.scalar_one_or_none()
+            if not user:
+                raise HTTPException(status_code=404, detail="User not found")
+
+            # 기존 사용자-약물 관계 삭제 및 새로운 관계 추가
+            await db.execute(
+                delete(UserMedication).where(UserMedication.user_id == user_medications.user_id)
+            )
+            for med in user_medications.medications:
+                new_user_med = UserMedication(
+                    user_id=user_medications.user_id,
+                    medication_id=med.medication_id
+                )
+                db.add(new_user_med)
+
+            # 약물 정보 조회 및 요약 처리
+            # 약물 정보 조회 및 구조화
+            medication_details = {}
+            for med in user_medications.medications:
+                med_query = await db.execute(
+                    select(Medication).where(Medication.id == med.medication_id)
+                )
+                medication = med_query.scalar_one_or_none()
+                if medication:
+                    details_dict = json.loads(medication.details)
+                    dur_dict = json.loads(medication.dur_info)
+                    
+                    medication_details[medication.id] = str({
+                        "약물정보": {
+                            "약물명": medication.name,
+                            **details_dict
+                        },
+                        "DUR정보": dur_dict
+                    })
+
+            # Summarizer 처리
+            med_info_list = list(medication_details.values())
+            summary_results = await summarizer.process_medication_infos(
+                contents=med_info_list,
+                user_id=str(user_medications.user_id),
+                medication_ids=[med.medication_id for med in user_medications.medications]
+            )
+
+            # 요약 결과 저장 (upsert 방식)
+            for med_id, result in zip(medication_details.keys(), summary_results):
+                # 기존 요약 확인
+                existing_summary = await db.execute(
+                    select(MedicationSummary).where(
+                        MedicationSummary.user_id == user_medications.user_id,
+                        MedicationSummary.medication_id == med_id
+                    )
+                )
+                summary = existing_summary.scalar_one_or_none()
+
+                if summary:
+                    # 기존 요약 업데이트
+                    await db.execute(
+                        update(MedicationSummary)
+                        .where(
+                            MedicationSummary.user_id == user_medications.user_id,
+                            MedicationSummary.medication_id == med_id
+                        )
+                        .values(
+                            restructured=result.restructured,
+                            summary=result.summary,
+                            fewshots=result.fewshots,
+                            failed=str(result.failed),
+                            last_updated=func.now()
+                        )
+                    )
+                else:
+                    # 새 요약 추가
+                    new_summary = MedicationSummary(
+                        user_id=user_medications.user_id,
+                        medication_id=med_id,
+                        restructured=result.restructured,
+                        summary=result.summary,
+                        fewshots=result.fewshots,
+                        failed=str(result.failed)
+                    )
+                    db.add(new_summary)
+
+        return {"message": "Medications processed successfully"}
+
+    except Exception as e:
+        print(f"Error processing medications: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+    
+@app.get("/user/{user_id}/medication-summaries")
+async def get_user_medication_summaries(
+    user_id: int,
+    db: AsyncSession = Depends(get_db)
+) -> Dict[str, List[str]]:
+    try:
+        # 사용자의 모든 약물 요약 정보 조회
+        query = select(MedicationSummary).where(MedicationSummary.user_id == user_id)
+        result = await db.execute(query)
+        summaries = result.all()
+        
+        if not summaries:
+            raise HTTPException(status_code=404, detail="No medication summaries found for this user")
+        
+        # restructured 정보만 추출
+        medication_info = [summary[0].restructured for summary in summaries]
+        
+        return {"medication_info": medication_info}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# 시작/종료 이벤트 핸들러
+@app.on_event("startup")
+async def startup_event():
+    try:
+        await redis.ping()
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+    except Exception as e:
+        raise Exception(f"Startup failed: {str(e)}")
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    await chatbot_manager.cleanup_all()
+    await redis.close()
+    await engine.dispose()
+    
 def main():
     uvicorn.run(app, host="0.0.0.0", port=8000)
-
 
 if __name__ == "__main__":
     main()

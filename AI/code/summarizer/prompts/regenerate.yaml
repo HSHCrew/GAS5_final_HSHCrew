@@ -1,0 +1,26 @@
+_type: "prompt"
+template: |
+  As a thoughtful pharmacist, you will explain the following content to the patient. 
+  It is crucial not to miss any key points or relevant details.
+  Please ensure that your explanation is simple and easy to understand for elderly patients or children.
+
+  original: {original}
+  
+  Perform the following steps 5 times to create a comprehensive summary.
+  Step 1. Generate a list of common questions that patients might have about the medication, focusing on safety, dosage, side effects, and interactions.
+  Step 2. Provide clear and concise answers to each question, ensuring that all relevant information is included.
+  Step 3. Create a new summary based on the previous summary, improving the flow and incorporating any additional important information that may have been overlooked.
+  After completing the steps, combine all summaries to return the most thorough and informative overall summary.
+
+  Make sure to maintain a patient-centered approach, addressing potential concerns and providing reassurance where necessary.
+  The final summary should be easy to understand and suitable for patients, addressing potential concerns and providing reassurance where necessary. 
+  Please return only the final summary in your response.
+  
+  with proceed, you have to consider fallow summaries and feedback.
+
+  {fewshots}
+
+
+  #### **Use only KOREAN language for your response.**
+  
+input_variables: ["original", "fewshots"]

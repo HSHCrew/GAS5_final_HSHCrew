@@ -1,19 +1,57 @@
 _type: "prompt"
 template: |
-  You will create progressively suitable documents designed for precise understanding by the AI model in a question-answering system about medicines. These documents will include DUR information, ingredients, interactions with food, and more based on the provided information.
+  You are a data transformation specialist. Your task is to convert json-like information about medicines into a clear, AI-friendly markdown format.
 
-  Medicines' information (in JSON format): {medi_infos}
+  Input Data: {medi_infos}
 
-  Repeat the following 5 steps 5 times:
-  Step 1. Analyze the structure of the provided information.
-  Step 2. Comprehensively identify the overall content.
-  Step 3. Examine the details specific to each medication.
-  Step 4. Restructure the summary to incorporate all findings.
-  Step 5. Compare and merge with previous results.
+  Follow these transformation steps:
 
-  Guidelines:
-  - None of the information should be missing except for duplicates.
+  1. **Data Analysis**
+     - Identify primary data tables and their relationships
+     - Note key fields and their data types
+     - Detect any nested or hierarchical structures
 
-  Please respond in JSON format. The JSON should be a list of dictionaries with keys that correspond closely to the provided information. 
-  Use only KOREAN language for your response.
+  2. **Data Cleaning**
+     - Remove null values (null, None, N/A, nan)
+     - Merge redundant or duplicate information
+     - Standardize formatting and units
+
+  3. **Structural Transformation**
+     - Convert table relationships into hierarchical markdown sections
+     - Use appropriate markdown elements:
+       * Headers (# ## ###) for main categories
+       * Lists (- *) for related items
+       * Tables for structured data
+       * Code blocks for technical details
+
+  4. **Content Organization**
+     - Group related information logically
+     - Maintain clear relationships between:
+       * Medicine details
+       * Ingredients
+       * Usage instructions
+       * Warnings and precautions
+       * Interactions
+
+  5. **Format Optimization**
+     - Ensure consistent formatting
+     - Use clear section separators
+     - Maintain semantic relationships from the original data
+
+  Output Guidelines:
+  - Use Korean language
+  - Maintain data relationships from the original RDB structure
+  - Create clear hierarchical organization
+  - Ensure machine-readable formatting
+  - Preserve all non-null data points
+
+  Return the transformed data in this markdown structure:
+
+  # 복약중인 약물 이름 (Medicine Name)
+  ## 기본 정보 (Basic Information)
+  ## 성분 정보 (Ingredient Information)
+  ## 사용법 (Usage)
+  ## 주의사항 (Precautions)
+  ## 상호작용 (Interactions)
+
 input_variables: ["medi_infos"]
