@@ -8,6 +8,7 @@ from redis import asyncio as aioredis
 from sqlalchemy import select, delete, and_, update
 from sqlalchemy import func
 import json
+from contextlib import asynccontextmanager
 
 # Local imports
 from summarizer.Summarizer import Summarizer
@@ -31,16 +32,27 @@ from chatbot.database.models import (
 # 환경 변수 로드
 load_dotenv()
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # startup 이벤트
+    try:
+        await redis.ping()
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+        print("Application startup completed")
+        yield
+    except Exception as e:
+        print(f"Startup failed: {str(e)}")
+        raise
+    finally:
+        # shutdown 이벤트
+        await chatbot_manager.cleanup_all()
+        await redis.close()
+        await engine.dispose()
+        print("Application shutdown completed")
 
-# Redis 설정 및 초기화
-redis_settings = RedisSettings()
-redis = aioredis.from_url(
-    url=redis_settings.REDIS_URL,
-    password=redis_settings.REDIS_PASSWORD,
-    encoding=redis_settings.REDIS_ENCODING,
-    decode_responses=redis_settings.REDIS_DECODE_RESPONSES
-)
+# FastAPI 인스턴스 생성 시 lifespan 핸들러 등록
+app = FastAPI(lifespan=lifespan)
 
 # CORS 설정
 app.add_middleware(
@@ -51,13 +63,22 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Redis 설정 및 초기화
+redis_settings = RedisSettings()
+redis = aioredis.from_url(
+    url=redis_settings.REDIS_URL,
+    password=redis_settings.REDIS_PASSWORD,
+    encoding=redis_settings.REDIS_ENCODING,
+    decode_responses=redis_settings.REDIS_DECODE_RESPONSES
+)
+
 # 서비스 초기화
 chatbot_manager = ChatbotManager(redis)
 summarizer = Summarizer()
 
 # 헬스체크 엔드포인트
-@app.get("/health")
-async def health_check():
+@app.get("/redis/health")
+async def redis_health_check():
     try:
         await redis.ping()
         async with AsyncSessionLocal() as db:
@@ -67,7 +88,7 @@ async def health_check():
         return {"status": "unhealthy", "error": str(e)}
 
 # 챗봇 엔드포인트
-@app.post('/user/medications/chat_message')
+@app.post('/user/medications/chat/message')
 async def chat_message(
     request: ChatRequest,
     db: AsyncSession = Depends(get_db)
@@ -81,7 +102,7 @@ async def chat_message(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post('/user/medications/chat_start')
+@app.post('/user/medications/chat/start')
 async def chat_start(
     request: ChatRequest,
     db: AsyncSession = Depends(get_db)
@@ -93,7 +114,7 @@ async def chat_start(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post('/user/medications/chat_reset')
+@app.post('/user/medications/chat/reset')
 async def chat_reset(
     request: ChatRequest,
     db: AsyncSession = Depends(get_db)
@@ -221,7 +242,7 @@ async def receive_medications(
         print(f"Error processing medications: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
     
-@app.get("/user/{user_id}/medication-summaries")
+@app.get("/user/{user_id}/medication/summaries")
 async def get_user_medication_summaries(
     user_id: int,
     db: AsyncSession = Depends(get_db)
@@ -242,22 +263,6 @@ async def get_user_medication_summaries(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-# 시작/종료 이벤트 핸들러
-@app.on_event("startup")
-async def startup_event():
-    try:
-        await redis.ping()
-        async with engine.begin() as conn:
-            await conn.run_sync(Base.metadata.create_all)
-    except Exception as e:
-        raise Exception(f"Startup failed: {str(e)}")
-
-@app.on_event("shutdown")
-async def shutdown_event():
-    await chatbot_manager.cleanup_all()
-    await redis.close()
-    await engine.dispose()
-    
 def main():
     uvicorn.run(app, host="0.0.0.0", port=8000)
 
