@@ -82,6 +82,7 @@ public class UserPrescriptionService {
                         .aiSummary(userPrescription.getAiSummary())
                         .prescriptionInfo(userPrescription.getPrescriptionInfo())
                         .drugs(prescriptionDrugDTOs)
+                        .totalDosingDay(userPrescription.getTotalDosingDay())
                         .build();
 
                 userPrescriptionDTOs.add(userPrescriptionDTO);

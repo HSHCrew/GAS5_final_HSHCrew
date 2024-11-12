@@ -59,6 +59,9 @@ public class UserPrescriptionEntity {
     @Column(name = "on_alarm")
     private Boolean onAlarm;
 
+    @Column(name = "total_dosing_day")
+    private Integer totalDosingDay;
+
     @ManyToOne(cascade = CascadeType.REMOVE)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "user_profile_id")

@@ -149,6 +149,7 @@ public class CodefTestService {
                 userPrescription.setIsTaken(false);
                 userPrescription.setOnAlarm(true);
 
+
                 userPrescriptionRepository.save(userPrescription);
 
                 JsonNode drugList = data.get("resDrugList");
@@ -176,6 +177,10 @@ public class CodefTestService {
                         prescriptionDrugRepository.save(prescriptionDrug);
                     }
                 }
+
+                // 처방전의 최대 total_dosing_days 값을 userPrescription에 설정
+                userPrescription.setTotalDosingDay(totalDosingDays);
+                userPrescriptionRepository.save(userPrescription);
 
                 // 총 복용 일수를 기준으로 처방전의 is_taken 값을 설정
                 LocalDate endDate = manufactureDate.plusDays(totalDosingDays);

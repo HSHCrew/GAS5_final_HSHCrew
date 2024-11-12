@@ -1,11 +1,13 @@
 package org.zerock.Altari.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import org.zerock.Altari.entity.UserProfileEntity;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Optional;
 
 
 @Data
@@ -13,6 +15,7 @@ import java.time.LocalTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserProfileDTO {
 
     private Integer userProfileId;
@@ -27,6 +30,7 @@ public class UserProfileDTO {
     private LocalTime dinnerMedicationTime;
     private LocalDateTime user_profile_created_at;
     private LocalDateTime user_profile_updated_at;
+
 
 
 

@@ -108,30 +108,42 @@ public class UserHealthInfoService {
             List<AllergyEntity> allergiesToRemove = new ArrayList<>();
 
             for (UserDiseaseEntity currentDisease : userDiseases) {
-                if (!inputDiseaseIds.contains(currentDisease.getDisease())) {
+                if (!inputDiseaseIds.contains(currentDisease.getDisease().getDiseaseId())) {
                     diseasesToRemove.add(currentDisease);
                 }
             }
-            userDiseaseRepository.deleteAll(diseasesToRemove);
+            for (UserDiseaseEntity diseaseToRemove : diseasesToRemove) {
+                diseaseToRemove.setUserProfile(null); // `user_profile_id`를 null로 설정
+            }
+            userDiseaseRepository.deleteAll(diseasesToRemove); // `user_profile`과의 관계를 끊은 후 삭제
 
             for (UserPastDiseaseEntity currentPastDisease : userPastDiseases) {
-                if (!inputPastDiseaseIds.contains(currentPastDisease.getDisease())) {
+                if (!inputPastDiseaseIds.contains(currentPastDisease.getDisease().getDiseaseId())) {
                     pastDiseasesToRemove.add(currentPastDisease);
                 }
+            }
+            for (UserPastDiseaseEntity diseaseToRemove : pastDiseasesToRemove) {
+                diseaseToRemove.setUserProfile(null); // `user_profile_id`를 null로 설정
             }
             userPastDiseaseRepository.deleteAll(pastDiseasesToRemove);
 
             for (FamilyHistoryEntity currentFamilyDisease : userFamilyDiseases) {
-                if (!inputFamilyDiseaseIds.contains(currentFamilyDisease.getDisease())) {
+                if (!inputFamilyDiseaseIds.contains(currentFamilyDisease.getDisease().getDiseaseId())) {
                     familyDiseasesToRemove.add(currentFamilyDisease);
                 }
+            }
+            for (FamilyHistoryEntity diseaseToRemove : familyDiseasesToRemove) {
+                diseaseToRemove.setUserProfile(null); // `user_profile_id`를 null로 설정
             }
             familyHistoryRepository.deleteAll(familyDiseasesToRemove);
 
             for (AllergyEntity currentAllergy : userAllergies) {
-                if (!inputMedicationIds.contains(currentAllergy.getMedicationId())) {
+                if (!inputMedicationIds.contains(currentAllergy.getMedicationId().getMedicationId())) {
                     allergiesToRemove.add(currentAllergy);
                 }
+            }
+            for (AllergyEntity diseaseToRemove : allergiesToRemove) {
+                diseaseToRemove.setUserProfile(null); // `user_profile_id`를 null로 설정
             }
             allergyRepository.deleteAll(allergiesToRemove);
 

@@ -8,6 +8,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -39,6 +40,8 @@ public class DiseaseEntity {
 
     @Column(name = "is_hereditary")
     private Boolean isHereditary;
+
+
 
     public DiseaseEntity(int diseaseId) {
         this.diseaseId = diseaseId;

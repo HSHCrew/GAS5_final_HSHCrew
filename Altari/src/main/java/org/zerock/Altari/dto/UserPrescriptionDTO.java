@@ -33,5 +33,6 @@ public class UserPrescriptionDTO {
     private String aiSummary;
     private Boolean isTaken;
     private Boolean onAlarm;
+    private Integer totalDosingDay;
 }
 

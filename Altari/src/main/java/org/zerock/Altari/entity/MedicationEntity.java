@@ -6,6 +6,8 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "drug")
@@ -84,5 +86,10 @@ public class MedicationEntity {
     private LocalDateTime drug_created_at;
     @LastModifiedDate
     private LocalDateTime drug_updated_at;
+
+
+    public MedicationEntity(String medicationId) {
+        this.medicationId = medicationId;
+    }
 
 }
