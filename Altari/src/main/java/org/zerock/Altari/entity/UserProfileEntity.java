@@ -79,7 +79,6 @@ public class UserProfileEntity {
     @OneToMany(mappedBy = "userProfile", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     private List<KeywordRegistrationEntity> keywordRegistrations = new ArrayList<>();
 
-
     // 6. User Disease 테이블 (user_profile이 참조하는 user_disease 테이블)
     @OneToMany(mappedBy = "userProfile", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     private List<UserDiseaseEntity> userDiseases = new ArrayList<>();

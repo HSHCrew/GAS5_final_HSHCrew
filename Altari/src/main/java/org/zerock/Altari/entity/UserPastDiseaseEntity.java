@@ -1,5 +1,6 @@
 package org.zerock.Altari.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -23,10 +24,11 @@ public class UserPastDiseaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_past_disease_id")
     private Integer userPastDiseaseId;
-    @ManyToOne(cascade = CascadeType.REMOVE)
+    @ManyToOne
     @JoinColumn(name = "user_profile_id")
+    @JsonIgnore
     private UserProfileEntity userProfile;
-    @ManyToOne(cascade = CascadeType.REMOVE)
+    @ManyToOne
     @JoinColumn(name = "disease_id")
     private DiseaseEntity disease;
     @CreatedDate

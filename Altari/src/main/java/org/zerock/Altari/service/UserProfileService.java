@@ -65,55 +65,40 @@ public class UserProfileService {
             // DTO의 값으로 프로필 업데이트, 삭제하고 싶은 필드는 null로 설정
             if (userProfileDTO.getFullName() != null) {
                 userProfileEntity.setFullName(userProfileDTO.getFullName());
-            } else {
-                userProfileEntity.setFullName(null); // 사용자가 삭제하고 싶을 경우
             }
 
             if (userProfileDTO.getDateOfBirth() != null) {
                 userProfileEntity.setDateOfBirth(userProfileDTO.getDateOfBirth());
-            } else {
-                userProfileEntity.setDateOfBirth(null); // 사용자가 삭제하고 싶을 경우
             }
 
             if (userProfileDTO.getHeight() != null) {
                 userProfileEntity.setHeight(userProfileDTO.getHeight());
-            } else {
-                userProfileEntity.setHeight(null); // 사용자가 삭제하고 싶을 경우
             }
 
             if (userProfileDTO.getWeight() != null) {
                 userProfileEntity.setWeight(userProfileDTO.getWeight());
-            } else {
-                userProfileEntity.setWeight(null); // 사용자가 삭제하고 싶을 경우
             }
 
             if (userProfileDTO.getBloodType() != null) {
                 userProfileEntity.setBloodType(userProfileDTO.getBloodType());
-            } else {
-                userProfileEntity.setBloodType(null); // 사용자가 삭제하고 싶을 경우
             }
 
             if (userProfileDTO.getPhoneNumber() != null) {
                 String rawPhoneNumber = userProfileDTO.getPhoneNumber();
                 String formattedPhoneNumber = formatPhoneNumber(rawPhoneNumber);
                 userProfileEntity.setPhoneNumber(formattedPhoneNumber);
-            } else {
-                userProfileEntity.setPhoneNumber(null); // 사용자가 삭제하고 싶을 경우
             }
             if (userProfileDTO.getMorningMedicationTime() != null) {
                 userProfileEntity.setMorningMedicationTime(userProfileDTO.getMorningMedicationTime());
-            } else {
-                userProfileEntity.setMorningMedicationTime(null); // 사용자가 삭제하고 싶을 경우
             }
+
             if (userProfileDTO.getLunchMedicationTime() != null) {
                 userProfileEntity.setLunchMedicationTime(userProfileDTO.getLunchMedicationTime());
-            } else {
-                userProfileEntity.setLunchMedicationTime(null); // 사용자가 삭제하고 싶을 경우
+
             }
             if (userProfileDTO.getDinnerMedicationTime() != null) {
                 userProfileEntity.setDinnerMedicationTime(userProfileDTO.getDinnerMedicationTime());
-            } else {
-                userProfileEntity.setDinnerMedicationTime(null); // 사용자가 삭제하고 싶을 경우
+
             }
                 // 나머지 필드도 유사하게 처리
                 // 필요에 따라 다른 필드도 업데이트
