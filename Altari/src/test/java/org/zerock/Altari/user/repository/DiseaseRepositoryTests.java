@@ -15,13 +15,15 @@ public class DiseaseRepositoryTests {
     @Test
     public void testInsert() {
         // 테스트 데이터 추가
-        DiseaseEntity diseaseEntity = DiseaseEntity.builder()
-                .disease_id(3)
-                .disease_name("고혈압")
-                .disease_info("혈압이 높음")
-                .build();
 
-        diseaseRepository.save(diseaseEntity);
+        for (int i = 1; i <= 10; i++) {
+            DiseaseEntity diseaseEntity = DiseaseEntity.builder()
+                    .diseaseId(i)
+                    .diseaseName("고혈압")
+                    .build();
+
+            diseaseRepository.save(diseaseEntity);
+        }
     }
 }
 

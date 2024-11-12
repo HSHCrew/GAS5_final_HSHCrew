@@ -1,26 +1,59 @@
-.navigation {
-    display: flex;
-    align-items: center;
-    background-color: inherit;
-    padding: 1.25rem 0;
-
-    border-top: 0.075rem solid var(--primary-color);
-
+/* 네비게이션 바 전체 스타일 */
+.navigation-bar {
     position: fixed;
-    left: 0;
-    right: 0;
     bottom: 0;
-
-    box-sizing: border-box;
+    background-color: inherit;
+    height: 80px;
     width: 100%;
-    margin: 0 auto;
-    min-width: var(--min-width);
-    max-width: var(--max-width);
+    border-top: 1px solid #ccc; /* 상단 구분선 */
+    text-align: center;
+    display: flex; /* 아이템을 가로로 배치 */
+    justify-content: space-around; /* 아이템 간 공간 균등 분배 */
+    align-items: center; /* 아이템 수직 중앙 정렬 */
+    z-index: 1000;
+    min-width: 450px; /* 최소 너비 */
+    max-width: 650px; /* 최대 너비 */
+    margin: 0 auto; /* 화면 중앙에 배치 */
 }
 
-.navigation > div {
-    flex: 1;
+/* 각 네비게이션 아이템 스타일 */
+.navigation-item {
+    display: block;
+    min-width: 50px; /* 각 아이템의 최소 너비 */
+    max-width: 150px; /* 각 아이템의 최대 너비 */
+}
+
+/* 아이콘 스타일 */
+.navigation-icon {
+    display: block;
+    width: 38px;
+    height: 38px;
+    margin: 3px auto 5px auto;
+}
+
+/* 텍스트 스타일 */
+.navigation-item p {
+    display: block;
+    margin: 0;
+    font-size: 18px;
+    text-align: center;
+}
+
+/* 중앙의 + 버튼 스타일 */
+.navigation-plus-button {
+    width: 50px;
+    height: 50px;
+    background-color: #529174;
+    border-radius: 50%;
     display: flex;
-    align-items: center;
     justify-content: center;
+    align-items: center;
+    margin: 0 auto;
+}
+
+.navigation-plus-icon {
+    font-size: 50px;
+    color: white;
+    margin-bottom: 12px;
+
 }

@@ -1,8 +1,13 @@
 package org.zerock.Altari.dto;
 
+import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.zerock.Altari.entity.DiseaseEntity;
 import org.zerock.Altari.entity.UserProfileEntity;
+
+import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -10,8 +15,11 @@ import org.zerock.Altari.entity.UserProfileEntity;
 @NoArgsConstructor
 @ToString
 public class FamilyHistoryDTO {
-    private int family_history_id;
-    private DiseaseEntity disease_id;
-    private UserProfileEntity user_profile_id;
-    private String family_relation;
+    private Integer familyHistoryId;
+    private DiseaseEntity disease;
+    private UserProfileEntity userProfile;
+    private String familyRelation;
+    private LocalDateTime family_history_created_at;
+    private LocalDateTime family_history_updated_at;
+
 }

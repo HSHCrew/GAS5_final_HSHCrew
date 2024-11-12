@@ -1,0 +1,223 @@
+/* 홈 화면 컨테이너 설정 */
+.home-container {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    max-width: 600px;
+    height: 100%;
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* 홈 화면 콘텐츠 */
+.home-content {
+    width: 100%;
+    max-width: 600px;
+    text-align: center;
+    margin: 20px auto;
+}
+
+/* 텍스트 스타일 */
+.home-day-label {
+    font-size: 24px;
+    margin-bottom: 20px;
+    font-weight: bold;
+    text-align: left;
+    margin-left: 15px;
+}
+
+/* 약 정보 카드 */
+.home-medication-card {
+    background-color: #e5f6f9;
+    border-radius: 10px;
+    padding: 20px;
+    height: auto;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: grid;
+    grid-template-columns: 50px 1fr auto;
+    grid-template-rows: auto auto; /* 두 번째 행 추가 */
+    gap: 15px;
+    align-items: center;
+    position: relative;
+}
+
+/* 시계 아이콘과 시간 텍스트 */
+.home-clock-icon {
+    grid-column: 1 / 2;
+    grid-row: 1 / 2;
+    width: 50px;
+    margin-right: 10px;
+}
+
+.home-time {
+    grid-column: 2 / 3;
+    grid-row: 1 / 2;
+    font-size: 20px;
+    font-weight: bold;
+    text-align: left;
+}
+
+/* 약 정보 */
+.home-medication-image-container {
+    grid-column: 2 / 3;
+    grid-row: 2 / 3;
+    width: 120px;
+    height: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+.home-medication-image-container:hover .home-medication-image {
+    opacity: 0.8;
+}
+
+.home-medication-image {
+    width: 100px;
+    height: auto;
+    object-fit: cover;
+}
+
+/* 약 정보 텍스트 */
+.home-medication-info {
+    grid-column: 2 / 3;
+    grid-row: 2 / 3;
+    font-size: 16px;
+    line-height: 1.5;
+    text-align: left;
+    margin-left: 120px;
+    margin-bottom: 20px;
+    cursor: pointer;
+}
+
+.home-medication-info:hover {
+    text-decoration: underline;
+    color: #3c3c3c8a;
+}
+
+/* 알림 스위치 컨테이너 */
+.home-notification-container {
+    grid-column: 3 / 4;
+    grid-row: 1 / 2; /* 첫 번째 행에 배치 */
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.home-notification-label {
+    font-size: 18px;
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+.home-toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+}
+
+.home-toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.home-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.4s ease-in-out;
+    border-radius: 24px;
+}
+
+.home-slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    border-radius: 50%;
+    left: 2px;
+    bottom: 2px;
+    background-color: white;
+    transition: 0.4s ease-in-out;
+}
+
+input:checked + .home-slider {
+    background-color: #59BDBD;
+}
+
+input:checked + .home-slider:before {
+    transform: translateX(26px);
+}
+
+/* 슬라이드 애니메이션 */
+.home-slide-left-enter {
+    transform: translateX(100%);
+}
+.home-slide-left-enter-active {
+    transform: translateX(0);
+    transition: transform 200ms ease-in-out;
+}
+.home-slide-left-exit {
+    transform: translateX(0);
+}
+.home-slide-left-exit-active {
+    transform: translateX(-100%);
+    transition: transform 200ms ease-in-out;
+}
+
+.home-slide-right-enter {
+    transform: translateX(-100%);
+}
+.home-slide-right-enter-active {
+    transform: translateX(0);
+    transition: transform 200ms ease-in-out;
+}
+.home-slide-right-exit {
+    transform: translateX(0);
+}
+.home-slide-right-exit-active {
+    transform: translateX(100%);
+    transition: transform 200ms ease-in-out;
+}
+
+/* 텍스트 드래그 방지 */
+.home-container, .home-content, .home-day-label, .home-medication-card, .home-medication-info {
+    user-select: none; /* 표준 브라우저 */
+    -webkit-user-select: none; /* Chrome, Safari */
+    -moz-user-select: none;    /* Firefox */
+    -ms-user-select: none;     /* Internet Explorer/Edge */
+}
+
+
+/* 복약 확인 버튼 */
+.home-confirm-button {
+    grid-column: 3 / 4;
+    grid-row: 2 / 3; /* 두 번째 행에 배치 */
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+    background-color: #59BDBD;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.home-confirm-button:hover {
+    background-color: #45a5a5;
+}
+
+.home-confirm-button:disabled {
+    background-color: #ccc;
+    cursor: default;
+}

@@ -1,0 +1,143 @@
+/* 전체 컨테이너 설정 */
+.health-profile-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #f0f2f5;
+    width: 100%;
+    min-height: 100vh;
+}
+
+/* 메인 컨텐츠 박스 */
+.health-profile-box {
+    width: 100%;
+    max-width: 650px;
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    min-height: 100vh;
+}
+
+/* 섹션 제목 */
+.profile-section-title {
+    font-size: 20px;
+    font-weight: bold;
+    color: #4CAF50;
+    padding: 15px 20px;
+    background: linear-gradient(to right, #408166, #4bb589);
+    color: white;
+    text-align: left;
+}
+
+/* 정보 섹션 */
+.info-section {
+    padding: 15px 20px;
+    background-color: #f9fafb;
+}
+
+.info-item {
+    padding: 14px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e5e8eb;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    border-radius: 8px;
+}
+
+.info-item:hover {
+    background-color: #e0f7e9;
+}
+
+.info-label {
+    font-size: 16px;
+    color: #333;
+    font-weight: bold;
+}
+
+.info-value {
+    font-size: 16px;
+    color: #555;
+    text-align: right;
+}
+
+.unit {
+    font-size: 14px;
+    color: #999;
+    margin-left: 4px;
+}
+
+/* 입력 필드 스타일 */
+.info-input {
+    font-size: 16px;
+    color: #333;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 5px;
+    width: 100%;
+    max-width: 150px;
+    text-align: right;
+    outline: none;
+}
+
+.info-input:focus {
+    border-color: #4CAF50;
+}
+
+.info-blood {
+    display: flex;
+    gap: 8px;
+}
+
+/* 레이블과 입력 필드 간격 조정 */
+.info-item {
+    gap: 10px;
+}
+
+.info-item .info-label {
+    flex: 1;
+}
+.info-item .info-value, .info-item .info-input {
+    flex: 1.5;
+    text-align: right;
+}
+
+/* 전체 컨테이너 설정 */
+.info-item {
+    user-select: none; /* 텍스트 선택 방지 */
+    -webkit-user-select: none; /* Chrome, Safari */
+    -moz-user-select: none;    /* Firefox */
+    -ms-user-select: none;     /* Internet Explorer/Edge */
+  }
+  
+  /* Multi-select options grid layout */
+  .multi-select-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5px;
+    padding: 10px;
+    user-select: none; /* 텍스트 선택 방지 */
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+  }
+  
+  .multi-select-option {
+    display: flex;
+    align-items: center;
+    user-select: none; /* 텍스트 선택 방지 */
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+  }
+  
+  .info-label, .info-value, .unit, .profile-section-title {
+    user-select: none; /* 텍스트 선택 방지 */
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+  }
+  

@@ -1,14 +1,16 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import {Logo} from "../../components/Logo.jsx";
 
 const Landing = () => {
     const navigate = useNavigate();
 
-    // 진입시 home으로 이동
-    // 로그인 하지 않은 경우에 대한 처리 필요
+    // 기존 로그인 된 경우에 대한 처리 필요
     useEffect(() => {
-        navigate('/home');
+        setTimeout(() => navigate('/signIn'), 2000);
     }, []);
+
+    return <div><Logo /></div>
 };
 
 export default Landing;

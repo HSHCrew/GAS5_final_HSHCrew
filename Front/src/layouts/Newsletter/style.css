@@ -1,0 +1,53 @@
+.news-popup-container {
+    position: relative;
+    width: 66%; 
+}
+
+
+.news-popup-icon {
+    position: absolute; 
+    bottom: 135px; 
+    right: -3.5%;
+    width: 55px;
+    height: 55px;
+    background-color: #357e85;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    z-index: 10;
+}
+
+.news-popup-icon:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+}
+
+.icon {
+    font-size: 26px;
+    color: #ffffff;
+}
+
+.popup-text {
+    position: absolute;
+    bottom: -30px;
+    font-size: 12px;
+    background-color: #357e85;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 5px;
+    white-space: nowrap;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.news-popup-icon:hover .popup-text {
+    opacity: 1;
+    transform: translateY(0);
+}

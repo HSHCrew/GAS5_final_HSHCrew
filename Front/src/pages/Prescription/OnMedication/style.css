@@ -1,0 +1,150 @@
+.prescription-page-container {
+  width: 450px;
+  min-width: 650px;
+  height: 100vh;
+  background-color: white;
+}
+
+.prescription-page-header {
+  width: 100%;
+  height: 110px;
+  display: flex;
+  align-items: center;
+  border-bottom: 10px solid #f0f0f0;
+  background-color: white;
+  position: relative;
+}
+
+.prescription-page-back-button {
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  position: absolute;
+  left: 15px;
+}
+
+.plus-icon {
+  width: 30px;
+  height: 30px;
+  margin-left: 80px;
+  margin-top: 5px;
+}
+
+.prescription-title-container {
+  display: flex;
+  flex-direction: column;
+  margin-left: 20px;
+}
+
+.prescription-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 0;
+}
+
+.prescription-date {
+  font-size: 1.2rem;
+  color: #727272;
+  margin-top: 5px;
+}
+
+.prescription-schedule {
+  width: 100%;
+  margin-top: 20px;
+  border-radius: 8px;
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.schedule-sub-title {
+  font-size: 1.6rem;
+  font-weight: bold;
+  color: black;
+  margin-left: 20px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  align-self: flex-start;
+}
+
+.schedule-remaining-days {
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: #489374;
+  text-align: center;
+  margin-top: 50px;
+}
+
+.schedule-days {
+  font-size: 2.4rem;
+  font-weight: bold;
+  color: #76bca0;
+}
+
+.schedule-progress-bar-container {
+  width: 85%;
+  margin: 10px 0;
+  height: 10px;
+  border-radius: 8px;
+  background-color: #d3d3d3;
+  position: relative;
+}
+
+.schedule-progress-bar {
+  height: 100%;
+  border-radius: 8px;
+  background-color: #76bca0;
+}
+
+.schedule-day-count {
+  width: 88%;
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: black;
+  margin-top: 30px;
+  margin-bottom: 50px;
+}
+
+.prescription-details-card {
+  width: 92%;
+  height: auto;
+  display: flex;
+  align-items: center;
+  background-color: rgba(118, 188, 160, 0.55);
+  margin-left: 25px;
+  margin-top: 20px;
+  border-radius: 8px;
+}
+
+/* 타이레놀 이미지 클릭 가능 컨테이너 */
+.endprescription-medication-image {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 140px;
+  height: 88px;
+  margin: 10px;
+  transition: transform 0.3s ease;
+}
+
+.medication-image-container:hover {
+  transform: scale(1.05);
+}
+
+/* 약 정보 텍스트 */
+.medication-info {
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: black;
+  cursor: pointer;
+  margin-left: 10px;
+  transition: color 0.3s ease;
+}
+
+.medication-info:hover {
+  color: #489374;
+}

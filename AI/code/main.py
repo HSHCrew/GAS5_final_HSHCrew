@@ -29,8 +29,8 @@ from chatbot.database.models import (
 )
 
 # 환경 변수 로드
-load_dotenv()
 
+load_dotenv()
 app = FastAPI()
 
 # Redis 설정 및 초기화
@@ -43,6 +43,7 @@ redis = aioredis.from_url(
 )
 
 # CORS 설정
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],

@@ -14,7 +14,7 @@ import java.util.Map;
 @ToString
 public class UserDTO {
 
-    private int auth_id;
+    private Integer authId;
     private String username;
     private String password;
     private String role;

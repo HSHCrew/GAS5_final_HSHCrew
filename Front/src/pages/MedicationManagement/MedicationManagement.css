@@ -1,0 +1,301 @@
+/* 전체 달력 컨테이너 */
+.calendar-container {
+    margin-bottom: 20px;
+    background-color: #fafafa;
+    padding: 20px;
+    overflow: hidden;
+}
+
+/* 달력 기본 스타일 */
+.react-calendar {
+    background-color: #fafafa;
+    border: none;
+    width: 100%;
+    font-family: 'Arial', sans-serif;
+    
+}
+
+/* 달력 타일 스타일 */
+.react-calendar__tile {
+    height: 55px;
+    background-color: #fafafa;
+    border-radius: 0px;
+    transition: background-color 0.5s ease, transform 0.5s ease;
+}
+
+/* 타일 호버 및 포커스 시 스타일 */
+.react-calendar__tile:enabled:hover,
+.react-calendar__tile:enabled:focus {
+    background-color: #76bca0;
+    transform: scale(1.01);
+}
+
+/* 현재 날짜 타일 */
+.react-calendar__tile--now {
+    background-color: #fafafa;
+    color: black;
+    font-weight: bold;
+}
+
+/* 시작일 타일 */
+.curve-start:hover,
+.curve-start:focus{
+    background-color: #76bca0 !important; /
+}
+  
+  /* 중간일 타일 */
+.curve-middle:hover,
+.curve-middle:focus {
+    background-color: #76bca0 !important;
+}
+  
+  /* 종료일 타일 */
+.curve-end:hover,
+.curve-end:focus {
+    background-color: #76bca0 !important; 
+}
+
+/* 선택된 날짜 타일 */
+.react-calendar__tile--active {
+    border: 1px solid black;
+    color: #fafafa;
+    font-weight: bold;
+    z-index: 2;
+    border-radius: 10px;
+}
+
+/* 달력 헤더 스타일 (네비게이션 영역) */
+.react-calendar__navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.react-calendar__navigation button {
+    background-color: #76bca0;
+    color: #fafafa;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.2s ease;
+}
+
+.react-calendar__navigation button:hover {
+    background-color: #218130;
+}
+
+/* 주말 날짜 스타일 (토, 일요일) */
+.react-calendar__month-view__days__day--weekend {
+    color: #ff3a22;
+}
+
+/* 요일 헤더 스타일 (월, 화, 수 등의 헤더) */
+.react-calendar__month-view__weekdays {
+    text-align: center;
+    font-size: 14px;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+}
+
+.react-calendar__month-view__weekdays__weekday {
+    color: #76bca0;
+}
+
+/* 날짜 선택 시 애니메이션 */
+.react-calendar__tile--active:enabled:hover,
+.react-calendar__tile--active:enabled:focus {
+    background-color: #76bca0;
+    
+}
+
+/* 시작일 타일 스타일 (처방 시작일) */
+.curve-start {
+    background-color: #fafafa !important;
+    position: relative;
+}
+
+.curve-start::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background-color: #76bca0;
+    border-radius: 10px;
+}
+
+/* 중간일 타일 스타일 (처방 중간일) */
+.curve-middle {
+    background-color: #fafafa !important;
+    position: relative;
+}
+
+.curve-middle::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background-color: #76bca0;
+}
+
+/* 종료일 타일 스타일 (처방 종료일) */
+.curve-end {
+    background-color: #fafafa !important;
+    position: relative;
+}
+
+.curve-end::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 100%;
+    height: 4px;
+    background-color: #76bca0;
+    border-radius: 10px;
+}
+
+/* 필터 버튼 섹션 */
+.filter-buttons {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px;
+}
+
+.filter-buttons button {
+    width: 120px;
+    background-color: #76bca0;
+    color: #fafafa;
+    border: none;
+    padding: 10px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.2s ease;
+}
+
+.filter-buttons button:hover {
+    background-color: #218130;
+}
+
+/* 선택된 날짜에 대한 처방전 정보 섹션 */
+.prescription-info {
+    background-color: #fafafa;
+    padding: 20px;
+    border-radius: 10px;
+  }
+  
+  /* 개별 처방전 카드 */
+  .prescription-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background-color: #fff;
+    border: 1px solid #76bca0;
+    border-radius: 10px;
+    margin-top: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* 아이콘과 텍스트를 왼쪽에 정렬 */
+  .prescription-details {
+    display: flex;
+    align-items: center;
+  }
+  
+  /* 아이콘 스타일 */
+  .prescription-icon {
+    width: 24px;
+    height: 24px;
+    margin-right: 20px;
+    margin-left: 15px;
+    margin-bottom: 20px;
+  }
+  
+  /* 텍스트 정보 섹션 */
+  .prescription-text {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  
+  /* 처방전 이름 */
+  .prescription-name {
+    font-size: 20px;
+    font-weight: bold;
+    margin: 0;
+    color: #333;
+  }
+  
+  /* 처방 기간 */
+  .prescription-dates {
+    font-size: 16px;
+    color: #999;
+    margin-top:10px;
+    margin-bottom:10px;
+  }
+  
+  /* 복약 상태 */
+  .prescription-status {
+    font-size: 20px;
+    font-weight: bold;
+    color: #218130;
+    margin-right:10px;
+  }
+  
+  /* 복약 종료일 때 색상 변경 */
+ .status-ended {
+    color: #a8a8a8; /* 종료 상태일 때 텍스트 색상 변경 */
+ }
+  
+
+/* 처방 시작일 텍스트 */
+.prescription-start-text {
+    font-size: 10px;
+    color: #218130;
+    text-align: center;
+    margin-top: 5px;
+}
+
+.medication-management-container {
+    min-height: 100vh; /* 부모 컨테이너가 화면의 전체 높이를 차지하도록 */
+    padding-bottom: 50px; /* 바닥에서 충분한 공간 확보 */
+  }
+
+/* dot 스타일 */
+.dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    background-color: #71ba9d;
+    border-radius: 50%;
+    margin-top: 5px;
+    margin-bottom: 5px;
+  }
+  
+
+
+/* 처방전 카드 클릭 반응 */
+.prescription-card:active {
+    transform: scale(0.98);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+/* 처방전 카드 호버 시 그림자 효과 */
+.prescription-card:hover {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* 처방전 카드 커서 변경 */
+.prescription-card {
+    cursor: pointer;
+}

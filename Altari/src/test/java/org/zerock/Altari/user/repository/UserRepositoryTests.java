@@ -31,13 +31,14 @@ public class UserRepositoryTests {
     @Test
     public void testInsert() {
         // 테스트 데이터 추가
-        DiseaseEntity diseaseEntity = DiseaseEntity.builder()
-                .disease_id(1)
-                .disease_name("당뇨")
-                .disease_info("위험")
-                .build();
+        for (int i = 4; i <= 14; i++) {
+            DiseaseEntity diseaseEntity = DiseaseEntity.builder()
+                    .diseaseId(1)
+                    .diseaseName("당뇨")
+                    .build();
 
-        diseaseRepository.save(diseaseEntity);
+            diseaseRepository.save(diseaseEntity);
+        }
     }
 
     @Test
@@ -46,10 +47,8 @@ public class UserRepositoryTests {
         for (int i = 4; i <= 14; i++) {
             // 테스트 데이터 추가
             MedicationEntity medicationEntity = MedicationEntity.builder()
-                    .medication_id(i)
-                    .medication_name("타이레놀")
-                    .medication_info("감기약")
-                    .interaction_info("사과")
+                    .medicationId(Integer.toString(i))
+                    .medicationName("타이레놀")
                     .build();
 
             medicationRepository.save(medicationEntity);
@@ -74,7 +73,11 @@ public class UserRepositoryTests {
             userRepository.save(userEntity);
         }
     }
-}
+
+
+    }
+
+
 
 
 

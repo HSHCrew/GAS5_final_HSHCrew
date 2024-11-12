@@ -1,0 +1,108 @@
+/* 전체 컨테이너 설정 */
+.step1-container {
+  background-color: #f7fafc;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+/* 내부 컨테이너 설정 */
+.step1-inner-container {
+  width: 573px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  background-color: #fff;
+}
+
+/* 로고 이미지 설정 */
+.step1-logo {
+  margin-top: 20px;
+}
+
+.step1-logo-image {
+  width: 280px;
+  height: 70px;
+  object-fit: cover;
+  margin-top: 80px;
+  margin-bottom: 30px;
+}
+
+/* 컨텐츠 컨테이너 설정 */
+.step1-content-container {
+  width: 478px;
+  height: auto;
+  border: 5px solid #529174;
+  border-radius: 12px;
+  background-color: white;
+  padding: 20px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* 카드 텍스트 설정 */
+.step1-card-text {
+  font-size: 1.875rem;
+  font-weight: 500;
+  color: #000;
+  margin-top: 20px;
+}
+
+/* 키 이미지 설정 */
+.step1-height-icon {
+  width: 220px;
+  height: 220px;
+  object-fit: cover;
+  margin-bottom: 20px;
+}
+
+/* 입력 그룹 설정 */
+.step1-input-group {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+/* 셀렉트 박스 설정 */
+.step1-input-box {
+  width: 100px;
+  height: 55px;
+  font-size: 1.5rem;
+  text-align: center;
+  border: 1px solid rgba(98, 98, 98, 0.69);
+  border-radius: 10px;
+  margin-right: 5px;
+}
+
+/* 소수점 셀렉트 박스 설정 */
+.step1-input-box.decimal-box {
+  width: 70px; /* 소수점 입력 상자는 좁게 설정 */
+  margin-left: 10px;
+}
+
+.step1-dot-text {
+  font-size: 2rem;
+  margin: 0 5px;
+}
+
+/* 단위 텍스트 설정 */
+.step1-unit-text {
+  font-size: 45px;
+  font-weight: 500;
+  color: #000;
+  margin-left: 10px;
+}
+
+
+.step1-step-indicator {
+  font-size: 40px;
+  font-weight: 700;
+  color: #529174;
+}

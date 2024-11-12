@@ -1,0 +1,137 @@
+/* 전체 컨테이너 설정 */
+.step2-container {
+  background-color: #f7fafc;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+/* 내부 컨테이너 설정 */
+.step2-inner-container {
+  width: 573px;
+  min-height: 100vh;
+  position: relative;
+  background-color: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+/* 로고 이미지 설정 */
+.step2-logo {
+  margin-top: 20px;
+}
+
+.step2-logo-image {
+  width: 280px;
+  height: 70px;
+  object-fit: cover;
+  margin-top: 80px;
+  margin-bottom: 30px;
+}
+
+/* 컨텐츠 컨테이너 설정 */
+.step2-content-container {
+  width: 478px;
+  height: auto;
+  border: 5px solid #529174;
+  border-radius: 12px;
+  background-color: white;
+  padding: 20px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* 카드 텍스트 설정 */
+.step2-card-text {
+  font-size: 1.875rem;
+  font-weight: 500;
+  color: #000;
+  margin-top: 20px;
+}
+
+/* 체중계 아이콘 설정 */
+.step2-scale-icon {
+  width: 220px;
+  height: 220px;
+  object-fit: cover;
+  margin-bottom: 20px;
+}
+
+/* 입력 그룹 설정 */
+.step2-input-group {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+/* 자연수 셀렉트 박스 설정 */
+.step2-input-box.whole-box {
+  width: 100px;
+  height: 55px;
+  font-size: 1.5rem;
+  text-align: center;
+  border: 1px solid rgba(98, 98, 98, 0.69);
+  border-radius: 10px;
+  margin-right: 5px;
+}
+
+/* 소수점 셀렉트 박스 설정 */
+.step2-input-box.decimal-box {
+  width: 70px;
+  height: 55px;
+  font-size: 1.5rem;
+  text-align: center;
+  border: 1px solid rgba(98, 98, 98, 0.69);
+  border-radius: 10px;
+  margin-left: 5px;
+}
+
+/* 단위 텍스트 설정 */
+.step2-unit-text {
+  font-size: 45px;
+  font-weight: 500;
+  color: #000;
+  margin-left: 10px;
+}
+
+/* 소수점 고정 텍스트 */
+.step2-dot-text {
+  font-size: 2rem; /* 크기를 조정 */
+  font-weight: bold;
+  margin: 0 10px; /* 좌우 간격 */
+  display: inline-block; /* 소수점 고정 */
+  line-height: 55px; /* 셀렉트 박스와 같은 높이로 맞추기 */
+}
+
+/* 하단의 단계 표시 및 화살표 설정 */
+.step2-footer {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  margin-top: 30px;
+}
+
+.step2-step-indicator {
+  font-size: 40px;
+  font-weight: 700;
+  color: #529174;
+}
+
+.step2-prev-arrow,
+.step2-next-arrow {
+  width: 120px;
+  height: 120px;
+  margin-left: 10px;
+  margin-right: 10px;
+  object-fit: cover;
+  cursor: pointer;
+}
