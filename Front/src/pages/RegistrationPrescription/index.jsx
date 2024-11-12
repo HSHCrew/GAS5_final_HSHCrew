@@ -45,7 +45,7 @@ function RegistrationPrescription() {
         console.log('Sending to /api/codef/first:', sanitizedData);
 
         try {
-            const response = await fetch('/api/codef/first', {
+            const response = await fetch('http://localhost:8080/altari/prescriptions/enter-info', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -94,7 +94,7 @@ function RegistrationPrescription() {
         };
 
         try {
-            const response = await fetch('/api/codef/second', {
+            const response = await fetch('http://localhost:8080/altari/prescriptions/verify-auth', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

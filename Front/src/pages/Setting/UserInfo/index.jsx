@@ -1,21 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import apiRequest from '../../../utils/apiRequest'; // apiRequest로 교체
+import apiRequest from '../../../utils/apiRequest';
 import Header from '../../../components/Header';
 import './style.css';
 import userLogo from '../../../assets/user.svg';
 
 const UserInfo = () => {
   const [profile, setProfile] = useState({
-    full_name: '',
-    date_of_birth: '',
-    phone_number: '',
+    fullName: '',
+    dateOfBirth: '',
+    phoneNumber: '',
     role: '',
   });
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  // username을 localStorage 또는 sessionStorage에서 가져옴
   const username = localStorage.getItem('username') || sessionStorage.getItem('username');
 
   useEffect(() => {
@@ -28,17 +27,17 @@ const UserInfo = () => {
 
   const fetchUserProfile = async (username) => {
     try {
-      const response = await apiRequest(`/api/v1/get-userProfile/${username}`);
+      const response = await apiRequest(`http://localhost:8080/altari/getInfo/userProfile/${username}`);
 
-      const dateOfBirthArray = response.data.date_of_birth;
+      const dateOfBirthArray = response.data.dateOfBirth;
       const formattedDateOfBirth = Array.isArray(dateOfBirthArray) 
         ? formatDateArray(dateOfBirthArray) 
-        : response.data.date_of_birth;
+        : response.data.dateOfBirth;
 
       setProfile({
-        full_name: response.data.full_name,
-        date_of_birth: formattedDateOfBirth,
-        phone_number: formatPhoneNumber(response.data.phone_number),
+        fullName: response.data.fullName,
+        dateOfBirth: formattedDateOfBirth,
+        phoneNumber: formatPhoneNumber(response.data.phoneNumber),
         role: response.data.role || "USER",
       });
       setLoading(false);
@@ -53,12 +52,12 @@ const UserInfo = () => {
       const dataToSend = {
         username: username,
         role: updatedProfile.role || "USER",
-        full_name: updatedProfile.full_name,
-        date_of_birth: updatedProfile.date_of_birth,
-        phone_number: updatedProfile.phone_number,
+        fullName: updatedProfile.fullName,
+        dateOfBirth: updatedProfile.dateOfBirth,
+        phoneNumber: updatedProfile.phoneNumber,
       };
 
-      await apiRequest(`/api/v1/update-userProfile/${username}`, {
+      await apiRequest(`http://localhost:8080/altari/updateInfo/userProfile/${username}`, {
         method: 'PUT',
         data: dataToSend,
       });
@@ -88,7 +87,7 @@ const UserInfo = () => {
     sessionStorage.removeItem('token');
     sessionStorage.removeItem('username');
 
-    alert("로그아웃되었습니다.")
+    alert("로그아웃되었습니다.");
     navigate('/'); // 로그아웃 후 로그인 페이지로 이동
   };
 
@@ -109,34 +108,33 @@ const UserInfo = () => {
       <div className="userinfo-box">
         <div className="profile-section">
           <img src={userLogo} alt="Profile" className="profile-image" />
-          <p className="profile-name">{profile.full_name}</p>
+          <p className="profile-name">{profile.fullName}</p>
           <button className="profile-edit">사진 수정</button>
         </div>
 
         <div className="info-section">
           <EditableInfoItem
             label="이름"
-            value={profile.full_name}
-            onChange={(newValue) => handleProfileChange('full_name', newValue)}
-            onBlur={() => handleProfileUpdate('full_name', profile.full_name)}
+            value={profile.fullName}
+            onChange={(newValue) => handleProfileChange('fullName', newValue)}
+            onBlur={() => handleProfileUpdate('fullName', profile.fullName)}
           />
           <EditableInfoItem
             label="생년월일"
-            value={profile.date_of_birth}
-            onChange={(newValue) => handleProfileChange('date_of_birth', newValue)}
-            onBlur={() => handleProfileUpdate('date_of_birth', profile.date_of_birth)}
+            value={profile.dateOfBirth}
+            onChange={(newValue) => handleProfileChange('dateOfBirth', newValue)}
+            onBlur={() => handleProfileUpdate('dateOfBirth', profile.dateOfBirth)}
           />
           <EditableInfoItem
             label="전화번호"
-            value={profile.phone_number}
-            onChange={(newValue) => handleProfileChange('phone_number', formatPhoneNumber(newValue))}
-            onBlur={() => handleProfileUpdate('phone_number', profile.phone_number)}
+            value={profile.phoneNumber}
+            onChange={(newValue) => handleProfileChange('phoneNumber', formatPhoneNumber(newValue))}
+            onBlur={() => handleProfileUpdate('phoneNumber', profile.phoneNumber)}
             isPhoneNumber
           />
           <InfoItem label="연동된 계정" value={profile.role} />
         </div>
 
-        {/* 회원탈퇴 및 로그아웃 버튼 */}
         <div className="actions-section">
           <button className="delete-account-button" onClick={handleDeleteAccount}>회원탈퇴</button>
           <button className="logout-button" onClick={handleLogout}>로그아웃</button>
@@ -180,10 +178,27 @@ const EditableInfoItem = ({ label, value, onChange, onBlur, isPhoneNumber }) => 
   );
 };
 
-// 포맷팅 함수들
+// 전화번호 포맷팅 함수
 const formatPhoneNumber = (number) => {
   if (!number) return '';
-  return number.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
+
+  // +82로 시작하고 다음 자리가 '1'인 경우, '010' 형식으로 변환
+  if (number.startsWith('+82')) {
+    number = '0' + number.slice(3);
+  }
+
+  // 숫자만 남긴 후, 휴대폰 번호 형식(010-xxxx-xxxx)에 맞게 변환
+  number = number.replace(/\D/g, ''); // 숫자 이외의 문자는 제거
+
+  // 전화번호가 10자리 또는 11자리일 때만 형식 적용
+  if (number.length === 10) {
+    return number.replace(/(\d{2})(\d{4})(\d{4})/, '$1-$2-$3');
+  } else if (number.length === 11) {
+    return number.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
+  } else {
+    // 형식에 맞지 않으면 그대로 반환
+    return number;
+  }
 };
 
 const unformatPhoneNumber = (formattedNumber) => {

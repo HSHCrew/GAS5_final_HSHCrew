@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import apiRequest from '../../utils/apiRequest';
-import axios from 'axios';
 import './style.css';
 
 import userLogo from '../../assets/user.svg';
@@ -9,19 +8,25 @@ import userLogo from '../../assets/user.svg';
 function Setting() {
   const [profileName, setProfileName] = useState('');
   const username = localStorage.getItem('username') || sessionStorage.getItem('username');
+  const accessToken = localStorage.getItem('token') || sessionStorage.getItem('token');
 
   useEffect(() => {
-    if (username) {
+    if (username && accessToken) {
       fetchUserProfile();
     } else {
-      console.error("Username이 없습니다. 로그인 후 다시 시도하세요.");
+      console.error("Username 또는 Access Token이 없습니다. 로그인 후 다시 시도하세요.");
     }
-  }, [username]);
+  }, [username, accessToken]);
 
   const fetchUserProfile = async () => {
     try {
-      const response = await apiRequest(`/api/v1/get-userProfile/${username}`);
-      setProfileName(response.data.full_name || '');
+      const response = await apiRequest(`http://localhost:8080/altari/getInfo/userProfile/${username}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`, // 엑세스 토큰 추가
+        },
+      });
+      setProfileName(response.data.fullName || '');
     } catch (error) {
       console.error("Failed to fetch user profile:", error);
     }
@@ -44,10 +49,7 @@ function Setting() {
 
         <div className="menu-section">
           <MenuItem label="건강 프로필" path="/healthNoteProfile" />
-          {/* <MenuItem label="가족 프로필 조회" path="/setting/familyprofile" /> */}
-          {/* <MenuItem label="앱 설정" path="/setting/appsettings" /> */}
           <MenuItem label="복약알림 설정" path="/setAlarm" />
-          {/* <MenuItem label="사용자 의견 보내기" path="/feedback" /> */}
           <MenuItem label="약관 보기" path="/termsPage" />
           <MenuItem label="버전 정보" version="v1.00.0" />
         </div>

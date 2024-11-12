@@ -24,7 +24,7 @@ function SignIn() {
 
   const validateToken = async (token) => {
     try {
-      const response = await apiRequest('/api/v1/token/validate', { headers: { 'Authorization': `Bearer ${token}` } });
+      const response = await apiRequest('http://localhost:8080/altari/refresh', { headers: { 'Authorization': `Bearer ${token}` } });
       if (response.status === 200) {
         navigate('/home');
       } else {
@@ -43,7 +43,7 @@ function SignIn() {
 
     try {
         // Axios 인스턴스를 사용하여 로그인 API 호출
-        const response = await apiRequest('/api/v1/token/make', {
+        const response = await apiRequest('http://localhost:8080/altari/login', {
             method: 'POST',
             data: { username, password }
         });
