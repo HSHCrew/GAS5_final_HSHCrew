@@ -8,7 +8,7 @@ load_dotenv()
 
 class RedisSettings(BaseSettings):
     REDIS_URL: str = os.getenv("REDIS_URL", "redis://localhost:6379")
-    REDIS_PASSWORD: str = os.getenv("REDIS_PASSWORD")
+    REDIS_PASSWORD: str = ""#os.getenv("REDIS_PASSWORD")
     REDIS_ENCODING: str = "utf-8"
     REDIS_DECODE_RESPONSES: bool = False
     

@@ -131,6 +131,7 @@
 /* 로그인 버튼 설정 */
 .signin-button-container {
   margin-top: 25px;
+  text-align: center;
 }
 
 .signin-button {
@@ -143,6 +144,12 @@
   border-radius: 8px;
   border: none;
   cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.signin-button:hover {
+  background-color: #3e7c57;
+  transform: translateY(-3px);
 }
 
 .signin-button:disabled {
@@ -164,7 +171,7 @@
 
 /* signin-footer 위치 설정 수정 */
 .signin-footer {
-  margin-top: 630px; /* 박스 내에서 아래 여백 확보 */
+  margin-top: 600px; /* 박스 내에서 아래 여백 확보 */
   text-align: center;
   font-size: 1.25rem;
   font-weight: 500;
@@ -192,4 +199,51 @@
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
   border: 0;
+}
+
+/* 카카오톡 로그인 버튼 */
+/* .kakao-login-button {
+  background: none;
+  color: #3C1E1E;
+  font-size: 1.3rem;
+  font-weight: bold;
+  cursor: pointer;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding:0 157px 0 ;
+  transition: color 0.3s ease;
+  margin-bottom:15px ;
+} */
+
+.kakao-login-button {
+  background: linear-gradient(45deg, #FEE500, #FBD200);
+  color: #3C1E1E;
+  border: none;
+  border-radius: 8px;
+  padding: 16px 24px;
+  font-size: 1.25rem;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  width: 100%;
+  max-width: 430px;
+  margin: 0 auto; /* 버튼을 가운데 정렬 */
+  display: block;
+  margin-bottom: 20px;
+}
+
+.kakao-login-button:hover {
+  color: #5a372e;
+}
+
+/* 카카오톡 아이콘 */
+.kakao-icon {
+  width: 25px;
+  height: 25px;
+  margin-right: 20px;
+  margin-left: -20px;
 }

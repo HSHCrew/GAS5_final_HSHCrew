@@ -1,3 +1,28 @@
+/* 전체 컨테이너 스타일 */
+.userinfo-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #f0f0f0;
+  width: 100%;
+  min-height: 100vh;
+  box-sizing: border-box;
+  margin-top: -5px;
+}
+
+/* 메인 박스 스타일 */
+.userinfo-box {
+  max-width: 500px;
+  width: 100%;
+  background-color: #ffffff;
+  padding: 30px 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border: 2px solid #357e85; 
+  position: relative;
+  font-family: 'Roboto', sans-serif;
+}
+
+
 .userinfo-container {
   display: flex;
   flex-direction: column;
@@ -49,6 +74,7 @@
 
 /* 정보 섹션 */
 .info-section {
+  border-radius: px;
   padding: 20px 0;
 }
 
