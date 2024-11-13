@@ -41,7 +41,7 @@ public class MedicationEntity {
     @Column(name = "entp_name")
     private String entpName; // 업체명
 
-    @Column(name = "item_name")
+    @Column(name = "item_name", unique = true)
     private String medicationName; // 제품명
 
 
@@ -88,8 +88,8 @@ public class MedicationEntity {
     private LocalDateTime drug_updated_at;
 
 
-    public MedicationEntity(String medicationId) {
-        this.medicationId = medicationId;
+    public MedicationEntity(String medicationName) {
+        this.medicationName = medicationName;
     }
 
 }

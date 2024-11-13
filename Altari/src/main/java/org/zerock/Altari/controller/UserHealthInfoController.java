@@ -31,19 +31,41 @@ public class UserHealthInfoController {
         return ResponseEntity.ok(userHealthInfoDTO);
     }
 
-    @PutMapping("/updateInfo/userHealth/{username}")
-    public ResponseEntity<String> updateUserProfile(@PathVariable String username,
-                                                           @Valid @RequestBody UserHealthInfoDTO userHealthInfoDTO) {
+    @PutMapping("/updateInfo/userDisease/{username}")
+    public ResponseEntity<String> updateUserDisease(@PathVariable String username,
+                                                    @Valid @RequestBody UserHealthInfoDTO userHealthInfoDTO) {
         UserEntity userEntity = new UserEntity(username);
-        String result = userHealthInfoService.updateUserHealthInfo(userEntity, userHealthInfoDTO);
+        String result = userHealthInfoService.updateUserDisease(userEntity, userHealthInfoDTO);
 
         return ResponseEntity.ok(result);
     }
 
-// {
-//     "disease_id":[4,5,6],
-//     "past_disease_id":[3,5,7],
-//     "family_disease_id":[3,4,7],
-//     "allergy_medication_id":[9,4,12]
-// }
+    @PutMapping("/updateInfo/userPastDisease/{username}")
+    public ResponseEntity<String> updateUserPastDisease(@PathVariable String username,
+                                                    @Valid @RequestBody UserHealthInfoDTO userHealthInfoDTO) {
+        UserEntity userEntity = new UserEntity(username);
+        String result = userHealthInfoService.updateUserPastDisease(userEntity, userHealthInfoDTO);
+
+        return ResponseEntity.ok(result);
+    }
+
+    @PutMapping("/updateInfo/userFamilyDisease/{username}")
+    public ResponseEntity<String> updateUserFamilyDisease(@PathVariable String username,
+                                                    @Valid @RequestBody UserHealthInfoDTO userHealthInfoDTO) {
+        UserEntity userEntity = new UserEntity(username);
+        String result = userHealthInfoService.updateUserFamilyDisease(userEntity, userHealthInfoDTO);
+
+        return ResponseEntity.ok(result);
+    }
+
+    @PutMapping("/updateInfo/userAllergy/{username}")
+    public ResponseEntity<String> updateUserAllergy(@PathVariable String username,
+                                                    @Valid @RequestBody UserHealthInfoDTO userHealthInfoDTO) {
+        UserEntity userEntity = new UserEntity(username);
+        String result = userHealthInfoService.updateUserAllergy(userEntity, userHealthInfoDTO);
+
+        return ResponseEntity.ok(result);
+    }
+
 }
+

@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 public class AllergyDTO {
     private Integer allergyId;
     private UserProfileEntity userProfile;
-    private MedicationEntity medicationId;
+    private MedicationEntity medicationName;
     private LocalDateTime allergy_created_at;
     private LocalDateTime allergy_updated_at;
 }

@@ -31,8 +31,8 @@ public class UserMedicationInfoEntity {
     private UserPrescriptionEntity userPrescriptionId;
 
     @ManyToOne(cascade = CascadeType.REMOVE)
-    @JoinColumn(name = "item_seq")
-    private MedicationEntity mediacationId;
+    @JoinColumn(name = "item_name", referencedColumnName = "item_name")
+    private MedicationEntity medicationName;
 
     @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "user_profile_id")
