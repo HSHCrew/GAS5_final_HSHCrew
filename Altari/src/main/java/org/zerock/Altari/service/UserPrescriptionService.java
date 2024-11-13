@@ -62,7 +62,7 @@ public class UserPrescriptionService {
                             .medicationDirection(prescriptionDrug.getMedicationDirection())
                             .oneDose(prescriptionDrug.getOneDose())
                             .totalDosingDays(prescriptionDrug.getTotalDosingDays())
-                            .MedicationId(prescriptionDrug.getMedicationId())
+                            .MedicationId(prescriptionDrug.getMedicationName())
                             .prescriptionId(userPrescription.getUserPrescriptionId())
                             .build();
 

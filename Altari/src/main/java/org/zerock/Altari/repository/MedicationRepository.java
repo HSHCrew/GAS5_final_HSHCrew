@@ -6,5 +6,5 @@ import org.zerock.Altari.entity.MedicationEntity;
 
 @Repository
 public interface MedicationRepository extends JpaRepository<MedicationEntity, String> {
-    MedicationEntity findByMedicationId(String itemSeq);
+    MedicationEntity findByMedicationName(String itemSeq);
 }
