@@ -1,5 +1,6 @@
 package org.zerock.Altari.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -23,11 +24,12 @@ public class FamilyHistoryEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "family_history_id")
     private Integer familyHistoryId;
-    @ManyToOne(cascade = CascadeType.REMOVE)
+    @ManyToOne
     @JoinColumn(name = "disease_id")
     private DiseaseEntity disease;
     @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "user_profile_id")
+    @JsonIgnore
     private UserProfileEntity userProfile;
 
     @Column(name = "family_relation")

@@ -149,19 +149,20 @@ public class CodefTestService {
                 userPrescription.setIsTaken(false);
                 userPrescription.setOnAlarm(true);
 
+
                 userPrescriptionRepository.save(userPrescription);
 
                 JsonNode drugList = data.get("resDrugList");
                 int totalDosingDays = 0;
 
                 for (JsonNode drugData : drugList) {
-                    String drugCodeStr = drugData.get("resDrugCode").asText();  // drugCode는 String으로 받기
-                    MedicationEntity drugItemSeq = medicationRepository.findByMedicationId(drugCodeStr);  // String으로 비교
+                    String drugCodeStr = drugData.get("resDrugName").asText();  // drugCode는 String으로 받기
+                    MedicationEntity drugItemSeq = medicationRepository.findByMedicationName(drugCodeStr);  // String으로 비교
 
                     if (drugItemSeq != null) {
                         PrescriptionDrugEntity prescriptionDrug = new PrescriptionDrugEntity();
                         prescriptionDrug.setPrescriptionId(userPrescription);
-                        prescriptionDrug.setMedicationId(drugItemSeq);
+                        prescriptionDrug.setMedicationName(drugItemSeq);
                         prescriptionDrug.setOneDose(drugData.get("resOneDose").asText());
                         prescriptionDrug.setDailyDosesNumber(Integer.parseInt(drugData.get("resDailyDosesNumber").asText())); // dailyDosesNumber는 여전히 int로 받아야 하므로 Integer로 파싱
                         String drugTotalDosingDaysStr = drugData.get("resTotalDosingdays").asText();
@@ -176,6 +177,10 @@ public class CodefTestService {
                         prescriptionDrugRepository.save(prescriptionDrug);
                     }
                 }
+
+                // 처방전의 최대 total_dosing_days 값을 userPrescription에 설정
+                userPrescription.setTotalDosingDay(totalDosingDays);
+                userPrescriptionRepository.save(userPrescription);
 
                 // 총 복용 일수를 기준으로 처방전의 is_taken 값을 설정
                 LocalDate endDate = manufactureDate.plusDays(totalDosingDays);

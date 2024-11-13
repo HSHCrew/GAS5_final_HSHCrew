@@ -62,7 +62,7 @@ public class UserPrescriptionService {
                             .medicationDirection(prescriptionDrug.getMedicationDirection())
                             .oneDose(prescriptionDrug.getOneDose())
                             .totalDosingDays(prescriptionDrug.getTotalDosingDays())
-                            .MedicationId(prescriptionDrug.getMedicationId())
+                            .MedicationId(prescriptionDrug.getMedicationName())
                             .prescriptionId(userPrescription.getUserPrescriptionId())
                             .build();
 
@@ -82,6 +82,7 @@ public class UserPrescriptionService {
                         .aiSummary(userPrescription.getAiSummary())
                         .prescriptionInfo(userPrescription.getPrescriptionInfo())
                         .drugs(prescriptionDrugDTOs)
+                        .totalDosingDay(userPrescription.getTotalDosingDay())
                         .build();
 
                 userPrescriptionDTOs.add(userPrescriptionDTO);

@@ -1,6 +1,7 @@
 package org.zerock.Altari.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -27,11 +28,12 @@ public class AllergyEntity {
 
     @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "user_profile_id")
+    @JsonIgnore
     private UserProfileEntity userProfile;
 
-    @ManyToOne(cascade = CascadeType.REMOVE)
-    @JoinColumn(name = "item_seq")
-    private MedicationEntity medicationId;
+    @ManyToOne
+    @JoinColumn(name = "item_name", referencedColumnName = "item_name")
+    private MedicationEntity medicationName;
 
     @CreatedDate
     private LocalDateTime allergy_created_at;
