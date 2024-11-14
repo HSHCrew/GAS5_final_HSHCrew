@@ -17,7 +17,7 @@ function SignIn() {
   const navigate = useNavigate();
 
   const KAKAO_CLIENT_ID = "e8e345ebe8a751ac4562318628819200";
-  const REDIRECT_URI = "http://localhost:8080/login/oauth2/code/kakao";
+  const REDIRECT_URI = "http://localhost:3030/kakao/callback";
   const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${KAKAO_CLIENT_ID}&response_type=code&redirect_uri=${REDIRECT_URI}`;
   
   useEffect(() => {

@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Axios 인스턴스 생성
 const apiClient = axios.create({
-  baseURL: 'http://localhost:8080', // API 서버의 baseURL
+  baseURL: 'http://localhost:8080',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -26,11 +26,16 @@ apiClient.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    // 401 Unauthorized 오류 발생 시 토큰 갱신 시도
-    if (error.response && error.response.status === 401 && !originalRequest._retry) {
+    // 403 Forbidden 오류 발생 시 토큰 갱신 시도
+    if (error.response && error.response.status === 403 && !originalRequest._retry) {
       originalRequest._retry = true;
       const refreshToken = localStorage.getItem('refreshToken') || sessionStorage.getItem('refreshToken');
       const username = localStorage.getItem('username') || sessionStorage.getItem('username');
+
+      if (!refreshToken || !username) {
+        console.error('리프레시 토큰 또는 사용자 이름이 없습니다.');
+        return Promise.reject(error);
+      }
 
       try {
         // 리프레시 API 호출
@@ -62,7 +67,8 @@ apiClient.interceptors.response.use(
         console.error('리프레시 토큰 갱신 실패:', refreshError);
         localStorage.clear();
         sessionStorage.clear();
-        window.location.href = "/login"; // 로그인 페이지로 리디렉션
+        window.location.href = "/signIn"; // 로그인 페이지로 리디렉션
+        return Promise.reject(refreshError);
       }
     }
     return Promise.reject(error);

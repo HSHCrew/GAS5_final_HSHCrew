@@ -26,22 +26,28 @@ function RegistrationPrescription() {
     const handleAuthenticate = async () => {
         setSuccessMessage('');
         setErrorMessage('');
-
+    
+        // 필수 입력 필드가 비어 있는지 확인
+        if (!formData.userName || !formData.identityFront || !formData.identityBack || !formData.phoneNo) {
+            setErrorMessage('모든 필드를 입력해 주세요.');
+            return;
+        }
+    
         const token = localStorage.getItem('token') || sessionStorage.getItem('token');
         if (!token) {
             setErrorMessage('로그인 토큰이 없습니다. 다시 로그인해주세요.');
             console.warn('Authentication Error: 로그인 토큰이 없습니다.');
             return;
         }
-
+    
         const sanitizedData = {
             userName: formData.userName,
             identity: formData.identityFront + formData.identityBack,
             phoneNo: formData.phoneNo.replace(/-/g, '')
         };
-
+    
         console.log('Sending to /api/codef/first:', sanitizedData);
-
+    
         try {
             const response = await fetch('http://localhost:8080/altari/prescriptions/enter-info', {
                 method: 'POST',
@@ -51,7 +57,7 @@ function RegistrationPrescription() {
                 },
                 body: JSON.stringify(sanitizedData)
             });
-
+    
             if (response.ok) {
                 const result = await response.json();
                 setUserData(result.data);
@@ -64,6 +70,7 @@ function RegistrationPrescription() {
             setErrorMessage('네트워크 오류가 발생했습니다.');
         }
     };
+    
 
     // 두 번째 API 호출: 인증 완료
     const handleCompleteAuthentication = async () => {
@@ -141,7 +148,7 @@ function RegistrationPrescription() {
                                     onChange={handleChange}
                                     placeholder="생년월일 (6자리)"
                                     maxLength="6"
-                                    className="registration-identity-input"
+                                    className="registration-first-identity-input"
                                     required
                                 />
                                 <span className="registration-identity-separator">-</span>
@@ -152,7 +159,7 @@ function RegistrationPrescription() {
                                     onChange={handleChange}
                                     placeholder="7자리"
                                     maxLength="7"
-                                    className="registration-identity-input"
+                                    className="registration-second-identity-input"
                                     required
                                 />
                             </div>

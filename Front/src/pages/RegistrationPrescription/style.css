@@ -85,19 +85,25 @@
 /* 주민등록번호 입력 필드 스타일 */
 .registration-identity-inputs {
     display: flex;
+    font-size: 16px;
     align-items: center;
     gap: 8px;
 }
 
-.registration-identity-input {
+.registration-first-identity-input {
     width: calc(50% - 16px);
     text-align: center;
     border-radius: 8px;
+    padding: 12px 16px;
+    border: 1px solid #bbb;
 }
 
-.registration-identity-separator {
-    font-size: 16px;
+.registration-second-identity-input {
     color: #888;
+    text-align: center;
+    border-radius: 8px;
+    padding: 12px 16px;
+    border: 1px solid #bbb;
 }
 
 /* 성공 및 에러 메시지 스타일 */
