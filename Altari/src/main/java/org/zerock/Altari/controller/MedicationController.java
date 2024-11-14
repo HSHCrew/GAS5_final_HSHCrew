@@ -5,14 +5,18 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.zerock.Altari.dto.UserMedicationTimeDTO;
 import org.zerock.Altari.entity.MedicationEntity;
 import org.zerock.Altari.entity.UserEntity;
+import org.zerock.Altari.entity.UserMedicationTimeEntity;
 import org.zerock.Altari.exception.EntityNotFoundException;
 import org.zerock.Altari.repository.MedicationRepository;
 import org.zerock.Altari.service.MedicationAlarmService;
+import org.zerock.Altari.service.UserMedicationTimeService;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/altari")
@@ -22,6 +26,7 @@ public class MedicationController {
 
     private final MedicationRepository medicationRepository;
     private final MedicationAlarmService medicationAlarmService;
+    private final UserMedicationTimeService userMedicationTimeService;
 
     @GetMapping("/drug/list")
     public List<MedicationEntity> getAllDrugs() {
@@ -55,15 +60,20 @@ public class MedicationController {
     }
 
     @PostMapping("/medication/onAlarm/{username}")
-    public ResponseEntity<Boolean> setOnAlarm(@PathVariable String username,
-                                                        @RequestBody Boolean onAlarm) {
-
+    public ResponseEntity<UserMedicationTimeDTO> setOnAlarm(@PathVariable String username,
+                                                            @RequestBody UserMedicationTimeDTO userMedicationTimeDTO) {
         UserEntity user = new UserEntity(username);
-        onAlarm = medicationAlarmService.onAlarm(user, onAlarm);
-
-        return ResponseEntity.ok(onAlarm);
+        UserMedicationTimeDTO updatedMedicationTime = userMedicationTimeService.updateMedicationAlarmStatus(user, userMedicationTimeDTO);
+        return ResponseEntity.ok(updatedMedicationTime);
     }
-    ///알람 활성화 true 반환
-    ///알림 비활성화 false 반환
+
+    @GetMapping("/medication/getAlarm/{username}")
+    public ResponseEntity<UserMedicationTimeDTO> getOnAlarm(@PathVariable String username
+                                                               ) {
+        UserEntity user = new UserEntity(username);
+        UserMedicationTimeDTO MedicationTime = userMedicationTimeService.getMedicationTime(user);
+        return ResponseEntity.ok(MedicationTime);
+    }
+
 
 }

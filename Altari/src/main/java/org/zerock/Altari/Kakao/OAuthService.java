@@ -7,8 +7,10 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.zerock.Altari.entity.UserEntity;
+import org.zerock.Altari.entity.UserMedicationTimeEntity;
 import org.zerock.Altari.entity.UserProfileEntity;
 import org.zerock.Altari.exception.UserExceptions;
+import org.zerock.Altari.repository.UserMedicationTimeRepository;
 import org.zerock.Altari.repository.UserProfileRepository;
 import org.zerock.Altari.repository.UserRepository;
 import org.zerock.Altari.security.util.JWTUtil;
@@ -23,6 +25,7 @@ import java.util.Optional;
 public class OAuthService {
 
     private final UserProfileRepository userProfileRepository;
+    private final UserMedicationTimeRepository userMedicationTimeRepository;
     @Value("${spring.security.oauth2.client.registration.kakao.redirect-uri}")
     public String kakao_redirect_uri;
     @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
@@ -71,6 +74,16 @@ public class OAuthService {
                         .username(user)
                         .build();
                 userProfileRepository.save(userProfile);
+
+                UserMedicationTimeEntity userMedicationTime = UserMedicationTimeEntity.builder()
+                        .onMorningMedicationAlarm(true)
+                        .onLunchMedicationTimeAlarm(true)
+                        .onDinnerMedicationTimeAlarm(true)
+                        .onNightMedicationTimeAlarm(true)
+                        .userProfile(userProfile)
+                        .build();
+
+                userMedicationTimeRepository.save(userMedicationTime);
             }
 
 

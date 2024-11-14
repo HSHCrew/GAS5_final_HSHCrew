@@ -6,8 +6,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.zerock.Altari.dto.UserProfileDTO;
 import org.zerock.Altari.entity.UserEntity;
+import org.zerock.Altari.entity.UserMedicationTimeEntity;
 import org.zerock.Altari.entity.UserProfileEntity;
 import org.zerock.Altari.exception.UserExceptions;
+import org.zerock.Altari.repository.UserMedicationTimeRepository;
 import org.zerock.Altari.repository.UserProfileRepository;
 
 import java.util.Optional;
@@ -19,6 +21,7 @@ import java.util.Optional;
 public class UserProfileService {
 
     private final UserProfileRepository userProfileRepository;
+    private final UserMedicationTimeRepository userMedicationTimeRepository;
 
 
     @Transactional
@@ -59,8 +62,10 @@ public class UserProfileService {
             throw UserExceptions.NOT_FOUND.get();
         }
 
+
         try {
             UserProfileEntity userProfileEntity = optionalUserProfile.get();
+            UserMedicationTimeEntity userMedicationTime = userMedicationTimeRepository.findByUserProfile(optionalUserProfile.get());
 
             // DTO의 값으로 프로필 업데이트, 삭제하고 싶은 필드는 null로 설정
             if (userProfileDTO.getFullName() != null) {

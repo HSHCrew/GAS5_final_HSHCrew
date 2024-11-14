@@ -28,6 +28,8 @@ public class RegisterService {
     private final UserProfileService userProfileService;
     @Autowired
     private JdbcTemplate jdbcTemplate;
+    @Autowired
+    private UserMedicationTimeRepository userMedicationTimeRepository;
 
     @Transactional
     public UserEntity join(RegisterDTO registerDTO) {
@@ -54,6 +56,16 @@ public class RegisterService {
                     .build();
 
             userProfileRepository.save(userProfile);
+
+            UserMedicationTimeEntity userMedicationTime = UserMedicationTimeEntity.builder()
+                    .onMorningMedicationAlarm(true)
+                    .onLunchMedicationTimeAlarm(true)
+                    .onDinnerMedicationTimeAlarm(true)
+                    .onNightMedicationTimeAlarm(true)
+                    .userProfile(userProfile)
+                    .build();
+
+            userMedicationTimeRepository.save(userMedicationTime);
 
             return user;
 
