@@ -95,6 +95,9 @@ public class UserProfileEntity {
     @OneToMany(mappedBy = "userProfile", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     private List<UserPrescriptionEntity> userPrescriptions = new ArrayList<>();
 
+    @OneToMany(mappedBy = "userProfile", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    private List<UserMedicationTimeEntity> userMedicationTimes = new ArrayList<>();
+
 }
 
 
