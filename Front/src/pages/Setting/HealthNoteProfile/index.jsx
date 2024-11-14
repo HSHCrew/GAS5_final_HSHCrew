@@ -1,218 +1,318 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Header from '../../../components/Header';
-import apiRequest from '../../../utils/apiRequest';
+import apiClient from '../../../api/apiClient'; // Axios 인스턴스 가져오기
 import './style.css';
 
 const HealthNoteProfile = () => {
   const username = localStorage.getItem('username') || sessionStorage.getItem('username');
-  const [profileData, setProfileData] = useState({
-    height: "170.0",
-    weight: "70.0",
-    bloodType: "RH+ A형",
-    currentDiseases: [],
-    pastDiseases: [],
-    familyDiseases: [],
-    drugAllergies: [],
-    foodAllergies: [],
-  });
+  const [profileData, setProfileData] = useState(null);
 
+  // 옵션들 정의
+  const diseaseOptions = [
+    { id: 1, name: '고혈압' },
+    { id: 2, name: '고지혈증' },
+    { id: 3, name: '비만' },
+    { id: 4, name: '당뇨' },
+    { id: 5, name: '노년 백내장' },
+    { id: 6, name: '치매' },
+    { id: 7, name: '비염' },
+    { id: 8, name: '위염' },
+    { id: 9, name: '치주질환' },
+    { id: 10, name: '치핵' },
+    { id: 11, name: '탈모' },
+  ];
+
+  const drugAllergyOptions = [
+    '페니실린',
+    '아스피린',
+    '설파제',
+    '항생제',
+    '인슐린',
+    '조영제',
+    '항암제',
+    '마취제',
+    '항생제 연고',
+    '비스테로이드성 소염제',
+  ];
+
+  const foodAllergyOptions = [
+    '복숭아',
+    '땅콩',
+    '갑각류',
+    '계란',
+    '우유',
+    '밀가루',
+    '콩',
+    '호두',
+    '생선',
+    '메밀',
+  ];
+
+  // 컴포넌트 마운트 시 데이터 가져오기
   useEffect(() => {
     const fetchProfileData = async () => {
       try {
-        const response = await apiRequest(`http://localhost:8080/altari/getInfo/userProfile/${username}`, {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token') || sessionStorage.getItem('token')}`,
-          },
-        });
-        const data = response.data;
+        const profileResponse = await apiClient.get(`/altari/getInfo/userProfile/${username}`);
+        const diseaseResponse = await apiClient.get(`/altari/getInfo/userHealth/${username}`);
+
+        const profile = profileResponse.data;
+        const diseases = diseaseResponse.data;
+
+        // 질병 데이터를 처리하여 ID와 이름을 매칭
+        const processDiseaseArray = (diseaseArray) => {
+          if (Array.isArray(diseaseArray)) {
+            return diseaseArray
+              .filter((d) => d && d.diseaseId !== undefined && d.diseaseId !== null)
+              .map((d) => ({
+                id: d.diseaseId.toString(),
+                name: diseaseOptions.find((option) => option.id === d.diseaseId)?.name || 'Unknown',
+              }));
+          }
+          return [];
+        };
+
         setProfileData({
-          height: data.height ?? "170.0",
-          weight: data.weight ?? "70.0",
-          bloodType: data.bloodType ?? "RH+ A형",
-          currentDiseases: data.currentDiseases ?? [],
-          pastDiseases: data.pastDiseases ?? [],
-          familyDiseases: data.familyDiseases ?? [],
-          drugAllergies: data.drugAllergies ?? [],
-          foodAllergies: data.foodAllergies ?? [],
+          height: profile.height,
+          weight: profile.weight,
+          bloodType: profile.bloodType,
+          currentDiseases: processDiseaseArray(diseases.diseases),
+          pastDiseases: processDiseaseArray(diseases.pastDiseases),
+          familyDiseases: processDiseaseArray(diseases.familyDiseases),
+          drugAllergies: diseases.allergyMedications || [],
+          foodAllergies: diseases.foodAllergies || [],
         });
       } catch (error) {
-        console.error("Failed to fetch profile data:", error);
+        console.error('Failed to fetch profile data:', error);
       }
     };
 
     fetchProfileData();
   }, [username]);
 
+  // 값이 변경될 때 상태 업데이트
+  const handleValueChange = async (fieldName, newValue) => {
+    setProfileData((prevData) => ({
+      ...prevData,
+      [fieldName]: newValue,
+    }));
+
+    // 필드 업데이트 API 호출
+    try {
+      let apiPath = '';
+      let requestData = {};
+
+      if (fieldName === 'height' || fieldName === 'weight' || fieldName === 'bloodType') {
+        apiPath = `/altari/updateInfo/userProfile/${username}`;
+        requestData = { [fieldName]: newValue };
+      } else if (fieldName === 'currentDiseases' || fieldName === 'pastDiseases' || fieldName === 'familyDiseases') {
+        apiPath = fieldName === 'currentDiseases'
+          ? `/altari/updateInfo/userDisease/${username}`
+          : fieldName === 'pastDiseases'
+          ? `/altari/updateInfo/userPastDisease/${username}`
+          : `/altari/updateInfo/userFamilyDisease/${username}`;
+        requestData = { diseases: newValue.map((d) => Number(d.id)) };
+      } else if (fieldName === 'drugAllergies' || fieldName === 'foodAllergies') {
+        apiPath = `/altari/updateInfo/userAllergy/${username}`;
+        requestData = fieldName === 'drugAllergies'
+          ? { allergyMedications: newValue }
+          : { foodAllergies: newValue };
+      }
+
+      await apiClient.put(apiPath, requestData);
+    } catch (error) {
+      console.error(`Failed to update ${fieldName}:`, error);
+    }
+  };
+
+  if (!profileData) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div className="health-profile-container">
       <Header title="건강 프로필" />
       <div className="health-profile-box">
-        
         {/* 기본 정보 섹션 */}
-        <div className="profile-section">
+        <div className="info-section">
           <p className="profile-section-title">기본 정보</p>
-          <EditableInfoItem label="키" type="number" unit="cm" step={0.1} scrollStep={1} decimal={1} fieldName="height" username={username} />
-          <EditableInfoItem label="몸무게" type="number" unit="kg" step={0.1} scrollStep={1} decimal={1} fieldName="weight" username={username} />
-          <EditableInfoItem label="혈액형" type="blood" fieldName="bloodType" username={username} />
+          <EditableInfoItem
+            label="키"
+            type="number"
+            unit="cm"
+            step={0.1}
+            fieldName="height"
+            value={profileData.height}
+            onValueChange={handleValueChange}
+          />
+          <EditableInfoItem
+            label="몸무게"
+            type="number"
+            unit="kg"
+            step={0.1}
+            fieldName="weight"
+            value={profileData.weight}
+            onValueChange={handleValueChange}
+          />
+          <EditableInfoItem
+            label="혈액형"
+            type="blood"
+            fieldName="bloodType"
+            value={profileData.bloodType}
+            onValueChange={handleValueChange}
+          />
         </div>
 
         {/* 병력 정보 섹션 */}
         <div className="info-section">
           <p className="profile-section-title">병력 정보</p>
-          <EditableInfoItem label="# 현재력" type="multiSelect" options={["고혈압", "고지혈증", "비만", "당뇨", "노년 백내장", "치매", "비염", "위염", "치주질환", "치핵", "탈모"]} fieldName="currentDiseases" username={username} />
-          <EditableInfoItem label="# 과거력" type="multiSelect" options={["고혈압", "고지혈증", "비만", "당뇨", "노년 백내장", "치매", "비염", "위염", "치주질환", "치핵", "탈모"]} fieldName="pastDiseases" username={username} />
-          <EditableInfoItem label="# 가족력" type="multiSelect" options={["고혈압", "고지혈증", "비만", "당뇨", "노년 백내장", "치매", "비염", "위염", "치주질환", "치핵", "탈모"]} fieldName="familyDiseases" username={username} />
+          <EditableInfoItem
+            label="# 현재력"
+            type="diseaseSelect"
+            options={diseaseOptions}
+            fieldName="currentDiseases"
+            value={profileData.currentDiseases}
+            onValueChange={handleValueChange}
+          />
+          <EditableInfoItem
+            label="# 과거력"
+            type="diseaseSelect"
+            options={diseaseOptions}
+            fieldName="pastDiseases"
+            value={profileData.pastDiseases}
+            onValueChange={handleValueChange}
+          />
+          <EditableInfoItem
+            label="# 가족력"
+            type="diseaseSelect"
+            options={diseaseOptions}
+            fieldName="familyDiseases"
+            value={profileData.familyDiseases}
+            onValueChange={handleValueChange}
+          />
         </div>
 
         {/* 알러지 정보 섹션 */}
         <div className="info-section">
           <p className="profile-section-title">알러지 정보</p>
-          <EditableInfoItem label="# 약물 알러지" type="multiSelect" options={["페니실린", "아스피린", "설파제", "항생제", "인슐린", "조영제", "항암제", "마취제", "항생제 연고", "비스테로이드성 소염제"]} fieldName="drugAllergies" username={username} />
-          <EditableInfoItem label="# 약물 외 알러지" type="multiSelect" options={["복숭아", "땅콩", "갑각류", "계란", "우유", "밀가루", "콩", "호두", "생선", "메밀"]} fieldName="foodAllergies" username={username} />
+          <EditableInfoItem
+            label="# 약물 알러지"
+            type="multiSelect"
+            options={drugAllergyOptions}
+            fieldName="drugAllergies"
+            value={profileData.drugAllergies}
+            onValueChange={handleValueChange}
+          />
+          <EditableInfoItem
+            label="# 약물 외 알러지"
+            type="multiSelect"
+            options={foodAllergyOptions}
+            fieldName="foodAllergies"
+            value={profileData.foodAllergies}
+            onValueChange={handleValueChange}
+          />
         </div>
       </div>
     </div>
   );
 };
 
-const EditableInfoItem = ({ label, type, unit, step = 1, scrollStep = 1, decimal, options, defaultValue, fieldName, username }) => {
-  const [value, setValue] = useState(defaultValue);
+// EditableInfoItem 컴포넌트
+const EditableInfoItem = ({
+  label,
+  type,
+  unit,
+  step = 1,
+  options,
+  value: propValue,
+  fieldName,
+  onValueChange,
+}) => {
+  const [value, setValue] = useState(propValue || (type === 'diseaseSelect' || type === 'multiSelect' ? [] : ''));
   const [isEditing, setIsEditing] = useState(false);
-  const inputRef = useRef(null);
-  const containerRef = useRef(null);
 
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (containerRef.current && !containerRef.current.contains(event.target)) {
-        handleBlur();
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
+    setValue(propValue || (type === 'diseaseSelect' || type === 'multiSelect' ? [] : ''));
+  }, [propValue]);
 
-  const handleDoubleClick = () => {
-    setIsEditing(true);
+  const handleEdit = () => setIsEditing(true);
+  const handleBlur = () => {
+    setIsEditing(false);
+    onValueChange(fieldName, value);
   };
 
   const handleChange = (e) => {
-    let newValue = e.target.value;
-
-    if (type === "number" && decimal) {
-      newValue = parseFloat(newValue);
-      if (isNaN(newValue)) {
-        newValue = parseFloat(defaultValue).toFixed(decimal);
-      } else {
-        newValue = newValue.toFixed(decimal);
-      }
-    }
-
+    const newValue = type === 'number' ? parseFloat(e.target.value) : e.target.value;
     setValue(newValue);
   };
 
-  const handleBlur = async () => {
-    setIsEditing(false);
-
-    // 값이 변경되지 않았으면 API 요청을 보내지 않음
-    if (value === defaultValue) return;
-
-    try {
-      // 변경된 필드만 포함하여 requestData 생성
-      const requestData = {
-        [fieldName]: value
-      };
-
-      await apiRequest(`http://localhost:8080/altari/updateInfo/userProfile/${username}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token') || sessionStorage.getItem('token')}`,
-        },
-        data: requestData,
-      });
-      console.log("저장 성공:", requestData);
-    } catch (error) {
-      console.error("Failed to update profile field:", error);
-    }
-  };
-
   return (
-    <div className="info-item" onDoubleClick={handleDoubleClick} ref={containerRef}>
+    <div className="info-item" onClick={handleEdit}>
       <p className="info-label">{label}</p>
       {isEditing ? (
-        type === "select" ? (
-          <select
-            value={value}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            className="info-input"
-            autoFocus
-          >
-            {options.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
-        ) : type === "multiSelect" ? (
-          <div className="multi-select-options">
-            {options.map((option) => (
-              <div key={option} className="multi-select-option">
-                <input
-                  type="checkbox"
-                  checked={value.includes(option)}
-                  onChange={() => handleMultiSelectChange(option)}
-                />
-                <label>{option}</label>
-              </div>
-            ))}
-          </div>
-        ) : type === "blood" ? (
-          <div className="info-blood">
-            <select
-              value={value ? value.split(" ")[0] : "RH+"}
-              onChange={(e) => setValue(`${e.target.value} ${value.split(" ")[1] || "A형"}`)}
-              className="info-input"
-              autoFocus
-            >
-              {["RH+", "RH-"].map((rh) => (
-                <option key={rh} value={rh}>
-                  {rh}
-                </option>
-              ))}
-            </select>
-            <select
-              value={value ? value.split(" ")[1] : "A형"}
-              onChange={(e) => setValue(`${value.split(" ")[0] || "RH+"} ${e.target.value}`)}
-              className="info-input"
-            >
-              {["A형", "B형", "O형", "AB형"].map((type) => (
-                <option key={type} value={type}>
-                  {type}
-                </option>
-              ))}
-            </select>
-          </div>
-        ) : (
+        type === 'number' ? (
           <input
             type="number"
+            className="info-input"
             step={step}
             value={value}
             onChange={handleChange}
-            onWheel={(e) => {
-              const increment = e.deltaY < 0 ? scrollStep : -scrollStep;
-              setValue((prevValue) => (parseFloat(prevValue) + increment).toFixed(decimal));
-            }}
             onBlur={handleBlur}
+            autoFocus
+          />
+        ) : type === 'blood' ? (
+          <div className="info-blood" onBlur={handleBlur}>
+            <select
+              value={value.split(' ')[0] || 'RH+'}
+              onChange={(e) => setValue(`${e.target.value} ${value.split(' ')[1] || ''}`)}
+            >
+              <option value="RH+">RH+</option>
+              <option value="RH-">RH-</option>
+            </select>
+            <select
+              value={value.split(' ')[1] || 'A형'}
+              onChange={(e) => setValue(`${value.split(' ')[0]} ${e.target.value}`)}
+            >
+              <option value="A형">A형</option>
+              <option value="B형">B형</option>
+              <option value="O형">O형</option>
+              <option value="AB형">AB형</option>
+            </select>
+          </div>
+        ) : type === 'diseaseSelect' || type === 'multiSelect' ? (
+          <div className="multi-select-options">
+            {options.map((option) => (
+              <div key={option.id || option} className="multi-select-option">
+                <input
+                  type="checkbox"
+                  checked={value.some((v) => (typeof v === 'string' ? v : v.id) === (option.id || option))}
+                  onChange={() => {
+                    const optionValue = option.id ? option : option.toString();
+                    setValue(
+                      value.some((v) => (typeof v === 'string' ? v : v.id) === (option.id || option))
+                        ? value.filter((v) => (typeof v === 'string' ? v : v.id) !== (option.id || option))
+                        : [...value, optionValue]
+                    );
+                  }}
+                />
+                <label>{option.name || option}</label>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <input
+            type="text"
             className="info-input"
+            value={value}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            autoFocus
           />
         )
       ) : (
         <p className="info-value">
-          {Array.isArray(value) ? value.join(", ") : value}
+          {Array.isArray(value)
+            ? value.map((v) => (typeof v === 'string' ? v : v.name)).join(', ')
+            : value}
           {unit && <span className="unit"> {unit}</span>}
         </p>
       )}

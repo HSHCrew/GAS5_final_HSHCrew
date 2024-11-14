@@ -1,5 +1,5 @@
 /* 전체 컨테이너 스타일 */
-.userinfo-container {
+.registration-container {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -12,7 +12,8 @@
 }
 
 /* 메인 박스 스타일 */
-.userinfo-box {
+.registration-box {
+    margin-top: -100px;
     max-width: 500px;
     width: 100%;
     background-color: #ffffff;
@@ -23,9 +24,8 @@
     font-family: 'Roboto', sans-serif;
 }
 
-/* 상단 아이콘 및 제목 */
-
-.section-title {
+/* 제목 스타일 */
+.registration-title {
     text-align: center;
     color: #357e85;
     font-size: 30px;
@@ -34,7 +34,7 @@
 }
 
 /* 약봉지 스타일 아이콘 */
-.section-title::before {
+.registration-title::before {
     content: "+";
     display: block;
     font-size: 90px;
@@ -44,7 +44,7 @@
 }
 
 /* 입력 폼 스타일 */
-.prescription-form {
+.registration-form {
     display: flex;
     flex-direction: column;
     gap: 20px;
@@ -55,20 +55,20 @@
 }
 
 /* 폼 필드 그룹 스타일 */
-.form-group {
+.registration-form-group {
     display: flex;
     flex-direction: column;
     gap: 8px;
 }
 
-.form-group label {
+.registration-form-group label {
     font-size: 14px;
     color: #333;
     font-weight: bold;
 }
 
 /* 기본 입력 필드 스타일 */
-.form-group input {
+.registration-input {
     padding: 12px 16px;
     border: 1px solid #bbb;
     border-radius: 8px;
@@ -77,32 +77,37 @@
     transition: border-color 0.3s ease;
 }
 
-.form-group input:focus {
+.registration-input:focus {
     border-color: #357e85;
     outline: none;
 }
 
 /* 주민등록번호 입력 필드 스타일 */
-.identity-inputs {
+.registration-identity-inputs {
     display: flex;
+    font-size: 16px;
     align-items: center;
     gap: 8px;
 }
 
-.identity-inputs input[type="text"],
-.identity-inputs input[type="password"] {
+.registration-first-identity-input {
     width: calc(50% - 16px);
     text-align: center;
     border-radius: 8px;
+    padding: 12px 16px;
+    border: 1px solid #bbb;
 }
 
-.identity-inputs span {
-    font-size: 16px;
+.registration-second-identity-input {
     color: #888;
+    text-align: center;
+    border-radius: 8px;
+    padding: 12px 16px;
+    border: 1px solid #bbb;
 }
 
 /* 성공 및 에러 메시지 스타일 */
-.error-message {
+.registration-error-message {
     color: #e63946;
     font-size: 14px;
     text-align: center;
@@ -113,7 +118,7 @@
     margin-top: -10px;
 }
 
-.success-message {
+.registration-success-message {
     color: #2a9d8f;
     font-size: 14px;
     text-align: center;
@@ -125,14 +130,14 @@
 }
 
 /* 버튼 스타일 */
-.button-group {
+.registration-button-group {
     display: flex;
     justify-content: space-between;
     gap: 10px;
     margin-top: 20px;
 }
 
-.auth-button, .complete-auth-button {
+.registration-auth-button, .registration-complete-auth-button {
     padding: 12px 20px;
     background-color: #357e85;
     color: #ffffff;
@@ -145,32 +150,31 @@
     flex: 1;
 }
 
-.auth-button:hover, .complete-auth-button:hover {
+.registration-auth-button:hover, .registration-complete-auth-button:hover {
     background-color: #2a6e75;
 }
 
-.complete-auth-button:disabled {
+.registration-complete-auth-button:disabled {
     background-color: #b8d8da;
-    cursor: not-allowed;
+    cursor: auto;
 }
 
 /* 반응형 디자인 */
 @media (max-width: 700px) {
-    .userinfo-box {
+    .registration-box {
         padding: 20px 15px;
     }
 
-    .section-title {
+    .registration-title {
         font-size: 20px;
     }
 
-    .auth-button, .complete-auth-button {
+    .registration-auth-button, .registration-complete-auth-button {
         font-size: 14px;
         padding: 10px 15px;
     }
 
-    .identity-inputs input[type="text"],
-    .identity-inputs input[type="password"] {
+    .registration-identity-input {
         width: calc(50% - 8px);
     }
 }

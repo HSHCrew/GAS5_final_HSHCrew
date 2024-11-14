@@ -26,24 +26,28 @@ function RegistrationPrescription() {
     const handleAuthenticate = async () => {
         setSuccessMessage('');
         setErrorMessage('');
-
-        // 로그인 토큰 가져오기
+    
+        // 필수 입력 필드가 비어 있는지 확인
+        if (!formData.userName || !formData.identityFront || !formData.identityBack || !formData.phoneNo) {
+            setErrorMessage('모든 필드를 입력해 주세요.');
+            return;
+        }
+    
         const token = localStorage.getItem('token') || sessionStorage.getItem('token');
         if (!token) {
             setErrorMessage('로그인 토큰이 없습니다. 다시 로그인해주세요.');
             console.warn('Authentication Error: 로그인 토큰이 없습니다.');
             return;
         }
-
-        // 주민등록번호 앞자리와 뒷자리를 합쳐서 하나의 문자열로 전송
+    
         const sanitizedData = {
             userName: formData.userName,
-            identity: formData.identityFront + formData.identityBack, // 주민번호 앞자리와 뒷자리 합침
+            identity: formData.identityFront + formData.identityBack,
             phoneNo: formData.phoneNo.replace(/-/g, '')
         };
-
+    
         console.log('Sending to /api/codef/first:', sanitizedData);
-
+    
         try {
             const response = await fetch('http://localhost:8080/altari/prescriptions/enter-info', {
                 method: 'POST',
@@ -53,7 +57,7 @@ function RegistrationPrescription() {
                 },
                 body: JSON.stringify(sanitizedData)
             });
-
+    
             if (response.ok) {
                 const result = await response.json();
                 setUserData(result.data);
@@ -66,6 +70,7 @@ function RegistrationPrescription() {
             setErrorMessage('네트워크 오류가 발생했습니다.');
         }
     };
+    
 
     // 두 번째 API 호출: 인증 완료
     const handleCompleteAuthentication = async () => {
@@ -115,12 +120,12 @@ function RegistrationPrescription() {
     };
 
     return (
-        <div className="userinfo-container">
-            <div className="userinfo-box">
+        <div className="registration-container">
+            <div className="registration-box">
                 <div className="info-section">
-                    <h2 className="section-title">처방전 추가</h2>
-                    <form className="prescription-form" onSubmit={(e) => e.preventDefault()}>
-                        <div className="form-group">
+                    <h2 className="registration-title">처방전 추가</h2>
+                    <form className="registration-form" onSubmit={(e) => e.preventDefault()}>
+                        <div className="registration-form-group">
                             <label htmlFor="userName">이름</label>
                             <input
                                 type="text"
@@ -129,12 +134,13 @@ function RegistrationPrescription() {
                                 value={formData.userName}
                                 onChange={handleChange}
                                 placeholder="이름을 입력하세요"
+                                className="registration-input"
                                 required
                             />
                         </div>
-                        <div className="form-group">
+                        <div className="registration-form-group">
                             <label>주민등록번호</label>
-                            <div className="identity-inputs">
+                            <div className="registration-identity-inputs">
                                 <input
                                     type="text"
                                     name="identityFront"
@@ -142,9 +148,10 @@ function RegistrationPrescription() {
                                     onChange={handleChange}
                                     placeholder="생년월일 (6자리)"
                                     maxLength="6"
+                                    className="registration-first-identity-input"
                                     required
                                 />
-                                <span>-</span>
+                                <span className="registration-identity-separator">-</span>
                                 <input
                                     type="password"
                                     name="identityBack"
@@ -152,11 +159,12 @@ function RegistrationPrescription() {
                                     onChange={handleChange}
                                     placeholder="7자리"
                                     maxLength="7"
+                                    className="registration-second-identity-input"
                                     required
                                 />
                             </div>
                         </div>
-                        <div className="form-group">
+                        <div className="registration-form-group">
                             <label htmlFor="phoneNo">전화번호</label>
                             <input
                                 type="text"
@@ -165,18 +173,19 @@ function RegistrationPrescription() {
                                 value={formData.phoneNo}
                                 onChange={handleChange}
                                 placeholder="01012345678"
+                                className="registration-input"
                                 required
                             />
                         </div>
-                        {errorMessage && <p className="error-message">{errorMessage}</p>}
-                        {successMessage && <p className="success-message">{successMessage}</p>}
-                        <div className="button-group">
-                            <button type="button" className="auth-button" onClick={handleAuthenticate}>
+                        {errorMessage && <p className="registration-error-message">{errorMessage}</p>}
+                        {successMessage && <p className="registration-success-message">{successMessage}</p>}
+                        <div className="registration-button-group">
+                            <button type="button" className="registration-auth-button" onClick={handleAuthenticate}>
                                 인증하기
                             </button>
                             <button
                                 type="button"
-                                className="complete-auth-button"
+                                className="registration-complete-auth-button"
                                 onClick={handleCompleteAuthentication}
                                 disabled={!userData}
                             >

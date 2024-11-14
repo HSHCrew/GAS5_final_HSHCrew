@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import apiRequest from '../../../utils/apiRequest';
+import apiClient from '../../../api/apiClient'; // apiRequest 대신 apiClient를 사용
 import Header from '../../../components/Header';
 import './style.css';
 import userLogo from '../../../assets/user.svg';
@@ -27,7 +27,8 @@ const UserInfo = () => {
 
   const fetchUserProfile = async (username) => {
     try {
-      const response = await apiRequest(`http://localhost:8080/altari/getInfo/userProfile/${username}`);
+      // apiClient 사용
+      const response = await apiClient.get(`/altari/getInfo/userProfile/${username}`);
 
       const dateOfBirthArray = response.data.dateOfBirth;
       const formattedDateOfBirth = Array.isArray(dateOfBirthArray) 
@@ -57,10 +58,8 @@ const UserInfo = () => {
         phoneNumber: updatedProfile.phoneNumber,
       };
 
-      await apiRequest(`http://localhost:8080/altari/updateInfo/userProfile/${username}`, {
-        method: 'PUT',
-        data: dataToSend,
-      });
+      // apiClient 사용
+      await apiClient.put(`/altari/updateInfo/userProfile/${username}`, dataToSend);
     } catch (error) {
       if (error.response) {
         console.error("Server responded with error:", error.response.data);
@@ -93,7 +92,8 @@ const UserInfo = () => {
 
   const handleDeleteAccount = async () => {
     try {
-      await apiRequest(`/api/v1/delete-userProfile/${username}`, { method: 'DELETE' });
+      // apiClient 사용
+      await apiClient.delete(`/api/v1/delete-userProfile/${username}`);
       handleLogout(); // 계정 삭제 후 로그아웃 처리
     } catch (error) {
       console.error("Failed to delete account:", error);
@@ -196,7 +196,6 @@ const formatPhoneNumber = (number) => {
   } else if (number.length === 11) {
     return number.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
   } else {
-    // 형식에 맞지 않으면 그대로 반환
     return number;
   }
 };

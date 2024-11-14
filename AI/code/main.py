@@ -8,6 +8,7 @@ from redis import asyncio as aioredis
 from sqlalchemy import select, delete, and_, update
 from sqlalchemy import func
 import json
+import uvicorn
 
 # Local imports
 from summarizer.Summarizer import Summarizer
@@ -37,7 +38,7 @@ app = FastAPI()
 redis_settings = RedisSettings()
 redis = aioredis.from_url(
     url=redis_settings.REDIS_URL,
-    password=redis_settings.REDIS_PASSWORD,
+    # password=redis_settings.REDIS_PASSWORD,
     encoding=redis_settings.REDIS_ENCODING,
     decode_responses=redis_settings.REDIS_DECODE_RESPONSES
 )

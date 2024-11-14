@@ -30,12 +30,11 @@ public class JWTCheckFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        // JWTCheckFilter가 동작하지 않아야 하는 경로 지정을 위해 사용
-        if (request.getServletPath().startsWith("/api/v1/token/")) {
-            return true;
-        }
-        return false;
+        String path = request.getServletPath();
+        // 기존 경로 `/api/v1/token/` 외에도 `/altari/`와 `/login/oauth2/code/` 경로 추가
+        return path.startsWith("/api/v1/token/") || path.equals("/login/oauth2/code/kakao") || path.equals("/altari/kakao/login");
     }
+
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -65,6 +64,11 @@ public class JWTCheckFilter extends OncePerRequestFilter {
         }
 
         if (request.getRequestURI().equals("/altari/test")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        if (request.getRequestURI().equals("/login/oauth2/code/kakao")) {
             filterChain.doFilter(request, response);
             return;
         }
