@@ -27,8 +27,8 @@ public class PrescriptionDrugEntity {
     private UserPrescriptionEntity prescriptionId;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
-    @JoinColumn(name = "item_name", referencedColumnName = "item_name")
-    private MedicationEntity medicationName;
+    @JoinColumn(name = "medication_id", referencedColumnName = "medication_id")
+    private MedicationEntity medication;
 
     @Column(nullable = false, name = "one_dose")
     private String oneDose;

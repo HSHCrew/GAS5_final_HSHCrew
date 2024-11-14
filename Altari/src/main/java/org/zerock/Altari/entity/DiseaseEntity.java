@@ -32,6 +32,9 @@ public class DiseaseEntity {
     @Column(name = "disease_name")
     private String diseaseName;
 
+    @Column(name = "disease_info")
+    private String diseaseInfo;
+
     @CreatedDate
     private LocalDateTime disease_created_at;
 

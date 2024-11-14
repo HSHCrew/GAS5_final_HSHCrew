@@ -20,7 +20,7 @@ public class OAuthController {
     // 해당 url로 get 요청 (YOUR_CLIENT_ID, redirect_uri 삽입 필요)-> https://kauth.kakao.com/oauth/authorize?client_id={YOUR_CLIENT_ID 앱키를 입력하세요}&response_type=code&redirect_uri={redirectURI를 입력하세요}
     // http://localhost:8080/login/oauth2/code/kakao?code=YOUR_AUTHORIZATION_CODE 해당 주소로 리디렉션
     // YOUR_AUTHORIZATION_CODE를 code 파라미터로 전달하며 호출
-        @PostMapping("/kakao/login")
+    @PostMapping("/kakao/login")
     public ResponseEntity<Map<String, String>> kakaoLogin(@RequestParam("code") String authorizationCode) {
         try {
             ResponseEntity<Map<String, String>> jwtToken = oAuthService.kakaoLogin(authorizationCode);

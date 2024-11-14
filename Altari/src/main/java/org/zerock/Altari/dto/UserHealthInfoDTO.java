@@ -25,7 +25,7 @@ public class UserHealthInfoDTO {
     private List<Integer> deletedDiseases;
     private List<Integer> deletedPastDiseases;
     private List<Integer> deletedFamilyDiseases;
-    private List<String> deletedAllergyMedications;
+    private List<Integer> deletedAllergyMedications;
 
 
 }

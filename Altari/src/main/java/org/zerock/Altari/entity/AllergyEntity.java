@@ -32,8 +32,8 @@ public class AllergyEntity {
     private UserProfileEntity userProfile;
 
     @ManyToOne
-    @JoinColumn(name = "item_name", referencedColumnName = "item_name")
-    private MedicationEntity medicationName;
+    @JoinColumn(name = "medication_id", referencedColumnName = "medication_id")
+    private MedicationEntity medication;
 
     @CreatedDate
     private LocalDateTime allergy_created_at;

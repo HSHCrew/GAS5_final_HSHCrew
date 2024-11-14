@@ -162,7 +162,7 @@ public class CodefTestService {
                     if (drugItemSeq != null) {
                         PrescriptionDrugEntity prescriptionDrug = new PrescriptionDrugEntity();
                         prescriptionDrug.setPrescriptionId(userPrescription);
-                        prescriptionDrug.setMedicationName(drugItemSeq);
+                        prescriptionDrug.setMedication(drugItemSeq);
                         prescriptionDrug.setOneDose(drugData.get("resOneDose").asText());
                         prescriptionDrug.setDailyDosesNumber(Integer.parseInt(drugData.get("resDailyDosesNumber").asText())); // dailyDosesNumber는 여전히 int로 받아야 하므로 Integer로 파싱
                         String drugTotalDosingDaysStr = drugData.get("resTotalDosingdays").asText();

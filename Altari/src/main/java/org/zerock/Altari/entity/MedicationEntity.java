@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "drug")
+@Table(name = "medication")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -19,8 +19,12 @@ import java.util.List;
 public class MedicationEntity {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "medication_id")
+    private Integer MedicationId;
+
     @Column(name = "item_seq", nullable = false, unique = true)
-    private String medicationId; // 품목기준코드
+    private String itemSeq; // 품목기준코드
 
 
     @Column(nullable = false, name = "result_code")
@@ -88,8 +92,8 @@ public class MedicationEntity {
     private LocalDateTime drug_updated_at;
 
 
-    public MedicationEntity(String medicationName) {
-        this.medicationName = medicationName;
+    public MedicationEntity(Integer medicationId) {
+        this.MedicationId = medicationId;
     }
 
 }

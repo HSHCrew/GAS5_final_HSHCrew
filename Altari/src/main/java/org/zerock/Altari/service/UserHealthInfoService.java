@@ -67,7 +67,7 @@ public class UserHealthInfoService {
                 .collect(Collectors.toList()));
 
         userHealthInfoDTO.setAllergyMedications(userAllergies.stream()
-                .map(AllergyEntity::getMedicationName) // Medication 전체를 반환
+                .map(AllergyEntity::getMedication) // Medication 전체를 반환
                 .collect(Collectors.toList()));
 
         return userHealthInfoDTO;
@@ -287,7 +287,7 @@ public class UserHealthInfoService {
 
 
             for (AllergyEntity currentAllergy : userAllergies) {
-                if (!inputMedicationIds.contains(currentAllergy.getMedicationName())) {
+                if (!inputMedicationIds.contains(currentAllergy.getMedication())) {
                     allergiesToRemove.add(currentAllergy);
                 }
             }
@@ -301,10 +301,10 @@ public class UserHealthInfoService {
 
 
             for (MedicationEntity medicationId : inputMedicationIds) {
-                if (userAllergies.stream().noneMatch(allergy -> allergy.getMedicationName().equals(medicationId))) {
+                if (userAllergies.stream().noneMatch(allergy -> allergy.getMedication().equals(medicationId))) {
                     AllergyEntity allergy = AllergyEntity.builder()
                             .userProfile(userProfileEntity)
-                            .medicationName(medicationRepository.findByMedicationName(medicationId.getMedicationName()))
+                            .medication(medicationRepository.findByMedicationName(medicationId.getMedicationName()))
                             .build();
                     newAllergyMedications.add(allergy);
                 }
