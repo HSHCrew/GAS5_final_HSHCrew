@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, UTC
 from pydantic import BaseModel, Field
 
 @dataclass(frozen=False)
@@ -11,7 +11,7 @@ class ProcessResult:
     summary: str = ""
     fewshots: str = ""
     failed: str = ""
-    processed_at: datetime = datetime.utcnow()
+    processed_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     
     @property
     def is_successful(self) -> bool:
