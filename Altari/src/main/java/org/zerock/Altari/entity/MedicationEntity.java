@@ -21,10 +21,13 @@ public class MedicationEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "medication_id")
-    private Integer MedicationId;
+    private Integer MedicationId; //
 
     @Column(name = "medication_code", nullable = false, unique = true)
     private String itemSeq; // 품목기준코드
+
+    @Column(name = "medication_promo_code", nullable = false, unique = true)
+    private String medicaitonPromoCode; // 대표코드
 
     @Column(name = "medication_item_dur")
     private String medicationItemDur; // 품목dur
@@ -41,6 +44,9 @@ public class MedicationEntity {
     @Column(name = "ingredient")
     private String ingredient; // 성분/함량
 
+    @Column(name = "additives")
+    private String additives; // 성분/함량
+
     @Lob
     @Column(name = "medication_efficacy_info", columnDefinition = "TEXT")
     private String medicationInfo; // 효능 문항
@@ -56,6 +62,10 @@ public class MedicationEntity {
     @Lob
     @Column(name = "medication_interaction_info", columnDefinition = "TEXT")
     private String interactionInfo; // 상호작용 문항
+
+    @Lob
+    @Column(name = "taking_info", columnDefinition = "TEXT")
+    private String takingInfo; // 복약정보 문항
 
     @Lob
     @Column(name = "medication_se_info", columnDefinition = "TEXT")

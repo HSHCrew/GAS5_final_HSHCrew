@@ -106,6 +106,11 @@ public class UserProfileService {
                 userProfileEntity.setDinnerMedicationTime(userProfileDTO.getDinnerMedicationTime());
 
             }
+
+            if (userProfileDTO.getProfileImage() != null) {
+                userProfileEntity.setProfileImage(userProfileDTO.getProfileImage());
+
+            }
                 // 나머지 필드도 유사하게 처리
                 // 필요에 따라 다른 필드도 업데이트
 
@@ -125,6 +130,7 @@ public class UserProfileService {
                     .dinnerMedicationTime(userProfileEntity.getDinnerMedicationTime())
                     .user_profile_created_at(userProfileEntity.getUser_profile_created_at())
                     .user_profile_updated_at(userProfileEntity.getUser_profile_updated_at())
+                    .profileImage(userProfileEntity.getProfileImage())
                     .build();
 
         } catch (Exception e) {
