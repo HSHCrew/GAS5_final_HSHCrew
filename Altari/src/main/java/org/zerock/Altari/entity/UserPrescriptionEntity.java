@@ -29,13 +29,13 @@ public class UserPrescriptionEntity {
     @Column(name = "user_prescription_id")
     private Integer userPrescriptionId;
 
-    @Column(name = "prescribe_no",unique = true)
+    @Column(name = "prescribe_no",unique = true, columnDefinition = "TEXT")
     private String prescribeNo;
 
-    @Column(name = "prescribe_org")
+    @Column(name = "prescribe_org", columnDefinition = "TEXT")
     private String prescribeOrg;
 
-    @Column(name = "comm_brand_name")
+    @Column(name = "comm_brand_name", columnDefinition = "TEXT")
     private String commBrandName;
 
     @Column(name = "manufacture_date")
@@ -47,10 +47,10 @@ public class UserPrescriptionEntity {
     @Column(name = "tel_no1")
     private String telNo2;
 
-    @Column(name = "prescription_info")
+    @Column(name = "prescription_info", columnDefinition = "TEXT")
     private String prescriptionInfo;
 
-    @Column(name = "ai_summary")
+    @Column(name = "ai_summary", columnDefinition = "TEXT")
     private String aiSummary;
 
     @Column(name = "is_taken")

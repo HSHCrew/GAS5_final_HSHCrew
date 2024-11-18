@@ -7,6 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.zerock.Altari.security.util.JWTUtil;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 @RestController
 @RequestMapping("/altari")
@@ -23,12 +25,13 @@ public class OAuthController {
     @PostMapping("/kakao/login")
     public ResponseEntity<Map<String, String>> kakaoLogin(@RequestParam("code") String authorizationCode) {
         try {
-            ResponseEntity<Map<String, String>> jwtToken = oAuthService.kakaoLogin(authorizationCode);
+            CompletableFuture<ResponseEntity<Map<String, String>>> jwtTokenFuture = oAuthService.kakaoLogin(authorizationCode);
+            ResponseEntity<Map<String, String>> jwtToken = jwtTokenFuture.get(); // 비동기 작업이 완료될 때까지 기다림
             Map<String, String> tokenMap = jwtToken.getBody();  // Map<String, String> 반환
             String accessToken = tokenMap.get("accessToken");
             String refreshToken = tokenMap.get("refreshToken");
             return ResponseEntity.ok(Map.of("accessToken", accessToken, "refreshToken", refreshToken));
-        } catch (Exception e) {
+        } catch (ExecutionException | InterruptedException e) {
             log.error("카카오 로그인 오류", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "카카오 로그인 실패"));
         }
