@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.zerock.Altari.dto.UserDTO;
 import org.zerock.Altari.entity.UserEntity;
 import org.zerock.Altari.entity.UserMedicationTimeEntity;
 import org.zerock.Altari.entity.UserProfileEntity;
@@ -14,6 +15,7 @@ import org.zerock.Altari.repository.UserMedicationTimeRepository;
 import org.zerock.Altari.repository.UserProfileRepository;
 import org.zerock.Altari.repository.UserRepository;
 import org.zerock.Altari.security.util.JWTUtil;
+import org.zerock.Altari.service.UserService;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,6 +28,7 @@ public class OAuthService {
 
     private final UserProfileRepository userProfileRepository;
     private final UserMedicationTimeRepository userMedicationTimeRepository;
+    private final UserService userService;
     @Value("${spring.security.oauth2.client.registration.kakao.redirect-uri}")
     public String kakao_redirect_uri;
     @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
@@ -87,13 +90,17 @@ public class OAuthService {
             }
 
 
-            // JWT 생성
-            Map<String, Object> claims = new HashMap<>();
-            claims.put("username", id);  // 'username' 클레임에 닉네임을 추가
+            UserDTO userDTOResult = userService.kakaoRead(id); //
 
-            // 기존 createToken 메서드 사용
-            String jwtToken = jwtUtil.createToken(claims, 60);
-            String refreshToken = jwtUtil.createToken(Map.of("username", userEntity), 60 * 24 * 30); //
+            log.info(userDTOResult);
+
+            String username = userDTOResult.getUsername(); //
+
+            Map<String, Object> dataMap = userDTOResult.getDataMap();
+
+            String jwtToken = jwtUtil.createToken(dataMap, 60);
+
+            String refreshToken = jwtUtil.createToken(Map.of("username", username), 60 * 24 * 30); //
 
             return ResponseEntity.ok(Map.of("accessToken", jwtToken, "refreshToken", refreshToken));
         } else {
@@ -108,7 +115,7 @@ public class OAuthService {
         // 카카오 API 요청에 필요한 파라미터
         String requestBody = "grant_type=authorization_code&"
                 + "client_id="+kakao_client_id+"&"  // 카카오 REST API 키
-                 + "redirect_uri="+kakao_redirect_uri+"&"  // 리다이렉트 URI
+                + "redirect_uri="+kakao_redirect_uri+"&"  // 리다이렉트 URI
                 + "code=" + authorizationCode;
 
         HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
