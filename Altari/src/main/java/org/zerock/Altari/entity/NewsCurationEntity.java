@@ -28,7 +28,7 @@ public class NewsCurationEntity {
     @JoinColumn(name = "medication_id")
     private MedicationEntity medication;
 
-    @Column(name = "news_content")
+    @Column(name = "news_content", columnDefinition = "TEXT")
     private String newsContent;
     @CreatedDate
     private LocalDateTime news_curation_created_at;
