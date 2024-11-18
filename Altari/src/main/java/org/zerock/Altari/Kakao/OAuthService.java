@@ -4,8 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.zerock.Altari.dto.UserDTO;
@@ -22,7 +20,6 @@ import org.zerock.Altari.service.UserService;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 
 @Service
 @RequiredArgsConstructor
@@ -32,7 +29,6 @@ public class OAuthService {
     private final UserProfileRepository userProfileRepository;
     private final UserMedicationTimeRepository userMedicationTimeRepository;
     private final UserService userService;
-    private final PasswordEncoder passwordEncoder;
     @Value("${spring.security.oauth2.client.registration.kakao.redirect-uri}")
     public String kakao_redirect_uri;
     @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
@@ -45,8 +41,7 @@ public class OAuthService {
     private static final String KAKAO_TOKEN_URL = "https://kauth.kakao.com/oauth/token";
     private static final String KAKAO_USERINFO_URL = "https://kapi.kakao.com/v2/user/me";
 
-    @Async
-    public CompletableFuture<ResponseEntity<Map<String, String>>> kakaoLogin(String authorizationCode) {
+    public ResponseEntity<Map<String, String>> kakaoLogin(String authorizationCode) {
         // Access Token 요청
         String accessToken = getAccessToken(authorizationCode);
 
@@ -67,33 +62,19 @@ public class OAuthService {
             Map<String, Object> userInfo = response.getBody();
             log.info("카카오 사용자 정보: " + userInfo);
 
-            // 프로필 정보 추출
+            // 사용자 ID 추출
             String id = userInfo.get("id").toString();
-            Map<String, Object> kakaoAccount = (Map<String, Object>) userInfo.get("kakao_account");
-            Map<String, Object> profile = (Map<String, Object>) kakaoAccount.get("profile");
-
-            String nickname = profile.get("nickname").toString();
-            String profileImageUrl = profile.get("profile_image_url").toString();
-            String email = kakaoAccount.get("email").toString();
-            int atIndex = email.indexOf('@');  // '@'의 인덱스 찾기
-            if (atIndex != -1) {  // '@'가 존재하면
-                email = email.substring(0, atIndex);  // '@' 앞부분만 추출
-            }
 //
-            String password = passwordEncoder.encode(id);
 //            // 사용자 정보가 DB에 있는지 확인하고 없으면 새로 저장
-            UserEntity userEntity = userRepository.findByUsername(email);
+            UserEntity userEntity = userRepository.findByUsername(id);
             if (userEntity == null) {
                 userEntity = UserEntity.builder()
-                        .username(email)
-                        .password(password)
+                        .username(id)
                         .build();
                 UserEntity user = userRepository.save(userEntity);
 
                 UserProfileEntity userProfile = UserProfileEntity.builder()
                         .username(user)
-                        .fullName(nickname)
-                        .profileImage(profileImageUrl)
                         .build();
                 userProfileRepository.save(userProfile);
 
@@ -109,7 +90,7 @@ public class OAuthService {
             }
 
 
-            UserDTO userDTOResult = userService.read(email, id); //
+            UserDTO userDTOResult = userService.kakaoRead(id); //
 
             log.info(userDTOResult);
 
@@ -121,8 +102,7 @@ public class OAuthService {
 
             String refreshToken = jwtUtil.createToken(Map.of("username", username), 60 * 24 * 30); //
 
-            return CompletableFuture.completedFuture(
-                    ResponseEntity.ok(Map.of("accessToken", jwtToken, "refreshToken", refreshToken)));
+            return ResponseEntity.ok(Map.of("accessToken", jwtToken, "refreshToken", refreshToken));
         } else {
             throw new RuntimeException("카카오 사용자 정보 조회 실패");
         }
@@ -135,7 +115,7 @@ public class OAuthService {
         // 카카오 API 요청에 필요한 파라미터
         String requestBody = "grant_type=authorization_code&"
                 + "client_id="+kakao_client_id+"&"  // 카카오 REST API 키
-                + "redirect_uri="+kakao_redirect_uri+"&"  // 리디렉트 URI
+                + "redirect_uri="+kakao_redirect_uri+"&"  // 리다이렉트 URI
                 + "code=" + authorizationCode;
 
         HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);

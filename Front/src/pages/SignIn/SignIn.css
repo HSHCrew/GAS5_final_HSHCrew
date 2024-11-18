@@ -247,3 +247,58 @@
   margin-right: 20px;
   margin-left: -20px;
 }
+
+/* Toastify 팝업 기본 스타일 */
+.Toastify__toast {
+  border-radius: 12px !important;
+  border: 1px solid #959595;
+  font-size: 1.2rem !important;
+  box-shadow: 0 6px 10px rgba(68, 192, 68, 0.2) !important; /* 초록 그림자 */
+  padding: 18px !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Toastify 성공 메시지 스타일 (흰색 배경 + 초록 테두리) */
+.Toastify__toast--success {
+  background: #ffffff !important; /* 흰색 배경 */
+  color: #388e3c !important; /* 초록 텍스트 */
+  border-left: 6px solid #388e3c !important; /* 초록 구분선 */
+  border-radius: 12px !important;
+}
+
+/* Toastify 에러 메시지 스타일 (흰색 배경 + 빨간 테두리) */
+.Toastify__toast--error {
+  background: #ffffff !important; /* 흰색 배경 */
+  color: #d32f2f !important; /* 빨간 텍스트 */
+  border-left: 6px solid #d32f2f !important; /* 빨간 구분선 */
+  border-radius: 12px !important;
+}
+
+/* Toastify 닫기 버튼 스타일 */
+.Toastify__close-button {
+  color: #388e3c !important; /* 초록 닫기 버튼 */
+  opacity: 0.8 !important;
+  font-size: 1.2rem !important;
+  margin-right: 8px;
+}
+
+.Toastify__close-button:hover {
+  opacity: 1 !important;
+}
+
+/* Toastify 팝업 텍스트 */
+.Toastify__toast-body {
+  font-weight: 500 !important;
+  letter-spacing: 0.5px !important;
+  line-height: 1.4 !important;
+}
+
+/* 반응형 크기 조정 */
+@media (max-width: 768px) {
+  .Toastify__toast {
+    font-size: 0.85rem !important;
+    padding: 12px !important;
+  }
+}

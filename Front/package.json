@@ -19,10 +19,11 @@
     "react-calendar": "^5.1.0",
     "react-dom": "^18.3.1",
     "react-markdown": "^9.0.1",
-    "react-progressbar": "^15.4.1",
+    "react-progressbar": "^1.2.0",
     "react-router-dom": "^6.27.0",
     "react-select": "^5.8.1",
     "react-swipeable": "^7.0.1",
+    "react-toastify": "^10.0.6",
     "react-transition-group": "^4.4.5",
     "styled-components": "^6.1.13",
     "uuid": "^11.0.2"
