@@ -1,0 +1,142 @@
+/* 전체 컨테이너 */
+.set-alarm-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start; /* 상단 정렬 */
+    width: 100%;
+    min-height: 100vh;
+    background-color: #f7f9fc;
+}
+
+/* 메인 박스 */
+.set-alarm-box {
+    width: 100%;
+    max-width: 600px;
+    background-color: white;
+    padding: 50px 25px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* 그림자 살짝 줄임 */
+}
+
+/* 시간 설정 행 */
+.alarm-time-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 0;
+    border-bottom: 1px solid #e5e8eb;
+    transition: background-color 0.3s ease;
+}
+
+.alarm-time-row:hover {
+    background-color: #f0f2f5; /* 호버 시 배경 강조 */
+}
+
+/* 아이콘 컨테이너 */
+.alarm-time-icon-container {
+    margin-left: 55px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    width: 120px;
+}
+
+.alarm-icon {
+    width: 50px;
+    height: 50px;
+}
+
+.alarm-label {
+    font-size: 24px;
+    font-weight: 600;
+    color: #333;
+}
+
+/* 시간 입력 필드 */
+.time-input {
+    margin-bottom: 10px;
+    margin-right: 40px;
+    width: 250px; /* 입력 필드 크기 확대 */
+    height: 40px;
+    font-size: 18px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 5px;
+    text-align: center;
+    background-color: #fafafa;
+    outline: none;
+    transition: all 0.3s ease;
+    font-family: 'Noto Sans KR', sans-serif
+}
+
+.time-input:focus {
+    border-color: #4caf50;
+    box-shadow: 0 0 8px rgba(76, 175, 80, 0.3);
+}
+
+/* 저장 버튼 */
+.update-button {
+    display: block;
+    width: 100%;
+    max-width: 300px;
+    margin: 30px auto 0;
+    padding: 15px;
+    font-size: 18px;
+    font-weight: bold;
+    color: white;
+    background-color: #4caf50;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.update-button:hover {
+    background-color: #43a047;
+    transform: translateY(-2px);
+}
+
+.update-button:active {
+    transform: translateY(0);
+}
+
+/* 헤더 */
+.set-alarm-header {
+    width: 100%;
+    max-width: 600px;
+    margin-bottom: 20px;
+}
+
+/* 로딩 텍스트 */
+.loading-text {
+    text-align: center;
+    font-size: 16px;
+    color: #757575;
+}
+
+/* 메시지 텍스트 */
+.error-message {
+    color: #d32f2f;
+    font-size: 16px;
+    text-align: center;
+}
+
+.success-message {
+    color: #388e3c;
+    font-size: 16px;
+    text-align: center;
+}
+
+/* 설명 문구 스타일 */
+.set-alarm-description {
+    font-size: 21px;
+    font-weight: bold;
+    color: #2ca462c6;
+    text-align: center;
+    margin-top: -10px;
+    margin-bottom: 30px;
+    padding: 0 20px;
+  }
+  
