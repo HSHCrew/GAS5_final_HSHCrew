@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import './SignIn.css'; 
+import './SignIn.css';
 import { useNavigate } from 'react-router-dom';
 import apiClient from '../../api/apiClient'; // apiRequest 대신 apiClient 사용
 
@@ -19,12 +19,13 @@ function SignIn() {
   const KAKAO_CLIENT_ID = "e8e345ebe8a751ac4562318628819200";
   const REDIRECT_URI = "http://localhost:3030/kakao/callback";
   const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${KAKAO_CLIENT_ID}&response_type=code&redirect_uri=${REDIRECT_URI}`;
-  
+
   useEffect(() => {
     const token = localStorage.getItem('token') || sessionStorage.getItem('token');
     if (token) {
       validateToken(token);
     }
+  }, [navigate]);
 
   const validateToken = async (token) => {
     try {
@@ -47,36 +48,36 @@ function SignIn() {
     setIsLoading(true);
 
     try {
-        const response = await apiClient.post('/altari/login', {
-            username,
-            password
-        });
+      const response = await apiClient.post('/altari/login', {
+        username,
+        password
+      });
 
-        const { accessToken, refreshToken } = response.data;
+      const { accessToken, refreshToken } = response.data;
 
-        if (accessToken && refreshToken) {
-            if (rememberMe) {
-                localStorage.setItem('token', accessToken);
-                localStorage.setItem('refreshToken', refreshToken);
-                localStorage.setItem('username', username);
-            } else {
-                sessionStorage.setItem('token', accessToken);
-                sessionStorage.setItem('refreshToken', refreshToken);
-                sessionStorage.setItem('username', username);
-            }
-            alert('로그인 성공!');
-            navigate('/home');
+      if (accessToken && refreshToken) {
+        if (rememberMe) {
+          localStorage.setItem('token', accessToken);
+          localStorage.setItem('refreshToken', refreshToken);
+          localStorage.setItem('username', username);
         } else {
-            setErrorMessage('로그인 실패: 올바른 아이디와 비밀번호를 입력해주세요.');
+          sessionStorage.setItem('token', accessToken);
+          sessionStorage.setItem('refreshToken', refreshToken);
+          sessionStorage.setItem('username', username);
         }
+        alert('로그인 성공!');
+        navigate('/home');
+      } else {
+        setErrorMessage('로그인 실패: 올바른 아이디와 비밀번호를 입력해주세요.');
+      }
     } catch (error) {
-        if (error.response && error.response.data && error.response.data.msg) {
-            setErrorMessage(error.response.data.msg);
-        } else {
-            setErrorMessage('로그인 실패: 서버 오류가 발생했습니다.');
-        }
+      if (error.response && error.response.data && error.response.data.msg) {
+        setErrorMessage(error.response.data.msg);
+      } else {
+        setErrorMessage('로그인 실패: 서버 오류가 발생했습니다.');
+      }
     } finally {
-        setIsLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -93,76 +94,76 @@ function SignIn() {
   };
 
   return (
-    <div className="signin-container">
-      <div className="signin-box">
-        <img src={altariLogo} alt="Logo" className="signin-logo" />
+      <div className="signin-container">
+        <div className="signin-box">
+          <img src={altariLogo} alt="Logo" className="signin-logo" />
 
-        <form className="signin-form" onSubmit={(e) => { e.preventDefault(); handleLogin(); }}>
-          <div className="signin-header">
-            <img src={lockerIcon} alt="Login icon" className="signin-icon" />
-            <p className="signin-title">로그인</p>
-          </div>
+          <form className="signin-form" onSubmit={(e) => { e.preventDefault(); handleLogin(); }}>
+            <div className="signin-header">
+              <img src={lockerIcon} alt="Login icon" className="signin-icon" />
+              <p className="signin-title">로그인</p>
+            </div>
 
-          <div className="signin-input-container">
-            <label htmlFor="username" className="hidden-label">아이디</label>
-            <input
-              type="text"
-              id="username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="아이디를 입력해주세요."
-              className="signin-input"
-            />
-          </div>
+            <div className="signin-input-container">
+              <label htmlFor="username" className="hidden-label">아이디</label>
+              <input
+                  type="text"
+                  id="username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="아이디를 입력해주세요."
+                  className="signin-input"
+              />
+            </div>
 
-          <div className="signin-input-container">
-            <label htmlFor="password" className="hidden-label">비밀번호</label>
-            <input
-              type={showPassword ? 'text' : 'password'}
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="비밀번호를 입력해주세요."
-              className="signin-input"
-            />
-            <button type="button" onClick={togglePasswordVisibility} className="toggle-password">
-              {showPassword ? '숨기기' : '보기'}
+            <div className="signin-input-container">
+              <label htmlFor="password" className="hidden-label">비밀번호</label>
+              <input
+                  type={showPassword ? 'text' : 'password'}
+                  id="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="비밀번호를 입력해주세요."
+                  className="signin-input"
+              />
+              <button type="button" onClick={togglePasswordVisibility} className="toggle-password">
+                {showPassword ? '숨기기' : '보기'}
+              </button>
+            </div>
+
+            <div className="remember-me-container">
+              <input
+                  type="checkbox"
+                  id="rememberMe"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="remember-me-checkbox"
+              />
+              <label htmlFor="rememberMe" className="remember-me-label">자동 로그인</label>
+            </div>
+
+            {errorMessage && <p className="error-message">{errorMessage}</p>}
+
+            <div className="signin-button-container">
+              <button type="submit" className="signin-button" disabled={isLoading}>
+                {isLoading ? '로그인 중...' : '로그인'}
+              </button>
+            </div>
+          </form>
+
+          <div className="signin-footer">
+            <button onClick={handleKakaoLogin} className="kakao-login-button">
+              <img src={kakaoTalk} alt="KakaoTalk Logo" className="kakao-icon" />
+              카카오 로그인
             </button>
+
+            <span>회원이 아니신가요? </span>
+            <a onClick={handleSignUp} className="signup-link" role="button">
+              회원가입
+            </a>
           </div>
-
-          <div className="remember-me-container">
-            <input
-              type="checkbox"
-              id="rememberMe"
-              checked={rememberMe}
-              onChange={(e) => setRememberMe(e.target.checked)}
-              className="remember-me-checkbox"
-            />
-            <label htmlFor="rememberMe" className="remember-me-label">자동 로그인</label>
-          </div>
-
-          {errorMessage && <p className="error-message">{errorMessage}</p>}
-
-          <div className="signin-button-container">
-            <button type="submit" className="signin-button" disabled={isLoading}>
-              {isLoading ? '로그인 중...' : '로그인'}
-            </button>
-          </div>
-        </form>
-
-        <div className="signin-footer">
-          <button onClick={handleKakaoLogin} className="kakao-login-button">
-            <img src={kakaoTalk} alt="KakaoTalk Logo" className="kakao-icon" />
-            카카오 로그인
-          </button>
-
-          <span>회원이 아니신가요? </span>
-          <a onClick={handleSignUp} className="signup-link" role="button">
-            회원가입
-          </a>
         </div>
       </div>
-    </div>
   );
 }
 
