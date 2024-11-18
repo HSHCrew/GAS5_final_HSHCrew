@@ -35,8 +35,11 @@ public class UserProfileEntity {
     @JoinColumn(name = "username", referencedColumnName = "username")
     private UserEntity username;
 
-    @Column(name = "full_name")
+    @Column(name = "full_name", columnDefinition = "TEXT")
     private String fullName;
+
+    @Column(name = "profile_image", columnDefinition = "TEXT")
+    private String profileImage;
 
     @Column(name = "date_of_birth")
     private LocalDate dateOfBirth;
@@ -75,10 +78,6 @@ public class UserProfileEntity {
     @OneToMany(mappedBy = "userProfile", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     private List<FamilyHistoryEntity> familyHistories = new ArrayList<>();
 
-    // 3. Keyword Registration 테이블 (user_profile이 참조하는 keyword_registration 테이블)
-    @OneToMany(mappedBy = "userProfile", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
-    private List<KeywordRegistrationEntity> keywordRegistrations = new ArrayList<>();
-
     // 6. User Disease 테이블 (user_profile이 참조하는 user_disease 테이블)
     @OneToMany(mappedBy = "userProfile", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     private List<UserDiseaseEntity> userDiseases = new ArrayList<>();
@@ -86,10 +85,6 @@ public class UserProfileEntity {
     // 7. User Past Disease 테이블 (user_profile이 참조하는 user_past_disease 테이블)
     @OneToMany(mappedBy = "userProfile", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     private List<UserPastDiseaseEntity> userPastDiseases = new ArrayList<>();
-
-    // 8. User Medication Info 테이블 (user_profile이 참조하는 user_medication_info 테이블)
-    @OneToMany(mappedBy = "userProfile", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
-    private List<UserMedicationInfoEntity> userMedicationInfos = new ArrayList<>();
 
     // 9. User Prescription 테이블 (user_profile이 참조하는 user_prescription 테이블)
     @OneToMany(mappedBy = "userProfile", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)

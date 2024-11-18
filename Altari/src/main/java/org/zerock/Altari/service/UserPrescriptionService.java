@@ -30,7 +30,7 @@ public class UserPrescriptionService {
     @Autowired
     private UserProfileRepository userProfileRepository;
     @Autowired
-    private PrescriptionDrugRepository prescriptionDrugRepository;
+    private UserMedicationRepository prescriptionDrugRepository;
     @Autowired
     private UserPrescriptionRepository userPrescriptionRepository;
     @Autowired
@@ -53,10 +53,10 @@ public class UserPrescriptionService {
 
             for (UserPrescriptionEntity userPrescription : userPrescriptions) {
                 // 각 처방전에 대해 약 리스트를 가져옵니다
-                List<PrescriptionDrugEntity> prescriptionDrugs = prescriptionDrugRepository.findByPrescriptionId(userPrescription);
+                List<UserMedicationEntity> prescriptionDrugs = prescriptionDrugRepository.findByPrescriptionId(userPrescription);
 
                 List<PrescriptionDrugDTO> prescriptionDrugDTOs = new ArrayList<>();
-                for (PrescriptionDrugEntity prescriptionDrug : prescriptionDrugs) {
+                for (UserMedicationEntity prescriptionDrug : prescriptionDrugs) {
                     PrescriptionDrugDTO prescriptionDrugDTO = PrescriptionDrugDTO.builder()
                             .dailyDosesNumber(prescriptionDrug.getDailyDosesNumber())
                             .medicationDirection(prescriptionDrug.getMedicationDirection())

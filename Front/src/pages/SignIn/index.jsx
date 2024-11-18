@@ -26,12 +26,6 @@ function SignIn() {
       validateToken(token);
     }
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const authorizationCode = urlParams.get('code');
-
-    if (authorizationCode) {
-      sendAuthorizationCode(authorizationCode);
-    }
   }, [navigate]);
 
   const validateToken = async (token) => {
@@ -49,28 +43,6 @@ function SignIn() {
     }
   };
 
-  const sendAuthorizationCode = async (authorizationCode) => {
-    try {
-      const response = await apiClient.post('/altari/kakao/login', {
-        code: authorizationCode
-      });
-
-      const { accessToken, refreshToken } = response.data;
-
-      if (rememberMe) {
-        localStorage.setItem('token', accessToken);
-        localStorage.setItem('refreshToken', refreshToken);
-      } else {
-        sessionStorage.setItem('token', accessToken);
-        sessionStorage.setItem('refreshToken', refreshToken);
-      }
-      
-      navigate('/home');
-    } catch (error) {
-      console.error('카카오 로그인 오류:', error);
-      setErrorMessage('카카오 로그인 실패: 서버 오류가 발생했습니다.');
-    }
-  };
 
   const handleLogin = async () => {
     setErrorMessage('');
