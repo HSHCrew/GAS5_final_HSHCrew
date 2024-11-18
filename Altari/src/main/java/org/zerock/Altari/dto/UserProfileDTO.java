@@ -20,7 +20,6 @@ public class UserProfileDTO {
 
     private Integer userProfileId;
     private String fullName;
-    private String profileImage;
     private LocalDate dateOfBirth;
     private String phoneNumber;
     private Float height;

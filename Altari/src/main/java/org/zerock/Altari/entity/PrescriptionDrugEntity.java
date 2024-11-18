@@ -9,18 +9,18 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "user_medication")
+@Table(name = "prescription_drug")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserMedicationEntity {
+public class PrescriptionDrugEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_medication_id")
-    private Integer UserMedicationId;
+    @Column(name = "prescription_drug_id")
+    private Integer prescriptionDrugId;
 
     @ManyToOne(fetch = FetchType.LAZY , cascade = CascadeType.REMOVE)
     @JoinColumn(name = "user_prescription_id", nullable = false)
@@ -48,7 +48,7 @@ public class UserMedicationEntity {
     @Column(name = "taken_dosage")
     private int takenDosage;
 
-    @Column(name = "medication_direction", columnDefinition = "TEXT")
+    @Column(name = "medication_direction")
     private String medicationDirection;
 
     @Column(name = "today_taken_count")
@@ -58,9 +58,9 @@ public class UserMedicationEntity {
     private LocalDate lastTakenDate; // 또는 Timestamp 타입으로 설정 가능
 
     @CreatedDate
-    private LocalDateTime user_medication_created_at;
+    private LocalDateTime prescription_drug_created_at;
     @LastModifiedDate
-    private LocalDateTime user_medication_updated_at;
+    private LocalDateTime prescription_drug_updated_at;
 
     public boolean canIncreaseTakenDosage() {
         // 오늘 날짜를 가져옵니다.

@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "medication_summary")
+@Table(name = "medication_summary_id")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -31,16 +31,16 @@ public class MedicationSummaryEntity {
     @JoinColumn(name = "medication_id", nullable = false)
     private MedicationEntity medication;
 
-    @Column(name = "restructured", columnDefinition = "TEXT")
+    @Column(name = "restructured")
     private String restructured;
 
-    @Column(name = "summary", columnDefinition = "TEXT")
+    @Column(name = "summary")
     private String summary;
 
-    @Column(name = "fewshots", columnDefinition = "TEXT")
+    @Column(name = "fewshots")
     private String fewshots;
 
-    @Column(name = "failed", columnDefinition = "TEXT")
+    @Column(name = "failed")
     private String failed;
 
     @Column(name = "medication_summary_created_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", updatable = false)

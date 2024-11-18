@@ -12,7 +12,7 @@ import org.springframework.web.client.RestTemplate;
 import org.zerock.Altari.Codef.EasyCodefToken;
 import org.zerock.Altari.entity.*;
 import org.zerock.Altari.repository.MedicationRepository;
-import org.zerock.Altari.repository.UserMedicationRepository;
+import org.zerock.Altari.repository.PrescriptionDrugRepository;
 import org.zerock.Altari.repository.UserPrescriptionRepository;
 
 import java.net.URLDecoder;
@@ -44,7 +44,7 @@ public class CodefTestService {
     @Autowired
     private MedicationRepository medicationRepository;
     @Autowired
-    private UserMedicationRepository prescriptionDrugRepository;
+    private PrescriptionDrugRepository prescriptionDrugRepository;
 
     @Transactional
     public String callApi(String identity,
@@ -160,7 +160,7 @@ public class CodefTestService {
                     MedicationEntity drugItemSeq = medicationRepository.findByMedicationName(drugCodeStr);  // String으로 비교
 
                     if (drugItemSeq != null) {
-                        UserMedicationEntity prescriptionDrug = new UserMedicationEntity();
+                        PrescriptionDrugEntity prescriptionDrug = new PrescriptionDrugEntity();
                         prescriptionDrug.setPrescriptionId(userPrescription);
                         prescriptionDrug.setMedication(drugItemSeq);
                         prescriptionDrug.setOneDose(drugData.get("resOneDose").asText());
@@ -189,8 +189,8 @@ public class CodefTestService {
                     userPrescription.setOnAlarm(false); // 지난 처방전이므로 알림 비활성화
 
                     // 처방전의 약물 리스트에 대해 taken_dosage를 total_dosage와 같게 설정
-                    List<UserMedicationEntity> prescriptionDrugs = prescriptionDrugRepository.findByPrescriptionId(userPrescription);
-                    for (UserMedicationEntity prescriptionDrug : prescriptionDrugs) {
+                    List<PrescriptionDrugEntity> prescriptionDrugs = prescriptionDrugRepository.findByPrescriptionId(userPrescription);
+                    for (PrescriptionDrugEntity prescriptionDrug : prescriptionDrugs) {
                         prescriptionDrug.setTakenDosingDays(prescriptionDrug.getTotalDosingDays());
                         prescriptionDrug.setTakenDosage(prescriptionDrug.getTotalDosage());
                         prescriptionDrugRepository.save(prescriptionDrug);
@@ -199,8 +199,8 @@ public class CodefTestService {
                     userPrescription.setIsTaken(false); // 복용 미완료
                     userPrescription.setOnAlarm(true);  // 복용 중이므로 알림 활성화
 
-                    List<UserMedicationEntity> prescriptionDrugs = prescriptionDrugRepository.findByPrescriptionId(userPrescription);
-                    for (UserMedicationEntity prescriptionDrug : prescriptionDrugs) {
+                    List<PrescriptionDrugEntity> prescriptionDrugs = prescriptionDrugRepository.findByPrescriptionId(userPrescription);
+                    for (PrescriptionDrugEntity prescriptionDrug : prescriptionDrugs) {
                         // 제조일로부터 경과된 일수 계산
                         long daysSinceManufacture = ChronoUnit.DAYS.between(prescriptionDrug.getPrescriptionId().getManufactureDate(), LocalDate.now());
 

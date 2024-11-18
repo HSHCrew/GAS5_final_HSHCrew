@@ -1,6 +1,8 @@
 package org.zerock.Altari.dto;
 
 import lombok.*;
+import org.zerock.Altari.entity.MedicationEntity;
+import org.zerock.Altari.entity.PrescriptionDrugEntity;
 import org.zerock.Altari.entity.UserProfileEntity;
 
 import java.time.LocalDate;
