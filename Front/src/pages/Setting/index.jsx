@@ -7,23 +7,29 @@ import userLogo from '../../assets/user.svg';
 
 function Setting() {
   const [profileName, setProfileName] = useState('');
+  const [profileImage, setProfileImage] = useState(userLogo); // 기본 이미지를 초기값으로 설정
   const username = localStorage.getItem('username') || sessionStorage.getItem('username');
 
   useEffect(() => {
     if (username) {
       fetchUserProfile();
     } else {
-      console.error("Username이 없습니다. 로그인 후 다시 시도하세요.");
+      console.error('Username이 없습니다. 로그인 후 다시 시도하세요.');
     }
   }, [username]);
 
   const fetchUserProfile = async () => {
     try {
-      // apiClient를 사용해 프로필 데이터 요청
+      // 프로필 데이터 요청
       const response = await apiClient.get(`/altari/getInfo/userProfile/${username}`);
       setProfileName(response.data.fullName || '');
+      
+      // 프로필 이미지 설정
+      if (response.data.profileImage) {
+        setProfileImage(response.data.profileImage);
+      }
     } catch (error) {
-      console.error("Failed to fetch user profile:", error);
+      console.error('Failed to fetch user profile:', error);
     }
   };
 
@@ -35,7 +41,8 @@ function Setting() {
         </div>
 
         <div className="profile-section">
-          <img src={userLogo} alt="Profile" className="profile-image" />
+          {/* 프로필 이미지 */}
+          <img src={profileImage} alt="Profile" className="profile-image" />
           <p className="profile-name">{profileName}</p>
           <Link to="/userInfo" className="profile-edit">
             개인정보 수정

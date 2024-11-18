@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import apiClient from '../../api/apiClient'; // axios 설정된 apiClient 불러오기
 import './style.css';
 
 function RegistrationPrescription() {
@@ -33,44 +34,26 @@ function RegistrationPrescription() {
             return;
         }
     
-        const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-        if (!token) {
-            setErrorMessage('로그인 토큰이 없습니다. 다시 로그인해주세요.');
-            console.warn('Authentication Error: 로그인 토큰이 없습니다.');
-            return;
-        }
-    
+        // 입력 데이터 정리
         const sanitizedData = {
             userName: formData.userName,
             identity: formData.identityFront + formData.identityBack,
-            phoneNo: formData.phoneNo.replace(/-/g, '')
+            phoneNo: formData.phoneNo.replace(/-/g, '') // 전화번호 포맷 제거
         };
     
-        console.log('Sending to /api/codef/first:', sanitizedData);
-    
         try {
-            const response = await fetch('http://localhost:8080/altari/prescriptions/enter-info', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(sanitizedData)
-            });
-    
-            if (response.ok) {
-                const result = await response.json();
-                setUserData(result.data);
-                setSuccessMessage('카카오톡 인증을 완료한 후 인증확인 버튼을 눌러주세요!');
-            } else {
-                const errorData = await response.json();
-                setErrorMessage(errorData.message || '인증에 실패했습니다.');
-            }
+            console.log('Sending to /altari/prescriptions/enter-info:', sanitizedData);
+
+            // API 호출
+            const response = await apiClient.post('/altari/prescriptions/enter-info', sanitizedData);
+
+            setUserData(response.data.data); // 응답 데이터 저장
+            setSuccessMessage('카카오톡 인증을 완료한 후 인증확인 버튼을 눌러주세요!');
         } catch (error) {
-            setErrorMessage('네트워크 오류가 발생했습니다.');
+            const errorMsg = error.response?.data?.message || '인증에 실패했습니다.';
+            setErrorMessage(errorMsg);
         }
     };
-    
 
     // 두 번째 API 호출: 인증 완료
     const handleCompleteAuthentication = async () => {
@@ -82,12 +65,7 @@ function RegistrationPrescription() {
         setSuccessMessage('');
         setErrorMessage('');
 
-        const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-        if (!token) {
-            setErrorMessage('인증 토큰이 없습니다. 다시 로그인해주세요.');
-            return;
-        }
-
+        // 두 번째 API 호출 데이터 구성
         const secondApiData = {
             is2Way: true,
             twoWayInfo: {
@@ -99,23 +77,17 @@ function RegistrationPrescription() {
         };
 
         try {
-            const response = await fetch('http://localhost:8080/altari/prescriptions/verify-auth', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(secondApiData)
-            });
+            // API 호출
+            const response = await apiClient.post('/altari/prescriptions/verify-auth', secondApiData);
 
-            if (response.ok) {
+            if (response.status === 200) {
                 setSuccessMessage('인증 완료가 성공적으로 완료되었습니다.');
             } else {
-                const errorText = await response.text();
-                setErrorMessage(`오류가 발생했습니다: ${errorText}`);
+                setErrorMessage(`오류가 발생했습니다: ${response.data.message}`);
             }
         } catch (error) {
-            setErrorMessage('네트워크 오류가 발생했습니다.');
+            const errorMsg = error.response?.data?.message || '네트워크 오류가 발생했습니다.';
+            setErrorMessage(errorMsg);
         }
     };
 
