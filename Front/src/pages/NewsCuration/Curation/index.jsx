@@ -9,10 +9,18 @@ const NewsCurationDetail = () => {
 
     const curationData = {
         1: { 
-            title: '건강한 식습관, 이렇게 시작하세요!', 
-            content: `새해 결심을 위한 건강한 식단 가이드입니다. 올바른 식습관은 건강한 삶을 유지하는 데 필수적입니다. 
-                      이 큐레이션에서는 신선한 채소와 과일의 중요성, 균형 잡힌 식단을 유지하는 방법, 정크 푸드 피하기 등을 포함한 
-                      다양한 건강한 식습관을 소개합니다.` 
+            title: '알코올 사용 장애 치료에서 GLP-1 약물의 가능성',
+            content: `
+                비만과 당뇨병 치료제인 GLP-1 계열 약물(세마글루타이드, 리라글루타이드)이 알코올 사용 장애(AUD) 치료에도 효과를 보였다는 연구 결과입니다.
+                
+                주요 발견:
+                - 세마글루타이드: 알코올 관련 입원 위험 36% 감소, 신체 질환 관련 입원 22% 감소.
+                - 리라글루타이드: 알코올 관련 입원 위험 28% 감소, 신체 질환 관련 입원 21% 감소.
+                - 기존 AUD 치료제인 날트렉손 대비 더 높은 효과를 보였습니다.
+                
+                이 연구는 AUD 치료에 새로운 가능성을 제시하며, 향후 추가 연구가 필요함을 강조합니다.
+            `,
+            url: 'https://jamanetwork.com/journals/jamapsychiatry/fullarticle/10.1001/jamapsychiatry.2024.3599'
         },
         2: { 
             title: '2024년 꼭 알아야 할 운동 트렌드', 
@@ -48,6 +56,11 @@ const NewsCurationDetail = () => {
             <div className="news-curation-detail">
                 <h2>{curation.title}</h2>
                 <p>{curation.content}</p>
+                {curation.url && (
+                    <a href={curation.url} target="_blank" rel="noopener noreferrer" className="news-curation-link">
+                        {curation.url}
+                    </a>
+                )}
             </div>
         </div>
     );
