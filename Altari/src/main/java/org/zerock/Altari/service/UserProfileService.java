@@ -47,6 +47,7 @@ public class UserProfileService {
                 .dinnerMedicationTime(userProfileEntity.getDinnerMedicationTime())
                 .user_profile_created_at(userProfileEntity.getUser_profile_created_at())
                 .user_profile_updated_at(userProfileEntity.getUser_profile_updated_at())
+                .profileImage(optionalUserProfile.get().getProfileImage())
                 .build();
 
     }

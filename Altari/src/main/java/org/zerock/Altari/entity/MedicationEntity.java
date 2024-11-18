@@ -27,7 +27,7 @@ public class MedicationEntity {
     private String itemSeq; // 품목기준코드
 
     @Column(name = "medication_item_dur")
-    private String medicationItemDur; // 품목기준코드
+    private String medicationItemDur; // 품목dur
 
     @Column(name = "medication_brand_name")
     private String entpName; // 업체명
@@ -35,6 +35,11 @@ public class MedicationEntity {
     @Column(name = "medication_name", unique = true)
     private String medicationName; // 제품명
 
+    @Column(name = "ingredient_code")
+    private String ingredientCode; // 주성분 코드
+
+    @Column(name = "ingredient")
+    private String ingredient; // 성분/함량
 
     @Lob
     @Column(name = "medication_efficacy_info", columnDefinition = "TEXT")
