@@ -62,6 +62,10 @@ public class OAuthService {
             Map<String, Object> userInfo = response.getBody();
             log.info("카카오 사용자 정보: " + userInfo);
 
+<<<<<<< HEAD
+=======
+            // 사용자 ID 추출
+>>>>>>> parent of e6c89e5 (일부 테이블 추가)
             String id = userInfo.get("id").toString();
 //
 //            // 사용자 정보가 DB에 있는지 확인하고 없으면 새로 저장
