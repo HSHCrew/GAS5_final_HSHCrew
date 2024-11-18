@@ -25,11 +25,6 @@ function SignIn() {
     if (token) {
       validateToken(token);
     }
-<<<<<<< HEAD
-=======
-
->>>>>>> e6c89e5e8e0552a37fb50fc6fd6d19e0b1b76c64
-  }, [navigate]);
 
   const validateToken = async (token) => {
     try {
