@@ -67,7 +67,6 @@ public class OAuthService {
             Map<String, Object> userInfo = response.getBody();
             log.info("카카오 사용자 정보: " + userInfo);
 
-
             // 프로필 정보 추출
             String id = userInfo.get("id").toString();
             Map<String, Object> kakaoAccount = (Map<String, Object>) userInfo.get("kakao_account");
