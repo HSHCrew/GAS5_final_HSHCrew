@@ -24,40 +24,44 @@ public class MedicationEntity {
     private Integer MedicationId; //
 
     @Column(name = "medication_code", nullable = false, unique = true)
-    private String itemSeq; // 품목기준코드
+    private String itemSeq; // 대표코드
 
-    @Column(name = "medication_promo_code", nullable = false, unique = true)
-    private String medicaitonPromoCode; // 대표코드
+    @Column(name = "medication_item_standard_code", nullable = false, unique = true)
+    private String medicaitonItemStandardCode; // 품목기준코드
 
     @Column(name = "medication_item_dur")
     private String medicationItemDur; // 품목dur
 
-    @Column(name = "medication_brand_name")
+    @Column(name = "medication_brand_name", columnDefinition = "TEXT")
     private String entpName; // 업체명
 
-    @Column(name = "medication_name", unique = true)
+    @Column(name = "medication_name", unique = true, columnDefinition = "TEXT")
     private String medicationName; // 제품명
 
     @Column(name = "ingredient_code")
     private String ingredientCode; // 주성분 코드
 
-    @Column(name = "ingredient")
+    @Column(name = "ingredient", columnDefinition = "TEXT")
     private String ingredient; // 성분/함량
 
-    @Column(name = "additives")
-    private String additives; // 성분/함량
+    @Column(name = "additives", columnDefinition = "TEXT")
+    private String additives; // 첨가제
 
     @Lob
     @Column(name = "medication_efficacy_info", columnDefinition = "TEXT")
     private String medicationInfo; // 효능 문항
 
     @Lob
-    @Column(name = "medication_use_info")
+    @Column(name = "medication_use_info", columnDefinition = "TEXT")
     private String useMethodQesitm; // 사용법 문항
 
     @Lob
     @Column(name = "medication_caution_info", columnDefinition = "TEXT")
     private String atpnQesitm; // 주의사항 문항
+
+    @Lob
+    @Column(name = "medication_caution_warning_info", columnDefinition = "TEXT")
+    private String medicationCautionWarningInfo; // 주의사항 경고 문항
 
     @Lob
     @Column(name = "medication_interaction_info", columnDefinition = "TEXT")
