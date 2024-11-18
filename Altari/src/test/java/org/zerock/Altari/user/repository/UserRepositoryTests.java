@@ -41,21 +41,6 @@ public class UserRepositoryTests {
         }
     }
 
-    @Test
-    public void testInsertMedication() {
-
-        for (int i = 4; i <= 14; i++) {
-            // 테스트 데이터 추가
-            MedicationEntity medicationEntity = MedicationEntity.builder()
-                    .medicationId(Integer.toString(i))
-                    .medicationName("타이레놀")
-                    .build();
-
-            medicationRepository.save(medicationEntity);
-        }
-
-    }
-
 //}
     @Test
     public void testInsertUser() {

@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 public class MedicationDTO {
 
 
-    private Integer MedicationId;
+    private Integer medicationId;
     private String itemSeq; // 품목기준코드
     private String resultCode; // 결과코드
     private String resultMsg; // 결과메시지

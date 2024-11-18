@@ -21,7 +21,7 @@ public class MedicationEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "medication_id")
-    private Integer MedicationId; //
+    private Integer medicationId; //
 
     @Column(name = "medication_code", nullable = false, unique = true)
     private String itemSeq; // 대표코드
@@ -95,7 +95,7 @@ public class MedicationEntity {
 
 
     public MedicationEntity(Integer medicationId) {
-        this.MedicationId = medicationId;
+        this.medicationId = medicationId;
     }
 
 }
