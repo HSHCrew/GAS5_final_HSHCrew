@@ -88,6 +88,7 @@ public class OAuthService {
                 userEntity = UserEntity.builder()
                         .username(email)
                         .password(password)
+                        .role("USER")
                         .build();
                 UserEntity user = userRepository.save(userEntity);
 
