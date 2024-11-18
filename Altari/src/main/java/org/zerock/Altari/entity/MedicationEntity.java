@@ -9,6 +9,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
+
 @Entity
 @Table(name = "medication")
 @Getter
@@ -97,5 +99,16 @@ public class MedicationEntity {
     public MedicationEntity(Integer medicationId) {
         this.medicationId = medicationId;
     }
+
+    @Override
+    public String toString() {
+        return "MedicationEntity{" +
+                "id=" + medicationId +
+                ", name='" + medicationName + '\'' +
+                ", dosage='" + medicationInfo + '\'' +
+                // 다른 속성들 추가
+                '}';
+    }
+
 
 }

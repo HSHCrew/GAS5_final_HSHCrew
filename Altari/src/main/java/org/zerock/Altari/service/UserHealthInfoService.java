@@ -215,7 +215,6 @@ public class UserHealthInfoService {
         try {
 
             UserProfileEntity userProfileEntity = userProfileRepository.findByUsername(username);
-
             List<DiseaseEntity> inputFamilyDiseaseIds = userHealthInfoDTO.getFamilyDiseases();
 
             List<FamilyHistoryEntity> userFamilyDiseases = familyHistoryRepository.findByUserProfile(userProfileEntity);
@@ -262,64 +261,68 @@ public class UserHealthInfoService {
     }
 
     @Transactional
-    public String updateUserAllergy(UserEntity username,
-                                       UserHealthInfoDTO userHealthInfoDTO) {
-
-
-        // 사용자 프로필 조회
-        Optional<UserProfileEntity> optionalUserProfile = Optional.ofNullable(userProfileRepository.findByUsername(username));
-        if (optionalUserProfile.isEmpty()) {
-            throw UserExceptions.NOT_FOUND.get();
-        }
-
-
+    public String updateUserAllergy(UserEntity username, UserHealthInfoDTO userHealthInfoDTO) {
         try {
-
+            // 사용자 프로필 조회
             UserProfileEntity userProfileEntity = userProfileRepository.findByUsername(username);
+            if (userProfileEntity == null) {
+                throw new RuntimeException("User profile not found for username: " + username);
+            }
 
-            List<MedicationEntity> inputMedicationIds = userHealthInfoDTO.getAllergyMedications();
+            List<MedicationEntity> inputAllergyMedicationsIds = userHealthInfoDTO.getAllergyMedications();
 
-            List<AllergyEntity> userAllergies = allergyRepository.findByUserProfile(userProfileEntity);
+            // 현재 사용자의 알레르기 목록 조회
+            List<AllergyEntity> userAllergyMedications = allergyRepository.findByUserProfile(userProfileEntity);
 
-// 현재 질병 테이블에서 제거해야 할 질병 ID 목록
-            List<AllergyEntity> allergiesToRemove = new ArrayList<>();
+            // 현재 질병 테이블에서 제거해야 할 질병 ID 목록
+            List<AllergyEntity> allergyMedicationsToRemove = new ArrayList<>();
 
-
-
-            for (AllergyEntity currentAllergy : userAllergies) {
-                if (!inputMedicationIds.contains(currentAllergy.getMedication())) {
-                    allergiesToRemove.add(currentAllergy);
+            for (AllergyEntity currentAllergyMedication : userAllergyMedications) {
+                MedicationEntity currentMedication = currentAllergyMedication.getMedication();
+                if (currentMedication != null && !inputAllergyMedicationsIds.contains(currentMedication)) {
+                    allergyMedicationsToRemove.add(currentAllergyMedication);
                 }
             }
-            for (AllergyEntity diseaseToRemove : allergiesToRemove) {
-                diseaseToRemove.setUserProfile(null); // `user_profile_id`를 null로 설정
-            }
-            allergyRepository.deleteAll(allergiesToRemove);
 
-// 새로운 질병 ID 추가
+            for (AllergyEntity medicationToRemove : allergyMedicationsToRemove) {
+                medicationToRemove.setUserProfile(null); // `user_profile_id`를 null로 설정
+            }
+            allergyRepository.deleteAll(allergyMedicationsToRemove);
+
+            // 알레르기 목록에서 제거할 항목을 삭제
+            if (!allergyMedicationsToRemove.isEmpty()) {
+                allergyRepository.deleteAll(allergyMedicationsToRemove);
+            }
+
+
+            // 새로운 질병 ID 추가
             List<AllergyEntity> newAllergyMedications = new ArrayList<>();
 
-
-            for (MedicationEntity medicationId : inputMedicationIds) {
-                if (userAllergies.stream().noneMatch(allergy -> allergy.getMedication().equals(medicationId))) {
-                    AllergyEntity allergy = AllergyEntity.builder()
+            for (MedicationEntity inputMedication : inputAllergyMedicationsIds) {
+                if (inputMedication != null && userAllergyMedications.stream()
+                        .noneMatch(existingAllergy -> existingAllergy.getMedication() != null
+                                && existingAllergy.getMedication().getMedicationId().equals(inputMedication.getMedicationId()))) {
+                    AllergyEntity newAllergyMedication = AllergyEntity.builder()
                             .userProfile(userProfileEntity)
-                            .medication(medicationRepository.findByMedicationName(medicationId.getMedicationName()))
+                            .medication(inputMedication)
                             .build();
-                    newAllergyMedications.add(allergy);
+                    newAllergyMedications.add(newAllergyMedication);
                 }
             }
 
-            allergyRepository.saveAll(newAllergyMedications);
+            // 새로운 알레르기 데이터를 저장
+            if (!newAllergyMedications.isEmpty()) {
+                allergyRepository.saveAll(newAllergyMedications);
+            }
 
-            return "UserAllergy info updated successfully";
-
+            return "User allergy information updated successfully";
 
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Error occurred while updating user allergy information: " + e.getMessage(), e);
         }
-
     }
+
+
 
 
 }
