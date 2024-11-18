@@ -1,5 +1,6 @@
 package org.zerock.Altari.service;
 
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -27,7 +28,7 @@ public class MedicationAlarmService {
     private UserPrescriptionRepository userPrescriptionRepository;
 
     @Autowired
-    private UserMedicationRepository prescriptionDrugRepository;
+    private PrescriptionDrugRepository prescriptionDrugRepository;
 
     @Autowired
     private TaskScheduler taskScheduler;
@@ -53,11 +54,11 @@ public class MedicationAlarmService {
         List<UserPrescriptionEntity> prescriptions = userPrescriptionRepository.findAll();
 
         for (UserPrescriptionEntity prescription : prescriptions) {
-            List<UserMedicationEntity> drugs = prescriptionDrugRepository.findByPrescriptionId(prescription);
+            List<PrescriptionDrugEntity> drugs = prescriptionDrugRepository.findByPrescriptionId(prescription);
 
             boolean allDrugsCompleted = true; // 모든 약의 taken_dosing_days가 total_dosing_days와 같은지 확인
 
-            for (UserMedicationEntity drug : drugs) {
+            for (PrescriptionDrugEntity drug : drugs) {
                 // taken_dosing_days가 total_dosing_days보다 작으면 하루 증가
                 if (drug.getTakenDosingDays() < drug.getTotalDosingDays()) {
                     drug.setTakenDosingDays(drug.getTotalDosingDays() + 1);
@@ -183,11 +184,11 @@ public class MedicationAlarmService {
 
         for (UserPrescriptionEntity prescription : activePrescriptions) {
 
-            List<UserMedicationEntity> prescriptionDrugs = prescriptionDrugRepository.findByPrescriptionId(prescription);
+            List<PrescriptionDrugEntity> prescriptionDrugs = prescriptionDrugRepository.findByPrescriptionId(prescription);
 
             boolean allDrugsTaken = true; // 모든 약물이 복용 완료된 상태인지 여부를 추적
 
-            for (UserMedicationEntity prescriptionDrug : prescriptionDrugs) {
+            for (PrescriptionDrugEntity prescriptionDrug : prescriptionDrugs) {
                 if (prescriptionDrug.getTodayTakenCount() < prescriptionDrug.getDailyDosesNumber()) {
                     prescriptionDrug.setTodayTakenCount(prescriptionDrug.getTodayTakenCount() + 1);
                     prescriptionDrug.setTakenDosage(prescriptionDrug.getTakenDosage() + 1);
@@ -215,8 +216,8 @@ public class MedicationAlarmService {
 
     @Scheduled(cron = "0 0 0 * * ?") // 매일 자정
     public void resetTodayTakenCount() {
-        List<UserMedicationEntity> allDrugs = prescriptionDrugRepository.findAll();
-        for (UserMedicationEntity drug : allDrugs) {
+        List<PrescriptionDrugEntity> allDrugs = prescriptionDrugRepository.findAll();
+        for (PrescriptionDrugEntity drug : allDrugs) {
             drug.setTodayTakenCount(0); // 오늘 복용한 횟수 초기화
             prescriptionDrugRepository.save(drug);
         }
@@ -236,9 +237,9 @@ public class MedicationAlarmService {
         // is_taken이 false인 처방전 내 모든 약물에 대해 최대 하루 복용 횟수와 총 복용 일수 설정
         for (UserPrescriptionEntity prescription : activePrescriptions) {
             if (prescription.getOnAlarm()) {
-            List<UserMedicationEntity> prescriptionDrugs = prescriptionDrugRepository.findByPrescriptionId(prescription);
+            List<PrescriptionDrugEntity> prescriptionDrugs = prescriptionDrugRepository.findByPrescriptionId(prescription);
 
-            for (UserMedicationEntity prescriptionDrug : prescriptionDrugs) {
+            for (PrescriptionDrugEntity prescriptionDrug : prescriptionDrugs) {
                 // 현재 약물의 총 복용 횟수와 지금까지 복용한 횟수를 비교
                 if (prescriptionDrug.getTakenDosage() < prescriptionDrug.getTotalDosage()) {
                     // 아직 복용이 끝나지 않은 약물만 고려하여 최대 하루 복용 횟수와 총 복용 일수 갱신
@@ -295,8 +296,8 @@ public class MedicationAlarmService {
             int totalTaken = 0;
             int totalRequired = 0;
 
-            List<UserMedicationEntity> medications = prescriptionDrugRepository.findByPrescriptionId(prescription);
-            for (UserMedicationEntity medication : medications) {
+            List<PrescriptionDrugEntity> medications = prescriptionDrugRepository.findByPrescriptionId(prescription);
+            for (PrescriptionDrugEntity medication : medications) {
                 totalTaken += medication.getTakenDosage();
                 totalRequired += medication.getTotalDosage();
             }

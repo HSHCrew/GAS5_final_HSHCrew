@@ -9,7 +9,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "news_curation")
+@Table(name = "keyword_registration")
 @Getter
 @Setter
 @ToString
@@ -17,24 +17,18 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 @EntityListeners(AuditingEntityListener.class)
-public class NewsCurationEntity {
+public class KeywordRegistrationEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "news_curation_id")
-    private Integer newsCurationId;
-
+    @Column(name = "keyword_registration_id")
+    private Integer keywordRegistrationId;
     @ManyToOne(cascade = CascadeType.REMOVE)
-    @JoinColumn(name = "medication_id")
-    private MedicationEntity medication;
+    @JoinColumn(name = "user_profile_id")
+    private UserProfileEntity userProfile;
 
-    @Column(name = "news_content")
-    private String newsContent;
     @CreatedDate
-    private LocalDateTime news_curation_created_at;
-
+    private LocalDateTime keyword_registration_created_at;
     @LastModifiedDate
-    private LocalDateTime news_curation_updated_at;
-
-
+    private LocalDateTime keyword_registration_updated_at;
 }

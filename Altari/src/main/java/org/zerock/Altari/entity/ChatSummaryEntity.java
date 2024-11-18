@@ -29,9 +29,9 @@ public class ChatSummaryEntity {
     private UserProfileEntity userProfile;
 
     @Column(name = "chat_date")
-    private LocalDateTime chatDate;
+    private String chatDate;
 
-    @Column(name = "summary_content", columnDefinition = "TEXT")
+    @Column(name = "summary_content")
     private String summaryContent;
 
     @CreatedDate

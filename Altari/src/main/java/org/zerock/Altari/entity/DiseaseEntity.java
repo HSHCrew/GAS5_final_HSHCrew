@@ -29,10 +29,10 @@ public class DiseaseEntity {
     @Column(name = "disease_code")
     private String diseaseCode;
 
-    @Column(name = "disease_name", columnDefinition = "TEXT")
+    @Column(name = "disease_name")
     private String diseaseName;
 
-    @Column(name = "disease_info", columnDefinition = "TEXT")
+    @Column(name = "disease_info")
     private String diseaseInfo;
 
     @CreatedDate
