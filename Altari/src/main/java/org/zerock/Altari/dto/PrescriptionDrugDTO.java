@@ -17,7 +17,7 @@ public class PrescriptionDrugDTO {
 
     private Integer prescriptionDrugId;
     private Integer prescriptionId;
-    private MedicationEntity MedicationId;
+    private MedicationEntity Medication;
     private String oneDose;
     private int dailyDosesNumber;
     private int takenDosingDays;
