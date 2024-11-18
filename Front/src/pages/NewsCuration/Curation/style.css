@@ -67,19 +67,3 @@
     font-family: Arial, sans-serif;
     line-height: 1.6;
 }
-
-/* 하단 URL 링크 스타일 */
-.news-curation-link {
-    display: inline-block;
-    font-size: 16px;
-    color: #357e85;
-    text-decoration: underline;
-    margin-top: 20px;
-    word-break: break-all; /* 긴 URL이 줄 바꿈되도록 설정 */
-    transition: color 0.3s ease;
-}
-
-.news-curation-link:hover {
-    color: #2c3e50; /* 호버 시 색상 변화 */
-    text-decoration: none; /* 호버 시 밑줄 제거 */
-}

@@ -31,43 +31,46 @@ apiClient.interceptors.response.use(
       originalRequest._retry = true;
       const refreshToken = localStorage.getItem('refreshToken') || sessionStorage.getItem('refreshToken');
       const username = localStorage.getItem('username') || sessionStorage.getItem('username');
-    
+
       if (!refreshToken || !username) {
         console.error('리프레시 토큰 또는 사용자 이름이 없습니다.');
-        window.location.href = "/signIn"; // 로그인 페이지로 리디렉션
         return Promise.reject(error);
       }
-    
+
       try {
+        // 리프레시 API 호출
         const response = await axios.post('http://localhost:8080/altari/refresh', {
           refreshToken,
           username,
         });
-    
-        const { accessToken, refreshToken: newRefreshToken } = response.data;
-    
-        if (accessToken) {
-          // 새 토큰 저장
-          localStorage.setItem('token', accessToken);
-          sessionStorage.setItem('token', accessToken);
-    
+
+        const newAccessToken = response.data.accessToken;
+        const newRefreshToken = response.data.refreshToken;
+
+        // 새 토큰 저장
+        if (newAccessToken) {
+          localStorage.setItem('token', newAccessToken);
+          sessionStorage.setItem('token', newAccessToken);
+
           if (newRefreshToken) {
             localStorage.setItem('refreshToken', newRefreshToken);
             sessionStorage.setItem('refreshToken', newRefreshToken);
           }
-    
-          originalRequest.headers.Authorization = `Bearer ${accessToken}`;
-          return apiClient(originalRequest); // 재요청
+
+          // 실패했던 요청에 새 토큰으로 재시도
+          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+          return apiClient(originalRequest);
         } else {
-          console.error('새로운 액세스 토큰을 받지 못했습니다.');
+          throw new Error('새로운 액세스 토큰을 받지 못했습니다.');
         }
       } catch (refreshError) {
-        console.error('리프레시 토큰 갱신 실패:', refreshError.response?.data || refreshError.message);
+        console.error('리프레시 토큰 갱신 실패:', refreshError);
+        localStorage.clear();
+        sessionStorage.clear();
         window.location.href = "/signIn"; // 로그인 페이지로 리디렉션
         return Promise.reject(refreshError);
       }
     }
-    
     return Promise.reject(error);
   }
 );
