@@ -19,6 +19,7 @@ import org.zerock.Altari.repository.UserRepository;
 import org.zerock.Altari.security.util.JWTUtil;
 import org.zerock.Altari.service.UserService;
 
+import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -76,10 +77,6 @@ public class OAuthService {
             String nickname = profile.get("nickname").toString();
             String profileImageUrl = profile.get("profile_image_url").toString();
             String email = kakaoAccount.get("email").toString();
-            int atIndex = email.indexOf('@');  // '@'의 인덱스 찾기
-            if (atIndex != -1) {  // '@'가 존재하면
-                email = email.substring(0, atIndex);  // '@' 앞부분만 추출
-            }
 //
             String password = passwordEncoder.encode(id);
 //            // 사용자 정보가 DB에 있는지 확인하고 없으면 새로 저장
@@ -96,7 +93,11 @@ public class OAuthService {
                         .username(user)
                         .fullName(nickname)
                         .profileImage(profileImageUrl)
+                        .morningMedicationTime(LocalTime.parse("10:00"))
+                        .lunchMedicationTime(LocalTime.parse("14:00"))
+                        .dinnerMedicationTime(LocalTime.parse("19:00"))
                         .build();
+
                 userProfileRepository.save(userProfile);
 
                 UserMedicationTimeEntity userMedicationTime = UserMedicationTimeEntity.builder()

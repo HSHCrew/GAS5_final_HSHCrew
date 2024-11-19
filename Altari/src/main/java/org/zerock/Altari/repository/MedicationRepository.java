@@ -9,6 +9,6 @@ import java.util.List;
 @Repository
 public interface MedicationRepository extends JpaRepository<MedicationEntity, String> {
     MedicationEntity findByMedicationName(String itemSeq);
-    MedicationEntity findByMedicationId(MedicationEntity medication);
+    MedicationEntity findByMedicationId(Integer medication);
     List<MedicationEntity> findAllByMedicationNameIn(List<String> medicationNames);
 }

@@ -70,6 +70,11 @@ public class UserProfileEntity {
     @LastModifiedDate
     private LocalDateTime user_profile_updated_at;
 
+
+    // 9. User Prescription 테이블 (user_profile이 참조하는 user_prescription 테이블)
+    @OneToMany(mappedBy = "userProfile", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    private List<UserPrescriptionEntity> userPrescriptions = new ArrayList<>();
+
     // 1. Allergy 테이블 (user_profile이 참조하는 allergy 테이블)
     @OneToMany(mappedBy = "userProfile", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     private List<AllergyEntity> allergies = new ArrayList<>();
@@ -86,13 +91,12 @@ public class UserProfileEntity {
     @OneToMany(mappedBy = "userProfile", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     private List<UserPastDiseaseEntity> userPastDiseases = new ArrayList<>();
 
-    // 9. User Prescription 테이블 (user_profile이 참조하는 user_prescription 테이블)
-    @OneToMany(mappedBy = "userProfile", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
-    private List<UserPrescriptionEntity> userPrescriptions = new ArrayList<>();
-
     @OneToMany(mappedBy = "userProfile", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     private List<UserMedicationTimeEntity> userMedicationTimes = new ArrayList<>();
 
+    // 2. Family History 테이블 (user_profile이 참조하는 family_history 테이블)
+    @OneToMany(mappedBy = "userProfile", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    private List<UserMedicationEntity> userMedications = new ArrayList<>();
 }
 
 

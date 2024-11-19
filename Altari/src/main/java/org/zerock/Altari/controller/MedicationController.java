@@ -10,13 +10,17 @@ import org.zerock.Altari.entity.MedicationEntity;
 import org.zerock.Altari.entity.UserEntity;
 import org.zerock.Altari.entity.UserMedicationTimeEntity;
 import org.zerock.Altari.exception.EntityNotFoundException;
+import org.zerock.Altari.exception.EntityNotMatchedException;
 import org.zerock.Altari.repository.MedicationRepository;
+import org.zerock.Altari.security.util.JWTUtil;
 import org.zerock.Altari.service.MedicationAlarmService;
 import org.zerock.Altari.service.UserMedicationTimeService;
 
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
 
 @RestController
 @RequestMapping("/altari")
@@ -27,6 +31,7 @@ public class MedicationController {
     private final MedicationRepository medicationRepository;
     private final MedicationAlarmService medicationAlarmService;
     private final UserMedicationTimeService userMedicationTimeService;
+    private final JWTUtil jWTUtil;
 
     @GetMapping("/drug/list")
     public List<MedicationEntity> getAllDrugs() {
@@ -37,10 +42,28 @@ public class MedicationController {
         return drugs;
     }
 
-    @PostMapping("/confirm/{username}")
-    public ResponseEntity<String> confirmMedication(@PathVariable String username) {
+    @GetMapping("/drug-info/{medicationId}")
+    public MedicationEntity getDrugInfo(@PathVariable Integer medicationId) {
+        MedicationEntity medication = medicationRepository.findByMedicationId(medicationId);
+        if (medication == null) {
+            throw new EntityNotFoundException("No medications found in the database");
+        }
+        return medication;
+    }
 
+    @PostMapping("/confirm/{username}")
+    public ResponseEntity<String> confirmMedication(@PathVariable String username,
+                                                    @RequestHeader("Authorization") String accessToken) throws UnsupportedEncodingException {
+
+        UserEntity userToken = jWTUtil.getUsernameFromToken(accessToken);
         UserEntity user = new UserEntity(username);
+        String tokenUsername = userToken.getUsername();
+        String entityUsername = user.getUsername();
+
+        // 3. userToken과 user가 다르면 예외 처리
+        if (!tokenUsername.equals(entityUsername)) {
+            throw new EntityNotMatchedException("권한이 없습니다.");
+        }
         try {
             medicationAlarmService.confirmMedication(user); // 복용 확인 메서드 호출
             return ResponseEntity.ok("약 복용이 확인되었습니다.");
@@ -51,26 +74,56 @@ public class MedicationController {
     }
 
     @GetMapping("/medication/progress/{username}")
-    public ResponseEntity<Map<String, Object>> getProgressByPrescription(@PathVariable String username) {
-        UserEntity userEntity = new UserEntity(username);
+    public ResponseEntity<Map<String, Object>> getProgressByPrescription(@PathVariable String username,
+                                                                         @RequestHeader("Authorization") String accessToken) throws UnsupportedEncodingException {
 
-        Map<String, Object> userProgress = medicationAlarmService.calculateProgressByPrescription(userEntity);
+        UserEntity userToken = jWTUtil.getUsernameFromToken(accessToken);
+        UserEntity user = new UserEntity(username);
+        String tokenUsername = userToken.getUsername();
+        String entityUsername = user.getUsername();
+
+        // 3. userToken과 user가 다르면 예외 처리
+        if (!tokenUsername.equals(entityUsername)) {
+            throw new EntityNotMatchedException("권한이 없습니다.");
+        }
+
+        Map<String, Object> userProgress = medicationAlarmService.calculateProgressByPrescription(user);
 
         return ResponseEntity.ok(userProgress);
     }
 
     @PostMapping("/medication/onAlarm/{username}")
     public ResponseEntity<UserMedicationTimeDTO> setOnAlarm(@PathVariable String username,
-                                                            @RequestBody UserMedicationTimeDTO userMedicationTimeDTO) {
+                                                            @RequestBody UserMedicationTimeDTO userMedicationTimeDTO,
+                                                            @RequestHeader("Authorization") String accessToken
+    ) throws UnsupportedEncodingException {
+        UserEntity userToken = jWTUtil.getUsernameFromToken(accessToken);
         UserEntity user = new UserEntity(username);
+        String tokenUsername = userToken.getUsername();
+        String entityUsername = user.getUsername();
+
+        // 3. userToken과 user가 다르면 예외 처리
+        if (!tokenUsername.equals(entityUsername)) {
+            throw new EntityNotMatchedException("권한이 없습니다.");
+        }
+
         UserMedicationTimeDTO updatedMedicationTime = userMedicationTimeService.updateMedicationAlarmStatus(user, userMedicationTimeDTO);
         return ResponseEntity.ok(updatedMedicationTime);
     }
 
     @GetMapping("/medication/getAlarm/{username}")
-    public ResponseEntity<UserMedicationTimeDTO> getOnAlarm(@PathVariable String username
-                                                               ) {
+    public ResponseEntity<UserMedicationTimeDTO> getOnAlarm(@PathVariable String username,
+                                                            @RequestHeader("Authorization") String accessToken
+                                                               ) throws UnsupportedEncodingException {
+        UserEntity userToken = jWTUtil.getUsernameFromToken(accessToken);
         UserEntity user = new UserEntity(username);
+        String tokenUsername = userToken.getUsername();
+        String entityUsername = user.getUsername();
+
+        // 3. userToken과 user가 다르면 예외 처리
+        if (!tokenUsername.equals(entityUsername)) {
+            throw new EntityNotMatchedException("권한이 없습니다.");
+        }
         UserMedicationTimeDTO MedicationTime = userMedicationTimeService.getMedicationTime(user);
         return ResponseEntity.ok(MedicationTime);
     }

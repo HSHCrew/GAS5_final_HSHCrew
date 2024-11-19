@@ -2,11 +2,16 @@ package org.zerock.Altari.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "user_medication")
@@ -15,6 +20,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@DynamicInsert
 public class UserMedicationEntity {
 
     @Id
@@ -22,13 +28,18 @@ public class UserMedicationEntity {
     @Column(name = "user_medication_id")
     private Integer UserMedicationId;
 
-    @ManyToOne(fetch = FetchType.LAZY , cascade = CascadeType.REMOVE)
-    @JoinColumn(name = "user_prescription_id", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "user_prescription_id")
     private UserPrescriptionEntity prescriptionId;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @JoinColumn(name = "medication_id", referencedColumnName = "medication_id")
     private MedicationEntity medication;
+
+    @ManyToOne(cascade = CascadeType.REMOVE)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JoinColumn(name = "user_profile_id")
+    private UserProfileEntity userProfile;
 
     @Column(nullable = false, name = "one_dose")
     private String oneDose;
@@ -61,6 +72,8 @@ public class UserMedicationEntity {
     private LocalDateTime user_medication_created_at;
     @LastModifiedDate
     private LocalDateTime user_medication_updated_at;
+
+
 
     public boolean canIncreaseTakenDosage() {
         // 오늘 날짜를 가져옵니다.

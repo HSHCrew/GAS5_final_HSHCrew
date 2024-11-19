@@ -163,6 +163,7 @@ public class CodefTestService {
                         UserMedicationEntity prescriptionDrug = new UserMedicationEntity();
                         prescriptionDrug.setPrescriptionId(userPrescription);
                         prescriptionDrug.setMedication(drugItemSeq);
+                        prescriptionDrug.setUserProfile(userProfile);
                         prescriptionDrug.setOneDose(drugData.get("resOneDose").asText());
                         prescriptionDrug.setDailyDosesNumber(Integer.parseInt(drugData.get("resDailyDosesNumber").asText())); // dailyDosesNumber는 여전히 int로 받아야 하므로 Integer로 파싱
                         String drugTotalDosingDaysStr = drugData.get("resTotalDosingdays").asText();
