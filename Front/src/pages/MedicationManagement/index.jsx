@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import "./MedicationManagement.css";
-import axios from "axios";
+import apiClient from "../../api/apiClient";
 
 import plusIcon from "../../assets/plus.svg";
 
@@ -19,64 +19,49 @@ const MedicationManagement = () => {
   // API 호출
   useEffect(() => {
     const fetchPrescriptions = async () => {
-      const username = localStorage.getItem("username") || sessionStorage.getItem("username");
-      const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-  
-      if (!username || !token) {
-        console.error("로그인 정보가 없습니다. 로그인 페이지로 이동합니다.");
-        navigate("/signIn");
-        return;
-      }
-  
       try {
-        const response = await axios.get(
-          `http://localhost:8080/altari/getInfo/userPrescription/${username}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
+        const username =
+          localStorage.getItem("username") || sessionStorage.getItem("username");
+
+        if (!username) {
+          console.error("사용자 이름이 누락되었습니다. API 요청을 중단합니다.");
+          return;
+        }
+
+        const response = await apiClient.get(
+          `/altari/getInfo/userPrescription/${username}`
         );
-  
+
         let data = response.data.map((prescription) => {
           const startDate = new Date(
             prescription.manufactureDate[0],
             prescription.manufactureDate[1] - 1,
             prescription.manufactureDate[2]
           );
-  
-          // totalDosingDay가 null인 경우 1로 기본값 설정
+
+          // totalDosingDay가 null인 경우 기본값 1 설정
           const totalDosingDay = prescription.totalDosingDay || 1;
-  
           const endDate = new Date(startDate);
           endDate.setDate(endDate.getDate() + totalDosingDay - 1);
-  
-          return {
-            ...prescription,
-            startDate,
-            endDate,
-          };
+
+          return { ...prescription, startDate, endDate };
         });
-  
+
         // 중복 제거: prescriptionNo 기준
         data = data.filter(
           (item, index, self) =>
             index ===
             self.findIndex((t) => t.prescriptionNo === item.prescriptionNo)
         );
-  
-        setPrescriptions(data); // 상태 업데이트
+
+        setPrescriptions(data);
       } catch (error) {
         console.error("처방전 데이터를 가져오는 중 오류 발생:", error);
-        if (error.response?.status === 403) {
-          console.error("토큰이 만료되었습니다. 로그인 페이지로 이동합니다.");
-          navigate("/signIn");
-        }
       }
     };
-  
+
     fetchPrescriptions();
-  }, [navigate]);  
+  }, []);
 
   const getPrescriptionStatus = (prescription) => {
     const today = new Date();
@@ -146,7 +131,7 @@ const MedicationManagement = () => {
         (prescription) =>
           date >= prescription.startDate && date <= prescription.endDate
       );
-  
+
       if (hasPrescription) {
         return (
           <div className="tile-dot">
@@ -172,14 +157,9 @@ const MedicationManagement = () => {
     }
     return null;
   };
-  
+
   const handlePrescriptionClick = (prescription) => {
-    const status = getPrescriptionStatus(prescription);
-    if (status === "복용 중") {
-      navigate("/onMedication");
-    } else if (status === "복약 종료") {
-      navigate("/endMedication");
-    }
+    navigate(`/prescriptionDetail/${prescription.prescriptionNo}`);
   };
 
   return (
@@ -227,7 +207,6 @@ const MedicationManagement = () => {
         </p>
         {selectedPrescriptions.length > 0 ? (
           selectedPrescriptions.map((prescription) => {
-            const status = getPrescriptionStatus(prescription);
             return (
               <div
                 key={prescription.userPrescriptionId}
@@ -252,10 +231,12 @@ const MedicationManagement = () => {
                 </div>
                 <p
                   className={`prescription-status ${
-                    status === "복약 종료" ? "status-ended" : ""
+                    getPrescriptionStatus(prescription) === "복약 종료"
+                      ? "status-ended"
+                      : ""
                   }`}
                 >
-                  {status}
+                  {getPrescriptionStatus(prescription)}
                 </p>
               </div>
             );

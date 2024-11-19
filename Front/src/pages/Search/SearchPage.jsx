@@ -71,7 +71,7 @@ const SearchPage = () => {
 
     // 결과 클릭 시 상세 페이지로 이동
     const handleResultClick = (id) => {
-        const detailPath = activeTab === 'disease' ? `/disease/${id}` : `/medicine/${id}`;
+        const detailPath = activeTab === 'disease' ? `/disease/${id}` : `/medicineinfo/${id}`;
         navigate(detailPath); // 상세 페이지로 이동
     };
 
@@ -116,8 +116,8 @@ const SearchPage = () => {
                 )}
             </div>
             <div className="searchpage-results">
-                {loading ? (
-                    <p>로딩 중...</p>
+            {loading ? (
+                    <div className="loading-spinner"></div>
                 ) : error ? (
                     <p className="searchpage-error">{error}</p>
                 ) : results.length > 0 ? (
@@ -134,34 +134,34 @@ const SearchPage = () => {
                             >
                                 {activeTab === 'disease' ? (
                                     <div className="searchpage-disease-content">
+                                        <img
+                                            src={thermometerIcon}
+                                            alt="Thermometer Icon"
+                                            className="searchpage-disease-icon"
+                                        />
+                                        <span className="searchpage-disease-text">{result.diseaseName}</span>
+                                    </div>
+                                ) : (
+                                    <div className="searchpage-result-content">
+                                        {result.itemImage ? (
                                             <img
-                                                src={thermometerIcon}
-                                                alt="Thermometer Icon"
-                                                className="searchpage-disease-icon"
+                                                src={result.itemImage}
+                                                alt={result.medicationName}
+                                                className="searchpage-result-image-horizontal"
                                             />
-                                            <span className="searchpage-disease-text">{result.diseaseName}</span>
-                                        </div>
-                                    ) : (
-                                        <div className="searchpage-result-content">
-                                            {result.itemImage ? (
-                                                <img
-                                                    src={result.itemImage}
-                                                    alt={result.medicationName}
-                                                    className="searchpage-result-image-horizontal"
-                                                />
-                                            ) : (
-                                                <div className="searchpage-placeholder-image-horizontal">이미지 없음</div>
-                                            )}
-                                            <span className="searchpage-result-text">{result.medicationName}</span>
-                                        </div>
-                                    )}
-
+                                        ) : (
+                                            <div className="searchpage-placeholder-image-horizontal">이미지 없음</div>
+                                        )}
+                                        <span className="searchpage-result-text">{result.medicationName}</span>
+                                    </div>
+                                )}
                             </li>
                         ))}
                     </ul>
                 ) : (
                     <p>검색 결과가 없습니다.</p>
                 )}
+
             </div>
         </div>
     );

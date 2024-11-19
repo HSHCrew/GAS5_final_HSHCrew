@@ -5,7 +5,11 @@ const apiClient = axios.create({
   baseURL: 'http://localhost:8080',
   headers: {
     'Content-Type': 'application/json',
-  },
+  },    
+  // baseURL: 'http://34.47.82.4:8080', // 서버의 IP 주소와 포트를 입력
+  // headers: {
+  //   'Content-Type': 'application/json',
+  // },
 });
 
 // 요청 인터셉터 설정 (액세스 토큰 추가)

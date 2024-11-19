@@ -1,79 +1,122 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import apiClient from "../../api/apiClient";
 import "./MedicineInfo.css";
 
-import backArrowImg from '../../assets/left.svg';  // 뒤로가기 이미지 경로
+import backArrowImg from '../../assets/left.svg'; // 뒤로가기 이미지
 
 const MedicineInfo = () => {
-  const [selectedTab, setSelectedTab] = useState("summary");  // 탭 상태
-  const navigate = useNavigate();  // 뒤로가기 기능
+    const { id } = useParams(); // URL에서 약물 ID 가져오기
+    const [selectedTab, setSelectedTab] = useState("summary"); // 탭 상태
+    const [medicineData, setMedicineData] = useState(null); // 약물 데이터
+    const navigate = useNavigate(); // 뒤로가기 기능
 
-  const handleBack = () => {
-    navigate(-1);  // 뒤로가기
-  };
+    // 약물 데이터 불러오기
+    useEffect(() => {
+        const fetchMedicineInfo = async () => {
+            try {
+                const response = await apiClient.get(`/altari/drug-info/${id}`);
+                setMedicineData(response.data); // 데이터 저장
+            } catch (error) {
+                console.error("약물 정보를 불러오는 중 오류 발생:", error);
+            }
+        };
 
-  const renderContent = () => {
-    switch (selectedTab) {
-      case "summary":
-        return (
-          <div className="content">
-            <h2>요약설명</h2>
-            <p><br/>타이레놀8시간이알서방정325mg은 해열 및 진통 효과가 있는 약물로, 성분명은 아세트아미노펜입니다.</p>
-          </div>
-        );
-      case "info":
-        return (
-          <div className="content">
-            <h2>약 정보</h2>
-            <p><br/>이 약은 325mg의 아세트아미노펜을 함유하고 있으며, 두통, 근육통 등의 통증 완화에 효과적입니다.</p>
-          </div>
-        );
-      case "warning":
-        return (
-          <div className="content">
-            <h2>주의사항</h2>
-            <p><br/>간 질환이 있는 환자 또는 과량 복용 시 간 손상이 발생할 수 있으므로 주의하십시오.</p>
-          </div>
-        );
-      default:
-        return null;
-    }
-  };
+        fetchMedicineInfo();
+    }, [id]);
 
-  return (
-    <div className="container">
-      <div className="info-box">
-        <div className="header">
-          <img 
-            src={backArrowImg} 
-            alt="back arrow" 
-            className="back-arrow-img" 
-            onClick={handleBack}  // 뒤로가기 기능
-          />
-          <p className="medicine-info">
-            타이레놀8시간이알서방정325mg<br />
-            <span className="ingredient">성분명: 아세트아미노펜</span>
-          </p>
+    // 탭 내용 렌더링
+    const renderContent = () => {
+        if (!medicineData) {
+            return <p>데이터를 불러오는 중입니다...</p>;
+        }
+
+        switch (selectedTab) {
+            case "summary":
+                return (
+                    <div className="medicine-info-content">
+                        <h2>요약설명</h2>
+                        <p>{medicineData.medicationInfo || "요약 정보가 없습니다."}</p>
+                    </div>
+                );
+            case "info":
+                return (
+                    <div className="medicine-info-content">
+                        <h2>약 정보</h2>
+                        <p>{medicineData.additives || "추가 정보가 없습니다."}</p>
+                    </div>
+                );
+            case "warning":
+                return (
+                    <div className="medicine-info-content">
+                        <h2>주의사항</h2>
+                        <p>{medicineData.medicationCautionWarningInfo || "주의사항 정보가 없습니다."}</p>
+                    </div>
+                );
+            default:
+                return null;
+        }
+    };
+
+    // 뒤로가기 핸들러
+    const handleBack = () => {
+        navigate(-1);
+    };
+
+    return (
+        <div className="medicine-info-container">
+            <div className="medicine-info-header">
+                <img
+                    src={backArrowImg}
+                    alt="back arrow"
+                    className="medicine-info-back-arrow"
+                    onClick={handleBack}
+                />
+                <div className="medicine-info-header-content">
+                    {medicineData?.itemImage ? (
+                        <img
+                            src={medicineData.itemImage}
+                            alt={medicineData.medicationName || "약 이미지"}
+                            className="medicine-info-header-image"
+                        />
+                    ) : (
+                        <div className="medicine-info-no-image">이미지 없음</div> // 이미지 없음 처리
+                    )}
+                    <div className="medicine-info-header-text">
+                        <p className="medicine-info-name">
+                            {medicineData?.medicationName || "약 이름 없음"}
+                        </p>
+                        <p className="medicine-info-ingredient">
+                            {medicineData?.ingredient || "성분 정보 없음"}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div className="medicine-info-tabs">
+                <button
+                    className={`medicine-info-tab ${selectedTab === "summary" ? "active" : ""}`}
+                    onClick={() => setSelectedTab("summary")}
+                >
+                    요약설명
+                </button>
+                <button
+                    className={`medicine-info-tab ${selectedTab === "info" ? "active" : ""}`}
+                    onClick={() => setSelectedTab("info")}
+                >
+                    약 정보
+                </button>
+                <button
+                    className={`medicine-info-tab ${selectedTab === "warning" ? "active" : ""}`}
+                    onClick={() => setSelectedTab("warning")}
+                >
+                    주의사항
+                </button>
+            </div>
+
+            <div className="medicine-info-content-container">{renderContent()}</div>
         </div>
-
-        <div className="button-container">
-          <button className="button-tab" onClick={() => setSelectedTab("summary")}>
-            요약설명
-          </button>
-          <button className="button-tab" onClick={() => setSelectedTab("info")}>
-            약 정보
-          </button>
-          <button className="button-tab" onClick={() => setSelectedTab("warning")}>
-            주의사항
-          </button>
-        </div>
-
-        <div className="content-container">
-          {renderContent()}
-        </div>
-      </div>
-    </div>
-  );
+    );
 };
 
 export default MedicineInfo;
