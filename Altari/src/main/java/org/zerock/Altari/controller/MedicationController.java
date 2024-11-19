@@ -14,6 +14,7 @@ import org.zerock.Altari.exception.EntityNotMatchedException;
 import org.zerock.Altari.repository.MedicationRepository;
 import org.zerock.Altari.security.util.JWTUtil;
 import org.zerock.Altari.service.MedicationAlarmService;
+import org.zerock.Altari.service.MedicationService;
 import org.zerock.Altari.service.UserMedicationTimeService;
 
 import java.io.UnsupportedEncodingException;
@@ -32,23 +33,16 @@ public class MedicationController {
     private final MedicationAlarmService medicationAlarmService;
     private final UserMedicationTimeService userMedicationTimeService;
     private final JWTUtil jWTUtil;
+    private final MedicationService medicationService;
 
     @GetMapping("/drug/list")
     public List<MedicationEntity> getAllDrugs() {
-        List<MedicationEntity> drugs = medicationRepository.findAll();
-        if (drugs.isEmpty()) {
-            throw new EntityNotFoundException("No medications found in the database");
-        }
-        return drugs;
+        return medicationService.getAllDrugs();
     }
 
     @GetMapping("/drug-info/{medicationId}")
     public MedicationEntity getDrugInfo(@PathVariable Integer medicationId) {
-        MedicationEntity medication = medicationRepository.findByMedicationId(medicationId);
-        if (medication == null) {
-            throw new EntityNotFoundException("No medications found in the database");
-        }
-        return medication;
+        return medicationService.getDrugInfo(medicationId);
     }
 
     @PostMapping("/confirm/{username}")
