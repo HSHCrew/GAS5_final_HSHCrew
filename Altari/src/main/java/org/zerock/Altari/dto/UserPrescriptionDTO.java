@@ -26,7 +26,7 @@ public class UserPrescriptionDTO {
     private UserProfileEntity userProfile;
     private LocalDateTime user_prescription_created_at;
     private LocalDateTime user_prescription_updated_at;
-    private List<PrescriptionDrugDTO> drugs;
+    private List<UserMedicationDTO> drugs;
     private String prescriptionInfo;
     private String aiSummary;
     private Boolean isTaken;

@@ -14,6 +14,7 @@ import org.zerock.Altari.service.UserPrescriptionService;
 
 import java.io.UnsupportedEncodingException;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/altari")
@@ -25,7 +26,7 @@ public class UserPrescriptionController {
     private final JWTUtil jwtUtil;
 
     @GetMapping("/getInfo/userPrescription/{username}")
-    public ResponseEntity<List<UserPrescriptionDTO>> get(@PathVariable String username,
+    public ResponseEntity<List<UserPrescriptionDTO>> getUserPrescription(@PathVariable String username,
                                                          @RequestHeader("Authorization") String accessToken) throws UnsupportedEncodingException {
 
         UserEntity userToken = jwtUtil.getUsernameFromToken(accessToken);
@@ -41,5 +42,11 @@ public class UserPrescriptionController {
         return ResponseEntity.ok(userPrescription);
     }
 
+    @GetMapping("/getInfo/Prescription/{userPrescriptionId}")
+    public ResponseEntity<UserPrescriptionDTO> getPrescription(@PathVariable Integer userPrescriptionId
+                                                         ){
+        UserPrescriptionDTO userPrescription = userPrescriptionService.getPrescription(userPrescriptionId);
+        return ResponseEntity.ok(userPrescription);
+    }
 
 }

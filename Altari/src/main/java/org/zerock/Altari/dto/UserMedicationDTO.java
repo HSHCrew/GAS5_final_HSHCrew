@@ -2,7 +2,6 @@ package org.zerock.Altari.dto;
 
 import lombok.*;
 import org.zerock.Altari.entity.MedicationEntity;
-import org.zerock.Altari.entity.UserPrescriptionEntity;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -13,7 +12,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class PrescriptionDrugDTO {
+public class UserMedicationDTO {
 
     private Integer prescriptionDrugId;
     private Integer prescriptionId;
