@@ -3,6 +3,7 @@ package org.zerock.Altari.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.zerock.Altari.dto.UserHealthInfoDTO;
@@ -37,6 +38,7 @@ public class UserHealthInfoService {
     private MedicationRepository medicationRepository;
 
     @Transactional(readOnly = true)
+    @Cacheable(value = "userHealthInfos", key = "#username")
     public UserHealthInfoDTO getUserHealthInfo(UserEntity username) {
 
         Optional<UserProfileEntity> optionalUserProfile = Optional.ofNullable(userProfileRepository.findByUsername(username));

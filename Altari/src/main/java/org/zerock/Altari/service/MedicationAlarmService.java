@@ -1,6 +1,7 @@
 package org.zerock.Altari.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.scheduling.support.CronTrigger;
@@ -283,9 +284,10 @@ public class MedicationAlarmService {
         twilioCallService.sendCall(toPhoneNumber, messageBody);
     }
 
-
-    public Map<String, Object> calculateProgressByPrescription(UserEntity userEntity) {
-        UserProfileEntity userProfile = userProfileRepository.findByUsername(userEntity);
+    @Transactional(readOnly = true)
+    @Cacheable(value = "userMedicationAlarm", key = "#username")
+    public Map<String, Object> calculateProgressByPrescription(UserEntity username) {
+        UserProfileEntity userProfile = userProfileRepository.findByUsername(username);
         List<UserPrescriptionEntity> prescriptions = userPrescriptionRepository.findByUserProfile(userProfile);
 
         Map<String, Object> result = new HashMap<>();

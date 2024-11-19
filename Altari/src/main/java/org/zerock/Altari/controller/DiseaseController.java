@@ -10,6 +10,7 @@ import org.zerock.Altari.entity.DiseaseEntity;
 import org.zerock.Altari.entity.MedicationEntity;
 import org.zerock.Altari.exception.EntityNotFoundException;
 import org.zerock.Altari.repository.DiseaseRepository;
+import org.zerock.Altari.service.DiseaseService;
 
 import java.util.List;
 
@@ -19,23 +20,16 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DiseaseController {
 
-    private final DiseaseRepository diseaseRepository;
+    private final DiseaseService diseaseService;
 
     @GetMapping("/disease/list")
     public List<DiseaseEntity> getAllDiseases() {
-        List<DiseaseEntity> diseases = diseaseRepository.findAll();
-        if (diseases.isEmpty()) {
-            throw new EntityNotFoundException("No diseases found in the database");
-        }
-        return diseases;
+        return diseaseService.getAllDiseases(); // 서비스에서 데이터를 가져옵니다.
     }
 
     @GetMapping("/disease-info/{diseaseId}")
-    public DiseaseEntity getDrugInfo(@PathVariable Integer diseaseId) {
-        DiseaseEntity disease = diseaseRepository.findByDiseaseId(diseaseId);
-        if (disease == null) {
-            throw new EntityNotFoundException("No medications found in the database");
-        }
-        return disease;
+    public DiseaseEntity getDiseaseInfo(@PathVariable Integer diseaseId) {
+        return diseaseService.getDiseaseInfo(diseaseId); // 서비스에서 데이터를 가져옵니다.
     }
+
 }

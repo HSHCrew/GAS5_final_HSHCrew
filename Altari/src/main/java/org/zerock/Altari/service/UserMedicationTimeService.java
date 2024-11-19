@@ -1,6 +1,7 @@
 package org.zerock.Altari.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.zerock.Altari.dto.UserMedicationTimeDTO;
@@ -64,6 +65,8 @@ public class UserMedicationTimeService {
 
 
     // 특정 사용자의 알람 상태 조회
+    @Transactional(readOnly = true)
+    @Cacheable(value = "medicationTimes", key = "#username")
     public UserMedicationTimeDTO getMedicationTime(UserEntity username) {
         Optional<UserProfileEntity> optionalUserProfile = Optional.ofNullable(userProfileRepository.findByUsername(username));
         if (optionalUserProfile.isEmpty()) {
