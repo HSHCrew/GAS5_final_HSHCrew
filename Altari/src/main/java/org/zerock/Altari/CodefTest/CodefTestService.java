@@ -1,5 +1,6 @@
 package org.zerock.Altari.CodefTest;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
@@ -15,6 +16,7 @@ import org.zerock.Altari.repository.MedicationRepository;
 import org.zerock.Altari.repository.UserMedicationRepository;
 import org.zerock.Altari.repository.UserPrescriptionRepository;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
@@ -149,7 +151,6 @@ public class CodefTestService {
                 userPrescription.setIsTaken(false);
                 userPrescription.setOnAlarm(true);
 
-
                 userPrescriptionRepository.save(userPrescription);
 
                 JsonNode drugList = data.get("resDrugList");
@@ -176,6 +177,13 @@ public class CodefTestService {
 
                         totalDosingDays = Math.max(totalDosingDays, prescriptionDrug.getTotalDosingDays());
                         prescriptionDrugRepository.save(prescriptionDrug);
+
+                        // 만약 medication_image가 없으면 resDrugImageLink에서 가져온 값을 삽입
+                        if (drugItemSeq.getItemImage() == null || drugItemSeq.getItemImage().isEmpty()) {
+                            String drugImageLink = drugData.get("resDrugImageLink").asText();
+                            drugItemSeq.setItemImage(drugImageLink);
+                            medicationRepository.save(drugItemSeq); // medication 테이블에 이미지 링크 저장
+                        }
                     }
                 }
 
@@ -218,7 +226,6 @@ public class CodefTestService {
                         // 변경 사항 저장
                         prescriptionDrugRepository.save(prescriptionDrug);
                     }
-
                 }
 
                 // 변경된 is_taken 값 업데이트
@@ -233,7 +240,8 @@ public class CodefTestService {
         }
     }
 
-}
+    }
+
 
 
 
