@@ -23,28 +23,31 @@ public class MedicationIngredientDurEntity {
     private Integer medicationIngredientDurId;
 
     @ManyToOne
-    @JoinColumn(name = "medication_id", nullable = false)
+    @JoinColumn(name = "medication_id")
     private MedicationEntity medication;
 
-    @Column(name = "dur_serial_number", nullable = false)
+    @Column(name = "ingredient_dur", columnDefinition = "TEXT")
+    private String ingredientDur; // DUR일련번호
+
+    @Column(name = "dur_serial_number")
     private String durSerialNumber; // DUR일련번호
 
-    @Column(name = "dur_type", nullable = false, columnDefinition = "TEXT")
+    @Column(name = "dur_type",  columnDefinition = "TEXT")
     private String durType; // DUR유형
 
-    @Column(name = "single_compound_code", nullable = false)
+    @Column(name = "single_compound_code",columnDefinition = "TEXT")
     private String singleCompoundCode; // 단일복합구분코드
 
-    @Column(name = "dur_ingredient_code", nullable = false)
+    @Column(name = "dur_ingredient_code")
     private String durIngredientCode; // DUR성분코드
 
-    @Column(name = "dur_ingredient_name_eng")
+    @Column(name = "dur_ingredient_name_eng", columnDefinition = "TEXT")
     private String durIngredientNameEng; // DUR성분명영문
 
     @Column(name = "dur_ingredient_name", columnDefinition = "TEXT")
     private String durIngredientName; // DUR성분명
 
-    @Column(name = "compound")
+    @Column(name = "compound", columnDefinition = "TEXT")
     private String compound; // 복합제
 
     @Column(name = "related_ingredient", columnDefinition = "TEXT")
@@ -56,7 +59,7 @@ public class MedicationIngredientDurEntity {
     @Column(name = "efficacy_group", columnDefinition = "TEXT")
     private String efficacyGroup; // 효능군
 
-    @Column(name = "announcement_date")
+    @Column(name = "announcement_date", columnDefinition = "TEXT")
     private String announcementDate; // 고시일자
 
     @Column(name = "prohibition_content", columnDefinition = "TEXT")
@@ -65,13 +68,13 @@ public class MedicationIngredientDurEntity {
     @Column(name = "dosage_form", columnDefinition = "TEXT")
     private String dosageForm; // 제형
 
-    @Column(name = "age_criteria")
+    @Column(name = "age_criteria", columnDefinition = "TEXT")
     private String ageCriteria; // 연령기준
 
-    @Column(name = "max_administration_period")
+    @Column(name = "max_administration_period", columnDefinition = "TEXT")
     private String maxAdministrationPeriod; // 최대투여기간
 
-    @Column(name = "max_daily_dose")
+    @Column(name = "max_daily_dose", columnDefinition = "TEXT")
     private String maxDailyDose; // 1일최대용량
 
     @Column(name = "grade")
@@ -86,7 +89,7 @@ public class MedicationIngredientDurEntity {
     @Column(name = "combination_prohibition_dur_name", columnDefinition = "TEXT")
     private String combinationProhibitionDurName; // 병용금기DUR성분명
 
-    @Column(name = "combination_prohibition_dur_name_eng")
+    @Column(name = "combination_prohibition_dur_name_eng", columnDefinition = "TEXT")
     private String combinationProhibitionDurNameEng; // 병용금기DUR성분명영문
 
     @Column(name = "combination_prohibition_compound", columnDefinition = "TEXT")

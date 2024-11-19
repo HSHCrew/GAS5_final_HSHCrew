@@ -25,13 +25,13 @@ public class MedicationEntity {
     @Column(name = "medication_id")
     private Integer medicationId; //
 
-    @Column(name = "medication_code", nullable = false, unique = true)
+    @Column(name = "medication_code")
     private String itemSeq; // 대표코드
 
-    @Column(name = "medication_item_standard_code", nullable = false, unique = true)
+    @Column(name = "medication_item_standard_code")
     private String medicaitonItemStandardCode; // 품목기준코드
 
-    @Column(name = "medication_item_dur")
+    @Column(name = "medication_item_dur", columnDefinition = "TEXT")
     private String medicationItemDur; // 품목dur
 
     @Column(name = "medication_brand_name", columnDefinition = "TEXT")
@@ -40,7 +40,7 @@ public class MedicationEntity {
     @Column(name = "medication_name", unique = true, columnDefinition = "TEXT")
     private String medicationName; // 제품명
 
-    @Column(name = "ingredient_code")
+    @Column(name = "ingredient_code", columnDefinition = "TEXT")
     private String ingredientCode; // 주성분 코드
 
     @Column(name = "ingredient", columnDefinition = "TEXT")
@@ -87,9 +87,9 @@ public class MedicationEntity {
     @Column(name = "update_de")
     private String updateDe; // 수정일자
 
-    @Lob
     @Column(name = "medication_image", columnDefinition = "TEXT")
     private String itemImage; // 약물 이미지 URL
+
     @CreatedDate
     private LocalDateTime medication_created_at;
     @LastModifiedDate
