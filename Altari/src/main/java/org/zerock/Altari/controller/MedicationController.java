@@ -5,11 +5,10 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.zerock.Altari.dto.TimedMedicationDTO;
 import org.zerock.Altari.dto.UserMedicationTimeDTO;
 import org.zerock.Altari.entity.MedicationEntity;
 import org.zerock.Altari.entity.UserEntity;
-import org.zerock.Altari.entity.UserMedicationTimeEntity;
-import org.zerock.Altari.exception.EntityNotFoundException;
 import org.zerock.Altari.exception.EntityNotMatchedException;
 import org.zerock.Altari.repository.MedicationRepository;
 import org.zerock.Altari.security.util.JWTUtil;
@@ -20,7 +19,6 @@ import org.zerock.Altari.service.UserMedicationTimeService;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 
 @RestController
@@ -43,6 +41,11 @@ public class MedicationController {
     @GetMapping("/drug-info/{medicationId}")
     public MedicationEntity getDrugInfo(@PathVariable Integer medicationId) {
         return medicationService.getDrugInfo(medicationId);
+    }
+
+    @GetMapping("/drug-TimedMedication/{PrescriptionId}")
+    public TimedMedicationDTO getTimedMedication(@PathVariable Integer PrescriptionId) {
+        return medicationService.getTimedMedicationList(PrescriptionId);
     }
 
     @PostMapping("/confirm/{username}")
