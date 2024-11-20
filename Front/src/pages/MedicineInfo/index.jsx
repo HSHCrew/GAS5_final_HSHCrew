@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import apiClient from "../../api/apiClient";
+import ReactMarkdown from 'react-markdown';
 import "./MedicineInfo.css";
 
 import backArrowImg from '../../assets/left.svg'; // 뒤로가기 이미지
@@ -35,22 +36,24 @@ const MedicineInfo = () => {
             case "summary":
                 return (
                     <div className="medicine-info-content">
-                        <h2>요약설명</h2>
+                        <h2 className="mediciine-info-content-subtitle">요약설명</h2>
                         <p>{medicineData.medicationInfo || "요약 정보가 없습니다."}</p>
                     </div>
                 );
             case "info":
                 return (
                     <div className="medicine-info-content">
-                        <h2>약 정보</h2>
+                        <h2 className="mediciine-info-content-subtitle">약 정보</h2>
                         <p>{medicineData.additives || "추가 정보가 없습니다."}</p>
                     </div>
                 );
             case "warning":
                 return (
                     <div className="medicine-info-content">
-                        <h2>주의사항</h2>
-                        <p>{medicineData.medicationCautionWarningInfo || "주의사항 정보가 없습니다."}</p>
+                        <h2 className="mediciine-info-content-subtitle">주의사항</h2>
+                        <ReactMarkdown>
+                            {medicineData.medicationCautionWarningInfo || "주의사항 정보가 없습니다."}
+                        </ReactMarkdown>
                     </div>
                 );
             default:

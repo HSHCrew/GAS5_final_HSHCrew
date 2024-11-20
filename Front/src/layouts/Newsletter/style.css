@@ -1,13 +1,18 @@
 .news-popup-container {
-    position: relative;
-    width: 66%; 
+    position: absolute; /* 고정 위치 설정 */
+    z-index: 1000;
+    cursor: grab; /* 드래그 아이콘 표시 */
+    user-select: none; /* 드래그 방지 */
+    -webkit-user-select: none; /* Chrome, Safari */
+    -moz-user-select: none;    /* Firefox */
+    -ms-user-select: none;     /* Internet Explorer/Edge */
 }
 
+.news-popup-container:active {
+    cursor: grabbing; /* 드래그 중일 때 아이콘 변경 */
+}
 
 .news-popup-icon {
-    position: absolute; 
-    bottom: 135px; 
-    right: -3.5%;
     width: 55px;
     height: 55px;
     background-color: #357e85;
@@ -17,20 +22,17 @@
     justify-content: center;
     color: white;
     font-size: 24px;
-    cursor: pointer;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
-    z-index: 10;
+    user-select: none; /* 드래그 방지 */
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
 }
 
 .news-popup-icon:hover {
     transform: scale(1.1);
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
-}
-
-.icon {
-    font-size: 26px;
-    color: #ffffff;
 }
 
 .popup-text {
@@ -45,6 +47,10 @@
     opacity: 0;
     transform: translateY(10px);
     transition: opacity 0.3s ease, transform 0.3s ease;
+    user-select: none; /* 드래그 방지 */
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
 }
 
 .news-popup-icon:hover .popup-text {
