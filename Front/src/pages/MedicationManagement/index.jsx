@@ -159,10 +159,8 @@ const MedicationManagement = () => {
   };
 
   const handlePrescriptionClick = (prescription) => {
-    // prescription.userPrescriptionId를 사용해 상세 페이지로 이동
-    navigate(`/prescriptionDetail/${prescription.userPrescriptionId}`);
-  };  
-  
+    navigate(`/prescriptionDetail/${prescription.prescriptionNo}`);
+  };
 
   return (
     <div className="medication-management-container">

@@ -57,12 +57,9 @@ const NewsCurationDetail = () => {
                 <h2>{curation.title}</h2>
                 <p>{curation.content}</p>
                 {curation.url && (
-                    <div className="news-curation-link-wrapper">
-                        <span className="reference-text">참고문헌: </span>
-                        <a href={curation.url} target="_blank" rel="noopener noreferrer" className="news-curation-link">
-                            {curation.url}
-                        </a>
-                    </div>
+                    <a href={curation.url} target="_blank" rel="noopener noreferrer" className="news-curation-link">
+                        {curation.url}
+                    </a>
                 )}
             </div>
         </div>

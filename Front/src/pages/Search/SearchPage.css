@@ -13,7 +13,6 @@
 /* 헤더 스타일 */
 .searchpage-header {
     width: 100%;
-    min-width: 650px;
     max-width: 650px;
     height: 80px;
     background-color: white;
@@ -21,7 +20,7 @@
     justify-content: center;
     align-items: center;
     position: relative;
-    border-bottom: 3px solid #e0e0e0;
+    border-bottom: 2px solid #e0e0e0;
 }
 
 .searchpage-back-button {
@@ -49,9 +48,8 @@
 .searchpage-tabs {
     display: flex;
     width: 100%;
-    min-width: 650px;
     max-width: 650px;
-    margin-top: 5px;
+    margin-top: 10px;
     border-bottom: 2px solid #ddd;
 }
 
@@ -88,7 +86,7 @@
     margin-top: 20px;
     display: flex;
     align-items: center;
-    background-color: #f3f3f3ee;
+    background-color: #f7f7f7;
     border-radius: 10px;
     padding: 10px 15px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
@@ -143,7 +141,7 @@
     margin: 15px 0; /* 박스 간격 확대 */
     background-color: #ffffff;
     border-radius: 12px;
-    box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     cursor: pointer;
     transition: transform 0.2s ease, background-color 0.3s ease;
     width: 100%;
@@ -163,12 +161,12 @@
 }
 
 .searchpage-disease-icon {
-    width: 40px;
-    height: 40px;
+    width: 30px;
+    height: 30px;
 }
 
 .searchpage-disease-text {
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 500;
     color: #333;
 }
