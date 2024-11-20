@@ -143,105 +143,110 @@ async def handle_press_and_hold(page):
         else:
             print(f"Warning: Press and Hold handling failed: {str(e)}")
 
-async def scrape_medicalxpress_search_raw(search_term: str, max_retries: int = 3) -> Optional[pd.DataFrame]:
+async def scrape_medicalxpress_search_raw(search_term: str, 
+                                          max_retries: int = 3, 
+                                          max_pages: int = 1,
+                                          search_type: int = 0
+                                          ) -> Optional[pd.DataFrame]:
     """
     Raw scraping function for MedicalXpress search results using Playwright.
     """
-    for attempt in range(max_retries):
-        try:
-            if attempt > 0:
-                wait_time = (2 ** attempt) + random.uniform(2, 5)
-                print(f"Retry attempt {attempt + 1}/{max_retries}, waiting {wait_time:.1f} seconds...")
-                await asyncio.sleep(wait_time)
-            
-            browser_type, user_agent = get_random_browser_config()
-            
-            playwright = await async_playwright().start()
+    for page_num in range(1, max_pages + 1):
+        for attempt in range(max_retries):
             try:
-                browser = await getattr(playwright, browser_type).launch(headless=True)
-                context = await browser.new_context(
-                    user_agent=user_agent,
-                    viewport={'width': 1920, 'height': 1080}
-                )
+                if attempt > 0:
+                    wait_time = (2 ** attempt) + random.uniform(2, 5)
+                    print(f"Retry attempt {attempt + 1}/{max_retries}, waiting {wait_time:.1f} seconds...")
+                    await asyncio.sleep(wait_time)
+
+                browser_type, user_agent = get_random_browser_config()
                 
-                # 추가 브라우저 설정
-                await context.add_init_script("""
-                    Object.defineProperty(navigator, 'webdriver', {
-                        get: () => undefined
-                    });
-                """)
+                playwright = await async_playwright().start()
+                try:
+                    browser = await getattr(playwright, browser_type).launch(headless=True)
+                    context = await browser.new_context(
+                        user_agent=user_agent,
+                        viewport={'width': 1920, 'height': 1080}
+                    )
                 
-                page = await context.new_page()
+                    # 추가 브라우저 설정
+                    await context.add_init_script("""
+                        Object.defineProperty(navigator, 'webdriver', {
+                            get: () => undefined
+                        });
+                    """)
                 
-                # 검색 URL로 이동
-                url = f"https://medicalxpress.com/search/page1.html?search={search_term}&s=1"
-                await page.goto(url, timeout=30000)
+                    page = await context.new_page()
                 
-                # Press and Hold 버튼 처리
-                await handle_press_and_hold(page)
+                    # 검색 URL로 이동
+                    url = f"https://medicalxpress.com/search/page{page_num}.html?search={search_term}&s={search_type}"
+                    await page.goto(url, timeout=30000)
                 
-                # 페이지 로딩 대기
-                await page.wait_for_load_state('networkidle')
+                    # Press and Hold 버튼 처리
+                    await handle_press_and_hold(page)
                 
-                # 검색 결과 추출
-                search_results = []
-                articles = await page.query_selector_all('article.sorted-article')
-                
-                for article in articles:
-                    try:
-                        # 기사 제목과 링크
-                        title_elem = await article.query_selector('h2 a')
-                        title = await title_elem.text_content() if title_elem else None
-                        link = await title_elem.get_attribute('href') if title_elem else None
-                        
-                        # 기사 요약
-                        summary_elem = await article.query_selector('p.mb-4')
-                        summary = await summary_elem.text_content() if summary_elem else None
-                        
-                        # 카테고리/토픽
-                        topic_elem = await article.query_selector('div.sorted-article-topic')
-                        topic = await topic_elem.text_content() if topic_elem else None
-                        
-                        # 날짜 정보
-                        date_elem = await article.query_selector('p.text-uppercase.text-low')
-                        relative_date = await date_elem.text_content() if date_elem else None
-                        absolute_date = convert_relative_date(relative_date) if relative_date else None
-                        
-                        # 이미지 URL
-                        img_elem = await article.query_selector('img')
-                        img_url = await img_elem.get_attribute('src') if img_elem else None
-                        
-                        if title and link:
-                            search_results.append({
-                                'search_term': search_term,
-                                'title': title.strip(),
-                                'link': f"https://medicalxpress.com{link}" if link.startswith('/') else link,
-                                'summary': summary.strip() if summary else None,
-                                'topic': topic.strip() if topic else None,
-                                'date': absolute_date,
-                                'image_url': img_url
-                            })
-                    except Exception as e:
-                        print(f"Error extracting article data: {str(e)}")
-                        continue
-                
-                if not search_results:
-                    if attempt < max_retries - 1:
-                        print("No search results found, retrying...")
-                        continue
-                    return None
-                
-                return pd.DataFrame(search_results)
-                
-            finally:
-                await playwright.stop()
-                
-        except Exception as e:
-            if attempt < max_retries - 1:
-                print(f"Error fetching search results: {str(e)}, retrying...")
-                continue
-            print(f"Error fetching search results after {max_retries} attempts: {str(e)}")
-            return None
+                    # 페이지 로딩 대기
+                    await page.wait_for_load_state('networkidle')
+                    
+                    # 검색 결과 추출
+                    search_results = []
+                    articles = await page.query_selector_all('article.sorted-article')
+                    
+                    for article in articles:
+                        try:
+                            # 기사 제목과 링크
+                            title_elem = await article.query_selector('h2 a')
+                            title = await title_elem.text_content() if title_elem else None
+                            link = await title_elem.get_attribute('href') if title_elem else None
+                            
+                            # 기사 요약
+                            summary_elem = await article.query_selector('p.mb-4')
+                            summary = await summary_elem.text_content() if summary_elem else None
+                            
+                            # 카테고리/토픽
+                            topic_elem = await article.query_selector('div.sorted-article-topic')
+                            topic = await topic_elem.text_content() if topic_elem else None
+                            
+                            # 날짜 정보
+                            date_elem = await article.query_selector('p.text-uppercase.text-low')
+                            relative_date = await date_elem.text_content() if date_elem else None
+                            absolute_date = convert_relative_date(relative_date) if relative_date else None
+                            
+                            # 이미지 URL
+                            img_elem = await article.query_selector('img')
+                            img_url = await img_elem.get_attribute('src') if img_elem else None
+                            
+                            if title and link:
+                                search_results.append({
+                                    'search_term': search_term,
+                                    'title': title.strip(),
+                                    'link': f"https://medicalxpress.com{link}" if link.startswith('/') else link,
+                                    'summary': summary.strip() if summary else None,
+                                    'topic': topic.strip() if topic else None,
+                                    'date': absolute_date,
+                                    'image_url': img_url
+                                })
+                        except Exception as e:
+                            print(f"Error extracting article data: {str(e)}")
+                            continue
+                    
+                    if not search_results:
+                        if attempt < max_retries - 1:
+                            print("No search results found, retrying...")
+                            continue
+                        return None
+                    
+                    return pd.DataFrame(search_results)
+                    
+                finally:
+                    await playwright.stop()
+                    
+            except Exception as e:
+                if attempt < max_retries - 1:
+                    print(f"Error fetching search results: {str(e)}, retrying...")
+                    continue
+                print(f"Error fetching search results after {max_retries} attempts: {str(e)}")
+                return None
 
 @tool("scrape_medicalxpress_search", return_direct=True)
 async def scrape_medicalxpress_search(search_term: str, min_relevance: float = 0.3) -> List[Dict]:
@@ -325,19 +330,23 @@ async def scrape_medicalxpress_articles(search_term: str, min_relevance: float =
 
 # 사용 예시
 if __name__ == "__main__":
+    search_type = 0
+    search_term = "diabetes"
     async def main():
         try:
             # Tool 실행
             tool = scrape_medicalxpress_articles
             results = await tool.ainvoke({
-                "search_term": "diabetes", 
+                "search_term": search_term, 
                 "min_relevance": 0.1,
-                "max_articles": 0  # 전체 기사 가져오기
+                "max_articles": 0,  # 전체 기사 가져오기
+                "max_pages": 10,  # 최대 10페이지 스크래핑
+                "search_type": search_type
             })
             
             if results:
                 # JSON 파일로 저장
-                filename = f"medicalxpress_full_articles_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+                filename = f"medicalxpress_full_articles_{search_term}_{search_type}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
                 with open(filename, 'w', encoding='utf-8') as f:
                     json.dump(results, ensure_ascii=False, indent=2, fp=f)
                 print(f"Full articles saved to {filename}")
