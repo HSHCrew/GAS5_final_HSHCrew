@@ -14,6 +14,10 @@
     min-width: 450px; /* 최소 너비 */
     max-width: 650px; /* 최대 너비 */
     margin: 0 auto; /* 화면 중앙에 배치 */
+    user-select: none; /* 네비게이션 바 전체 드래그 금지 */
+    -webkit-user-select: none; /* Chrome, Safari */
+    -moz-user-select: none;    /* Firefox */
+    -ms-user-select: none;     /* Internet Explorer/Edge */
 }
 
 /* 각 네비게이션 아이템 스타일 */
@@ -21,6 +25,7 @@
     display: block;
     min-width: 50px; /* 각 아이템의 최소 너비 */
     max-width: 150px; /* 각 아이템의 최대 너비 */
+    user-select: none; /* 각 아이템 드래그 금지 */
 }
 
 /* 아이콘 스타일 */
@@ -29,6 +34,7 @@
     width: 38px;
     height: 38px;
     margin: 3px auto 5px auto;
+    user-select: none; /* 아이콘 드래그 금지 */
 }
 
 /* 텍스트 스타일 */
@@ -37,6 +43,7 @@
     margin: 0;
     font-size: 18px;
     text-align: center;
+    user-select: none; /* 텍스트 드래그 금지 */
 }
 
 /* 중앙의 + 버튼 스타일 */
@@ -50,11 +57,12 @@
     align-items: center;
     margin: 0 auto;
     cursor: pointer; 
+    user-select: none; /* 버튼 드래그 금지 */
 }
 
 .navigation-plus-icon {
     font-size: 50px;
     color: white;
     margin-bottom: 12px;
-
+    user-select: none; /* + 아이콘 드래그 금지 */
 }
