@@ -60,9 +60,10 @@
 }
 
 .medicine-info-ingredient {
-    font-size: 18px; /* 성분 정보 글자 크기 증가 */
+    font-size: 10px; /* 성분 정보 글자 크기 증가 */
     color: #666666;
     margin-top: 5px;
+    max-width: 450px;
 }
 
 .medicine-info-tabs {
@@ -107,9 +108,18 @@
     font-size: 18px;
     color: #333333;
     line-height: 1.8; /* 줄 간격 */
-    margin-left: 12px;
+    margin-left: 30px;
 }
 
+.mediciine-info-content-subtitle {
+    margin-left: -20px;
+    margin-bottom: 10px;
+    margin-top: -10px;
+
+}
+.medicine-info-content li {
+    margin-left: 18px;
+}
 .medicine-info-error {
     color: red;
     font-size: 1.2rem;

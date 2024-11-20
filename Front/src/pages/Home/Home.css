@@ -26,6 +26,7 @@
     font-weight: bold;
     text-align: left;
     margin-left: 15px;
+    color: #333;
 }
 
 /* 약 정보 카드 */
@@ -33,38 +34,45 @@
     background-color: #e5f6f9;
     border-radius: 10px;
     padding: 20px;
+    margin-bottom: 20px;
     height: auto;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     display: grid;
     grid-template-columns: 50px 1fr auto;
-    grid-template-rows: auto auto; /* 두 번째 행 추가 */
+    grid-template-rows: auto auto;
     gap: 15px;
     align-items: center;
     position: relative;
+    transition: transform 0.2s ease-in-out;
+}
+
+.home-medication-card:hover {
+    transform: scale(1.02);
 }
 
 /* 시계 아이콘과 시간 텍스트 */
 .home-clock-icon {
     grid-column: 1 / 2;
     grid-row: 1 / 2;
-    width: 50px;
+    width: 40px;
     margin-right: 10px;
 }
 
 .home-time {
     grid-column: 2 / 3;
     grid-row: 1 / 2;
-    font-size: 20px;
+    font-size: 18px;
     font-weight: bold;
     text-align: left;
+    color: #333;
 }
 
 /* 약 정보 */
 .home-medication-image-container {
     grid-column: 2 / 3;
     grid-row: 2 / 3;
-    width: 120px;
-    height: 60px;
+    width: 80px;
+    height: 80px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -76,9 +84,23 @@
 }
 
 .home-medication-image {
-    width: 100px;
+    width: 100%;
     height: auto;
     object-fit: cover;
+}
+
+.home-medication-image-container p {
+    font-size: 16px;
+    color: #aaaaaaef;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 70px;
+    height: 70px;
+    background-color: #cfcecea2;
+    border: 1px solid #ccc;
+    border-radius: 5px;
 }
 
 /* 약 정보 텍스트 */
@@ -88,9 +110,9 @@
     font-size: 16px;
     line-height: 1.5;
     text-align: left;
-    margin-left: 120px;
-    margin-bottom: 20px;
+    margin-left: 100px;
     cursor: pointer;
+    color: #333;
 }
 
 .home-medication-info:hover {
@@ -98,110 +120,10 @@
     color: #3c3c3c8a;
 }
 
-/* 알림 스위치 컨테이너 */
-.home-notification-container {
-    grid-column: 3 / 4;
-    grid-row: 1 / 2; /* 첫 번째 행에 배치 */
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-}
-
-.home-notification-label {
-    font-size: 18px;
-    font-weight: bold;
-    margin-right: 10px;
-}
-
-.home-toggle-switch {
-    position: relative;
-    display: inline-block;
-    width: 50px;
-    height: 24px;
-}
-
-.home-toggle-switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
-
-.home-slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #ccc;
-    transition: 0.4s ease-in-out;
-    border-radius: 24px;
-}
-
-.home-slider:before {
-    position: absolute;
-    content: "";
-    height: 20px;
-    width: 20px;
-    border-radius: 50%;
-    left: 2px;
-    bottom: 2px;
-    background-color: white;
-    transition: 0.4s ease-in-out;
-}
-
-input:checked + .home-slider {
-    background-color: #59BDBD;
-}
-
-input:checked + .home-slider:before {
-    transform: translateX(26px);
-}
-
-/* 슬라이드 애니메이션 */
-.home-slide-left-enter {
-    transform: translateX(100%);
-}
-.home-slide-left-enter-active {
-    transform: translateX(0);
-    transition: transform 200ms ease-in-out;
-}
-.home-slide-left-exit {
-    transform: translateX(0);
-}
-.home-slide-left-exit-active {
-    transform: translateX(-100%);
-    transition: transform 200ms ease-in-out;
-}
-
-.home-slide-right-enter {
-    transform: translateX(-100%);
-}
-.home-slide-right-enter-active {
-    transform: translateX(0);
-    transition: transform 200ms ease-in-out;
-}
-.home-slide-right-exit {
-    transform: translateX(0);
-}
-.home-slide-right-exit-active {
-    transform: translateX(100%);
-    transition: transform 200ms ease-in-out;
-}
-
-/* 텍스트 드래그 방지 */
-.home-container, .home-content, .home-day-label, .home-medication-card, .home-medication-info {
-    user-select: none; /* 표준 브라우저 */
-    -webkit-user-select: none; /* Chrome, Safari */
-    -moz-user-select: none;    /* Firefox */
-    -ms-user-select: none;     /* Internet Explorer/Edge */
-}
-
-
 /* 복약 확인 버튼 */
 .home-confirm-button {
     grid-column: 3 / 4;
-    grid-row: 2 / 3; /* 두 번째 행에 배치 */
+    grid-row: 2 / 3;
     padding: 10px 20px;
     font-size: 16px;
     font-weight: bold;
@@ -220,4 +142,181 @@ input:checked + .home-slider:before {
 .home-confirm-button:disabled {
     background-color: #ccc;
     cursor: default;
+}
+
+/* 슬라이드 애니메이션 */
+.home-slide-left-enter {
+    transform: translateX(100%);
+}
+
+.home-slide-left-enter-active {
+    transform: translateX(0);
+    transition: transform 200ms ease-in-out;
+}
+
+.home-slide-left-exit {
+    transform: translateX(0);
+}
+
+.home-slide-left-exit-active {
+    transform: translateX(-100%);
+    transition: transform 200ms ease-in-out;
+}
+
+.home-slide-right-enter {
+    transform: translateX(-100%);
+}
+
+.home-slide-right-enter-active {
+    transform: translateX(0);
+    transition: transform 200ms ease-in-out;
+}
+
+.home-slide-right-exit {
+    transform: translateX(0);
+}
+
+.home-slide-right-exit-active {
+    transform: translateX(100%);
+    transition: transform 200ms ease-in-out;
+}
+
+/* 텍스트 드래그 방지 */
+.home-container,
+.home-content,
+.home-day-label,
+.home-medication-card,
+.home-medication-info {
+    user-select: none; /* 표준 브라우저 */
+    -webkit-user-select: none; /* Chrome, Safari */
+    -moz-user-select: none;    /* Firefox */
+    -ms-user-select: none;     /* Internet Explorer/Edge */
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .home-medication-card {
+        grid-template-columns: 40px 1fr auto;
+        padding: 15px;
+    }
+
+    .home-time {
+        font-size: 16px;
+    }
+
+    .home-confirm-button {
+        font-size: 14px;
+        padding: 8px 16px;
+    }
+
+    .home-day-label {
+        font-size: 20px;
+    }
+}
+
+/* 알림 버튼 스타일 */
+.home-notification-container {
+    grid-column: 3 / 4;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-top: 10px;
+}
+
+.home-notification-label {
+    font-size: 16px;
+    font-weight: bold;
+    margin-right: 5px;
+}
+
+.home-toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 34px;
+    height: 20px;
+    cursor: pointer;
+}
+
+.home-toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.home-slider {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    border-radius: 34px;
+    transition: 0.4s;
+}
+
+.home-slider:before {
+    position: absolute;
+    content: '';
+    height: 14px;
+    width: 14px;
+    background-color: white;
+    border-radius: 50%;
+    bottom: 3px;
+    left: 3px;
+    transition: 0.4s;
+}
+
+input:checked + .home-slider {
+    background-color: #59BDBD;
+}
+
+input:checked + .home-slider:before {
+    transform: translateX(14px);
+}
+
+/* 스피너 컨테이너 스타일 */
+.spinner-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 60vh; /* 화면 전체 높이를 사용하여 중앙에 위치 */
+}
+
+/* 스피너 애니메이션 */
+.spinner {
+    border: 8px solid #f3f3f3; /* 배경색 */
+    border-top: 8px solid #76c7c0; /* 전경색 */
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 1s linear infinite;
+}
+
+/* 스피너 회전 애니메이션 정의 */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* 오류 메시지 스타일링 */
+.error-text {
+    color: red;
+    font-size: 1.2rem;
+    text-align: center;
+    margin-top: 20px;
+}
+
+/* 재시도 버튼 스타일링 */
+.spinner-container button {
+    padding: 10px 20px;
+    background-color: #76c7c0;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.spinner-container button:hover {
+    background-color: #5aa9a3;
 }
