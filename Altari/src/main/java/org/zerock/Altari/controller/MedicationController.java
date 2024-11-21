@@ -50,6 +50,7 @@ public class MedicationController {
 
     @PostMapping("/confirm/{username}")
     public ResponseEntity<String> confirmMedication(@PathVariable String username,
+                                                    String dosingTime,
                                                     @RequestHeader("Authorization") String accessToken) throws UnsupportedEncodingException {
 
         UserEntity userToken = jWTUtil.getUsernameFromToken(accessToken);
@@ -62,7 +63,7 @@ public class MedicationController {
             throw new EntityNotMatchedException("권한이 없습니다.");
         }
         try {
-            medicationAlarmService.confirmMedication(user); // 복용 확인 메서드 호출
+            medicationAlarmService.confirmMedication(user, dosingTime); // 복용 확인 메서드 호출
             return ResponseEntity.ok("약 복용이 확인되었습니다.");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

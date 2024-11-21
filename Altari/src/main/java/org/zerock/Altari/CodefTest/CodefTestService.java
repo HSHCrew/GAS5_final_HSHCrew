@@ -12,9 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.zerock.Altari.Codef.EasyCodefToken;
 import org.zerock.Altari.entity.*;
-import org.zerock.Altari.repository.MedicationRepository;
-import org.zerock.Altari.repository.UserMedicationRepository;
-import org.zerock.Altari.repository.UserPrescriptionRepository;
+import org.zerock.Altari.repository.*;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -26,7 +24,6 @@ import java.util.List;
 import java.util.Optional;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import org.zerock.Altari.repository.UserProfileRepository;
 
 @Service
 public class CodefTestService {
@@ -47,6 +44,8 @@ public class CodefTestService {
     private MedicationRepository medicationRepository;
     @Autowired
     private UserMedicationRepository prescriptionDrugRepository;
+    @Autowired
+    private MedicationCompletionRepository medicationCompletionRepository;
 
     @Transactional
     public String callApi(String identity,
@@ -152,6 +151,15 @@ public class CodefTestService {
                 userPrescription.setOnAlarm(true);
 
                 userPrescriptionRepository.save(userPrescription);
+
+                MedicationCompletionEntity medicationCompletion = new MedicationCompletionEntity();
+                medicationCompletion.setMorningTaken(false);
+                medicationCompletion.setLunchTaken(false);
+                medicationCompletion.setDinnerTaken(false);
+                medicationCompletion.setNightTaken(false);
+                medicationCompletion.setUserProfile(userProfile);
+
+                medicationCompletionRepository.save(medicationCompletion);
 
                 JsonNode drugList = data.get("resDrugList");
                 int totalDosingDays = 0;

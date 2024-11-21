@@ -47,7 +47,7 @@ public class OAuthService {
     private static final String KAKAO_USERINFO_URL = "https://kapi.kakao.com/v2/user/me";
 
     @Async
-    public CompletableFuture<ResponseEntity<Map<String, String>>> kakaoLogin(String authorizationCode) {
+    public CompletableFuture<ResponseEntity<Map<String, Object>>> kakaoLogin(String authorizationCode) {
         // Access Token 요청
         String accessToken = getAccessToken(authorizationCode);
 
@@ -80,8 +80,14 @@ public class OAuthService {
 //
             String password = passwordEncoder.encode(id);
 //            // 사용자 정보가 DB에 있는지 확인하고 없으면 새로 저장
+
+            boolean isNewUser = false;
+
             UserEntity userEntity = userRepository.findByUsername(email);
             if (userEntity == null) {
+
+                isNewUser = true; // 새로운 회원임을 표시
+
                 userEntity = UserEntity.builder()
                         .username(email)
                         .password(password)
@@ -124,8 +130,20 @@ public class OAuthService {
 
             String refreshToken = jwtUtil.createToken(Map.of("username", username), 60 * 24 * 30); //
 
+            Map<String, Object> responseData = new HashMap<>();
+            responseData.put("accessToken", jwtToken);
+            responseData.put("refreshToken", refreshToken);
+
+            if (isNewUser) {
+                responseData.put("message", "Welcome! New User Registered");
+                responseData.put("isNewUser", true); // 새로운 회원 여부를 응답에 추가
+            } else {
+                responseData.put("message", "Welcome Back! Existing User");
+                responseData.put("isNewUser", false); // 기존 회원 여부를 응답에 추가
+            }
+
             return CompletableFuture.completedFuture(
-                    ResponseEntity.ok(Map.of("accessToken", jwtToken, "refreshToken", refreshToken)));
+                    ResponseEntity.ok(responseData));
         } else {
             throw new RuntimeException("카카오 사용자 정보 조회 실패");
         }

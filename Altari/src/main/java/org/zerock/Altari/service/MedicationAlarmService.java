@@ -11,6 +11,7 @@ import org.zerock.Altari.entity.*;
 import org.zerock.Altari.repository.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,6 +43,8 @@ public class MedicationAlarmService {
     private TwilioCallService twilioCallService;
     @Autowired
     private UserMedicationTimeRepository userMedicationTimeRepository;
+    @Autowired
+    private MedicationCompletionRepository medicationCompletionRepository;
 
 //    @PostConstruct // 서버가 시작된 후 자동으로 호출
 //    public void init() {
@@ -52,6 +55,31 @@ public class MedicationAlarmService {
     @Transactional
     public void updateTakenDosingDays() {
         List<UserPrescriptionEntity> prescriptions = userPrescriptionRepository.findAll();
+        List<UserProfileEntity> userProfiles = userProfileRepository.findAll();
+
+        for (UserProfileEntity userProfile : userProfiles) {
+            MedicationCompletionEntity medicationCompletion = new MedicationCompletionEntity();
+            medicationCompletion.setUserProfile(userProfile);
+            medicationCompletion.setMorningTaken(false);
+            medicationCompletion.setLunchTaken(false);
+            medicationCompletion.setDinnerTaken(false);
+            medicationCompletion.setNightTaken(false);
+            medicationCompletion.setUserProfile(userProfile);
+
+            medicationCompletionRepository.save(medicationCompletion);
+
+            LocalDate threeDaysAgo = LocalDate.now().minusDays(3);
+
+            List<MedicationCompletionEntity> medicationCompletions = medicationCompletionRepository.findByUserProfile(userProfile);
+
+            for (MedicationCompletionEntity medicationCompletionEntity : medicationCompletions) {
+
+                if (medicationCompletionEntity.getCreatedAt().isBefore(threeDaysAgo)) {
+                    medicationCompletionRepository.delete(medicationCompletionEntity);  // 3일 전이면 삭제
+                }
+            }
+
+        }
 
         for (UserPrescriptionEntity prescription : prescriptions) {
             List<UserMedicationEntity> drugs = prescriptionDrugRepository.findByPrescriptionId(prescription);
@@ -176,11 +204,28 @@ public class MedicationAlarmService {
     }
 
     @Transactional
-    public void confirmMedication(UserEntity username) {
+    public void confirmMedication(UserEntity username,
+                                  String dosingTime
+                                  ) {
         UserProfileEntity userProfile = userProfileRepository.findByUsername(username);
         List<UserPrescriptionEntity> activePrescriptions = userPrescriptionRepository.findByUserProfile(userProfile);
+        List<MedicationCompletionEntity> medicationCompletions = medicationCompletionRepository.findByUserProfile(userProfile);
 
         LocalDate today = LocalDate.now(); // 오늘 날짜
+
+        for (MedicationCompletionEntity medicationCompletion : medicationCompletions)
+            switch (dosingTime) {
+                case "morning" -> {
+                }
+                case "lunch" -> {
+                }
+                case "dinner" -> {
+                }
+                case "night" -> {
+                }
+            }
+
+
 
         for (UserPrescriptionEntity prescription : activePrescriptions) {
 
