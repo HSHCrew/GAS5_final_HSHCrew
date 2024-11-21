@@ -79,6 +79,7 @@ public class MedicationService {
                     .medicationId(medication.getMedicationId())
                     .medicationName(medication.getMedicationName())
                     .itemImage(medication.getItemImage())
+                    .oneDose(userMedication.getOneDose())
                     .build();
             if (userMedication.getDailyDosesNumber() == 1) {
                 MorningMedicationList.add(medicationDTO);
