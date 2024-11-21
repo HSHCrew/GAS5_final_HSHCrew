@@ -216,20 +216,27 @@ async def process_daily_questions(daily_questions_path: str) -> List[Dict]:
             search_term = data['search_term']
             questions = data['day_key_questions']
             
+            # 유사도 계산을 비동기로 수행
+            similarities = await calculate_similarities(questions, search_term)
+            
             # 각 질문에 대한 RAG 태스크 생성
-            term_tasks = [perform_rag_for_question(question) for question in questions]
-            tasks.extend([(search_term, task) for task in term_tasks])
+            term_tasks = []
+            for question, similarity in zip(questions, similarities):
+                rag_task = perform_rag_for_question(question)
+                term_tasks.append((search_term, rag_task, similarity))
+            tasks.extend(term_tasks)
         
         # 모든 RAG 태스크 병렬 실행
         if tasks:
-            results = await asyncio.gather(*[task for _, task in tasks])
+            results = await asyncio.gather(*[task for _, task, _ in tasks])
             
-            # 결과를 search_term별로 그룹화
+            # 결과를 search_term별로 그룹화하고 유사도 점수 추가
             term_results = {}
-            for (search_term, _), result in zip(tasks, results):
+            for (search_term, _, similarity), result in zip(tasks, results):
                 if result:  # None이 아닌 결과만 처리
                     if search_term not in term_results:
                         term_results[search_term] = []
+                    result['relevance_score'] = float(similarity)
                     term_results[search_term].append(result)
             
             # 최종 결과 형식으로 변환
