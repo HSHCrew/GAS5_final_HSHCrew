@@ -5,7 +5,7 @@ import "./style.css";
 function NewsCurationPopup() {
     const popupRef = useRef(null);
     const [isDragging, setIsDragging] = useState(false);
-    const [position, setPosition] = useState({ x: 850, y: 600 }); // 초기 위치
+    const [position, setPosition] = useState({ x: 700, y: 75 }); // 초기 위치
     const navigate = useNavigate(); // useNavigate 훅 사용
 
     const handleMouseDown = (e) => {
@@ -44,8 +44,15 @@ function NewsCurationPopup() {
             onMouseUp={handleMouseUp}
             onMouseLeave={handleMouseUp} // 팝업 밖으로 커서가 나가도 드래그 중지
         >
-            <div className="news-popup-icon" onClick={handleNavigate} style={{ cursor: "pointer" }}>
-                <span className="popup-text">뉴스</span>
+            <div className="news-popup-icon" style={{ cursor: "default" }}>
+                {/* 텍스트만 클릭 가능 */}
+                <span
+                    className="popup-text"
+                    onClick={handleNavigate}
+                    style={{ cursor: "pointer" }}
+                >
+                    뉴스
+                </span>
                 <i className="icon">📰</i>
             </div>
         </div>
