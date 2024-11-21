@@ -6,6 +6,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.zerock.Altari.security.util.JWTUtil;
+
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -23,17 +25,32 @@ public class OAuthController {
     // http://localhost:8080/login/oauth2/code/kakao?code=YOUR_AUTHORIZATION_CODE 해당 주소로 리디렉션
     // YOUR_AUTHORIZATION_CODE를 code 파라미터로 전달하며 호출
     @PostMapping("/kakao/login")
-    public ResponseEntity<Map<String, String>> kakaoLogin(@RequestParam("code") String authorizationCode) {
+    public ResponseEntity<Map<String, Object>> kakaoLogin(@RequestParam("code") String authorizationCode) {
         try {
-            CompletableFuture<ResponseEntity<Map<String, String>>> jwtTokenFuture = oAuthService.kakaoLogin(authorizationCode);
-            ResponseEntity<Map<String, String>> jwtToken = jwtTokenFuture.get(); // 비동기 작업이 완료될 때까지 기다림
-            Map<String, String> tokenMap = jwtToken.getBody();  // Map<String, String> 반환
-            String accessToken = tokenMap.get("accessToken");
-            String refreshToken = tokenMap.get("refreshToken");
-            return ResponseEntity.ok(Map.of("accessToken", accessToken, "refreshToken", refreshToken));
+            // CompletableFuture 작업 완료 대기
+            CompletableFuture<ResponseEntity<Map<String, Object>>> jwtTokenFuture = oAuthService.kakaoLogin(authorizationCode);
+
+            // CompletableFuture에서 결과 가져오기
+            ResponseEntity<Map<String, Object>> jwtTokenResponse = jwtTokenFuture.get();
+            Map<String, Object> tokenMap = jwtTokenResponse.getBody(); // 반환된 Map 객체 가져오기
+
+            // Map에서 필요한 값 추출
+            String accessToken = (String) tokenMap.get("accessToken");
+            String refreshToken = (String) tokenMap.get("refreshToken");
+            boolean isNewUser = (boolean) tokenMap.get("isNewUser"); // 새 사용자 여부 가져오기
+
+            // 최종 Map 생성 후 반환
+            Map<String, Object> responseMap = new HashMap<>();
+            responseMap.put("accessToken", accessToken);
+            responseMap.put("refreshToken", refreshToken);
+            responseMap.put("isNewUser", isNewUser);
+
+            return ResponseEntity.ok(responseMap);
+
         } catch (ExecutionException | InterruptedException e) {
             log.error("카카오 로그인 오류", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "카카오 로그인 실패"));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "카카오 로그인 실패"));
         }
     }
 }
