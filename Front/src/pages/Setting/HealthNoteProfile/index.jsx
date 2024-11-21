@@ -125,7 +125,10 @@ const HealthNoteProfile = () => {
   };
 
   if (!profileData) {
-    return <div>Loading...</div>;
+    return (
+      <div className="health-loading-spinner">
+      </div>
+    );
   }
 
   return (

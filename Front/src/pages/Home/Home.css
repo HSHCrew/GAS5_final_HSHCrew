@@ -17,6 +17,7 @@
     max-width: 600px;
     text-align: center;
     margin: 20px auto;
+    margin-bottom: 65px;
 }
 
 /* 텍스트 스타일 */
@@ -29,211 +30,57 @@
     color: #333;
 }
 
-/* 약 정보 카드 */
-.home-medication-card {
+/* 약물 그룹 카드 */
+.home-medication-group-card {
     background-color: #e5f6f9;
     border-radius: 10px;
     padding: 20px;
     margin-bottom: 20px;
-    height: auto;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    display: grid;
-    grid-template-columns: 50px 1fr auto;
-    grid-template-rows: auto auto;
-    gap: 15px;
-    align-items: center;
-    position: relative;
-    transition: transform 0.2s ease-in-out;
+    position: relative; /* 상대 위치 */
 }
 
-.home-medication-card:hover {
-    transform: scale(1.02);
+/* 카드 호버 효과 제거 */
+.home-medication-group-card:hover {
+    transform: none;
 }
 
-/* 시계 아이콘과 시간 텍스트 */
+/* 시계 아이콘과 시간 - 카드 왼쪽 상단 */
 .home-clock-icon {
-    grid-column: 1 / 2;
-    grid-row: 1 / 2;
+    position: absolute;
+    top: 15px;
+    left: 15px;
     width: 40px;
-    margin-right: 10px;
+    height: 40px;
 }
 
 .home-time {
-    grid-column: 2 / 3;
-    grid-row: 1 / 2;
-    font-size: 18px;
+    position: absolute;
+    top: 15px;
+    left: 65px;
+    font-size: 24px;
     font-weight: bold;
-    text-align: left;
     color: #333;
 }
 
-/* 약 정보 */
-.home-medication-image-container {
-    grid-column: 2 / 3;
-    grid-row: 2 / 3;
-    width: 80px;
-    height: 80px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-}
-
-.home-medication-image-container:hover .home-medication-image {
-    opacity: 0.8;
-}
-
-.home-medication-image {
-    width: 100%;
-    height: auto;
-    object-fit: cover;
-}
-
-.home-medication-image-container p {
-    font-size: 16px;
-    color: #aaaaaaef;
-    text-align: center;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 70px;
-    height: 70px;
-    background-color: #cfcecea2;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-}
-
-/* 약 정보 텍스트 */
-.home-medication-info {
-    grid-column: 2 / 3;
-    grid-row: 2 / 3;
-    font-size: 16px;
-    line-height: 1.5;
-    text-align: left;
-    margin-left: 100px;
-    cursor: pointer;
-    color: #333;
-}
-
-.home-medication-info:hover {
-    text-decoration: underline;
-    color: #3c3c3c8a;
-}
-
-/* 복약 확인 버튼 */
-.home-confirm-button {
-    grid-column: 3 / 4;
-    grid-row: 2 / 3;
-    padding: 10px 20px;
-    font-size: 16px;
-    font-weight: bold;
-    color: white;
-    background-color: #59BDBD;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.home-confirm-button:hover {
-    background-color: #45a5a5;
-}
-
-.home-confirm-button:disabled {
-    background-color: #ccc;
-    cursor: default;
-}
-
-/* 슬라이드 애니메이션 */
-.home-slide-left-enter {
-    transform: translateX(100%);
-}
-
-.home-slide-left-enter-active {
-    transform: translateX(0);
-    transition: transform 200ms ease-in-out;
-}
-
-.home-slide-left-exit {
-    transform: translateX(0);
-}
-
-.home-slide-left-exit-active {
-    transform: translateX(-100%);
-    transition: transform 200ms ease-in-out;
-}
-
-.home-slide-right-enter {
-    transform: translateX(-100%);
-}
-
-.home-slide-right-enter-active {
-    transform: translateX(0);
-    transition: transform 200ms ease-in-out;
-}
-
-.home-slide-right-exit {
-    transform: translateX(0);
-}
-
-.home-slide-right-exit-active {
-    transform: translateX(100%);
-    transition: transform 200ms ease-in-out;
-}
-
-/* 텍스트 드래그 방지 */
-.home-container,
-.home-content,
-.home-day-label,
-.home-medication-card,
-.home-medication-info {
-    user-select: none; /* 표준 브라우저 */
-    -webkit-user-select: none; /* Chrome, Safari */
-    -moz-user-select: none;    /* Firefox */
-    -ms-user-select: none;     /* Internet Explorer/Edge */
-}
-
-/* 반응형 디자인 */
-@media (max-width: 768px) {
-    .home-medication-card {
-        grid-template-columns: 40px 1fr auto;
-        padding: 15px;
-    }
-
-    .home-time {
-        font-size: 16px;
-    }
-
-    .home-confirm-button {
-        font-size: 14px;
-        padding: 8px 16px;
-    }
-
-    .home-day-label {
-        font-size: 20px;
-    }
-}
-
-/* 알림 버튼 스타일 */
+/* 알림 토글 스위치 - 카드 오른쪽 상단 */
 .home-notification-container {
-    grid-column: 3 / 4;
+    position: absolute;
+    top: 15px;
+    right: 15px;
     display: flex;
     align-items: center;
-    justify-content: flex-end;
-    margin-top: 10px;
 }
 
 .home-notification-label {
-    font-size: 16px;
-    font-weight: bold;
-    margin-right: 5px;
+    display: none; /* 텍스트는 숨김 */
 }
 
 .home-toggle-switch {
     position: relative;
     display: inline-block;
-    width: 34px;
-    height: 20px;
+    width: 60px;
+    height: 30px;
     cursor: pointer;
 }
 
@@ -257,66 +104,268 @@
 .home-slider:before {
     position: absolute;
     content: '';
-    height: 14px;
-    width: 14px;
+    height: 24px;
+    width: 24px;
     background-color: white;
     border-radius: 50%;
-    bottom: 3px;
-    left: 3px;
+    bottom: 3.5px;
+    left: 6px;
     transition: 0.4s;
 }
 
-input:checked + .home-slider {
+.home-toggle-switch input:checked + .home-slider {
     background-color: #59BDBD;
 }
 
-input:checked + .home-slider:before {
-    transform: translateX(14px);
+.home-toggle-switch input:checked + .home-slider:before {
+    transform: translateX(25px);
 }
 
-/* 스피너 컨테이너 스타일 */
-.spinner-container {
+/* 약물 컨테이너 */
+.medications-container {
+    margin-top: 50px;
     display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 60vh; /* 화면 전체 높이를 사용하여 중앙에 위치 */
+    flex-wrap: wrap;
+    gap: 15px; /* 약물 간격 */
 }
 
-/* 스피너 애니메이션 */
+/* 개별 약물 컨테이너 */
+.home-medication-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background-color: #fff;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    width: 100%; /* 약물 카드 전체 너비 */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+    cursor: pointer; /* 약물 클릭 가능 표시 */
+}
+
+.home-medication-item:hover {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+    transform: translateY(-2px);
+}
+
+/* 약물 이미지 */
+.home-medication-image {
+    width: 67px;
+    height: 67px;
+    border-radius: 5px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f0f0f0;
+    margin-left: 10px;
+    flex-shrink: 0;
+}
+
+.home-medication-image img {
+    width: 80px;
+    height: 50px;
+    object-fit: cover;
+}
+
+/* 약물 정보 컨테이너 */
+.home-medication-info-container {
+    display: flex;
+    flex-direction: column; /* 위아래 배치 */
+    justify-content: center; /* 수직 중앙 정렬 */
+    align-items: flex-start; /* 왼쪽 정렬 */
+    gap: 5px; /* 위아래 간격 */
+}
+
+/* 약물 이름 */
+.home-medication-info {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+    margin: 0; /* 기본 여백 제거 */
+}
+
+/* 약물 개수 */
+.home-medication-count {
+    font-size: 14px;
+    color: #666;
+    margin: 0; /* 기본 여백 제거 */
+}
+
+/* 확인 버튼 */
+.home-confirm-button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 15px;
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+    background-color: #59BDBD;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.home-confirm-button:hover {
+    background-color: #45a5a5;
+}
+
+.home-confirm-button:focus {
+    outline: none; /* 버튼 클릭 후 포커스 스타일 제거 */
+}
+
+.home-confirm-button:disabled {
+    background-color: #ccc;
+    cursor: default;
+}
+
+/* 사용자 프로필 정보 */
+.profile-info {
+    text-align: left;
+    margin-left: 15px;
+}
+
+.profile-name {
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
+}
+
+.profile-email {
+    font-size: 16px;
+    color: #666;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .home-medication-group-card {
+        padding: 15px;
+    }
+
+    .home-clock-icon {
+        width: 20px;
+        height: 20px;
+    }
+
+    .home-time {
+        font-size: 14px;
+        left: 40px;
+    }
+
+    .home-confirm-button {
+        font-size: 14px;
+        padding: 8px;
+    }
+
+    .home-day-label {
+        font-size: 20px;
+    }
+
+    .home-medication-info {
+        font-size: 16px;
+    }
+
+    .home-medication-count {
+        font-size: 12px;
+    }
+
+    .home-medication-image {
+        width: 50px;
+        height: 50px;
+    }
+}
+
+.home-transition-wrapper {
+    width: 90%;
+    max-width: 600px;
+    overflow: hidden; /* 요소가 이동할 때 레이아웃이 깨지지 않도록 */
+    margin: 0 auto;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* 화면 슬라이드 왼쪽 방향 진입 */
+.home-slide-left-enter {
+    transform: translateX(100%);
+    opacity: 0;
+}
+
+.home-slide-left-enter-active {
+    transform: translateX(0);
+    opacity: 1;
+    transition: transform 500ms ease-in-out, opacity 500ms ease-in-out;
+}
+
+.home-slide-left-exit {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.home-slide-left-exit-active {
+    transform: translateX(-100%);
+    opacity: 0;
+    transition: transform 500ms ease-in-out, opacity 500ms ease-in-out;
+}
+
+/* 화면 슬라이드 오른쪽 방향 진입 */
+.home-slide-right-enter {
+    transform: translateX(-100%);
+    opacity: 0;
+}
+
+.home-slide-right-enter-active {
+    transform: translateX(0);
+    opacity: 1;
+    transition: transform 500ms ease-in-out, opacity 500ms ease-in-out;
+}
+
+.home-slide-right-exit {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.home-slide-right-exit-active {
+    transform: translateX(100%);
+    opacity: 0;
+    transition: transform 500ms ease-in-out, opacity 500ms ease-in-out;
+}
+
+.loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh; /* 전체 화면 높이에 맞춰서 중앙에 배치 */
+}
+
 .spinner {
-    border: 8px solid #f3f3f3; /* 배경색 */
-    border-top: 8px solid #76c7c0; /* 전경색 */
+    border: 8px solid #f3f3f3; /* Light grey */
+    border-top: 8px solid #3498db; /* Blue */
     border-radius: 50%;
     width: 60px;
     height: 60px;
     animation: spin 1s linear infinite;
 }
 
-/* 스피너 회전 애니메이션 정의 */
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
-/* 오류 메시지 스타일링 */
-.error-text {
-    color: red;
-    font-size: 1.2rem;
-    text-align: center;
-    margin-top: 20px;
+/* 텍스트 선택 및 이미지 드래그 금지 */
+* {
+    user-select: none; /* 모든 요소에 대해 텍스트 선택 비활성화 */
 }
 
-/* 재시도 버튼 스타일링 */
-.spinner-container button {
-    padding: 10px 20px;
-    background-color: #76c7c0;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-.spinner-container button:hover {
-    background-color: #5aa9a3;
+img {
+    user-drag: none; /* 크롬 브라우저에서 이미지 드래그 금지 */
+    -webkit-user-drag: none; /* 웹킷 엔진 (크롬, 사파리 등)에서 드래그 금지 */
 }

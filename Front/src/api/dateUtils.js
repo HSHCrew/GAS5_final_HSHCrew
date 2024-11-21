@@ -4,25 +4,18 @@
  * @param {number} totalDosingDays - 총 복약 일수
  * @returns {{ startDate: Date, endDate: Date }}
  */
+
+// 날짜 배열을 문자열로 변환
+const formatManufactureDate = (manufactureDateArray) => {
+    const [year, month, day] = manufactureDateArray;
+    return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+};
+
 export const calculateDosingPeriod = (manufactureDate, totalDosingDays) => {
     const startDate = new Date(manufactureDate);
     const endDate = new Date(startDate);
-    endDate.setDate(startDate.getDate() + totalDosingDays - 1);
+    endDate.setDate(startDate.getDate() + totalDosingDays - 1); // 처방 기간 생성
     return { startDate, endDate };
-};
-
-/**
- * 날짜 객체가 동일한 날인지 확인
- * @param {Date} date1 - 첫 번째 날짜
- * @param {Date} date2 - 두 번째 날짜
- * @returns {boolean} 동일한 날인지 여부
- */
-export const isSameDay = (date1, date2) => {
-    return (
-        date1.getFullYear() === date2.getFullYear() &&
-        date1.getMonth() === date2.getMonth() &&
-        date1.getDate() === date2.getDate()
-    );
 };
 
 /**
@@ -37,25 +30,29 @@ export const isDateInRange = (targetDate, startDate, endDate) => {
 };
 
 /**
- * 날짜를 포맷팅 (예: YYYY-MM-DD 형식)
- * @param {Date} date - 날짜 객체
- * @returns {string} 포맷된 날짜 문자열
+ * 활성화된 처방전 필터링
+ * @param {Array} prescriptions - 처방전 목록
+ * @returns {Array} 활성화된 처방전
  */
-export const formatDate = (date) => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-};
+export const getActivePrescriptions = (prescriptions) => {
+    const today = new Date();
+    return prescriptions.filter((prescription) => {
+        if (!Array.isArray(prescription.manufactureDate)) {
+            console.warn('manufactureDate is not an array:', prescription.manufactureDate);
+            return false;
+        }
 
-/**
- * 특정 날짜로부터 N일 전/후 날짜 계산
- * @param {Date} date - 기준 날짜
- * @param {number} days - 이동할 일수 (음수는 과거, 양수는 미래)
- * @returns {Date} 계산된 날짜 객체
- */
-export const addDays = (date, days) => {
-    const result = new Date(date);
-    result.setDate(result.getDate() + days);
-    return result;
+        const manufactureDate = formatManufactureDate(prescription.manufactureDate);
+
+        // 모든 약물의 totalDosingDays를 고려
+        const active = prescription.drugs.some((drug) => {
+            const totalDosingDays = drug.totalDosingDays || 0;
+            if (totalDosingDays === 0) return false;
+
+            const { startDate, endDate } = calculateDosingPeriod(manufactureDate, totalDosingDays);
+            return isDateInRange(today, startDate, endDate);
+        });
+
+        return active;
+    });
 };
