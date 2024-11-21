@@ -316,7 +316,7 @@ async def scrape_medicalxpress_articles(search_term: str, min_relevance: float =
             print(f"Error scraping article {article['link']}: {str(e)}")
             return None
     
-    # 모든 기��를 동시에 스크래핑
+    # 모든 기사를 동시에 스크래핑
     tasks = [scrape_article_with_metadata(article) for article in selected_articles]
     results = await asyncio.gather(*tasks)
     
