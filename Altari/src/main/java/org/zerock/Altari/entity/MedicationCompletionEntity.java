@@ -30,15 +30,15 @@ public class MedicationCompletionEntity {
     private LocalDate createdAt; // 생성일자
 
     @Column(nullable = false)
-    private boolean morningTaken; // 아침 복약 여부
+    private Boolean morningTaken; // 아침 복약 여부
 
     @Column(nullable = false)
-    private boolean lunchTaken; // 점심 복약 여부
+    private Boolean lunchTaken; // 점심 복약 여부
 
     @Column(nullable = false)
-    private boolean dinnerTaken; // 저녁 복약 여부
+    private Boolean dinnerTaken; // 저녁 복약 여부
 
     @Column(nullable = false)
-    private boolean nightTaken; // 밤 복약 여부
+    private Boolean nightTaken; // 밤 복약 여부
 
 }

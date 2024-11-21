@@ -120,6 +120,11 @@ public class CodefTestService {
             JsonNode jsonResponse = objectMapper.readTree(decodedSecondResponseBody);
             JsonNode dataList = jsonResponse.get("data");
 
+            // data가 리스트가 아닌 경우 처리
+            if (!dataList.isArray()) {
+                dataList = objectMapper.createArrayNode().add(dataList); // data가 단일 객체일 경우 배열로 변환
+            }
+
             // 각 처방전을 반복 처리
             for (JsonNode data : dataList) {
                 String prescribeNo = data.get("resPrescribeNo").asText();
@@ -153,6 +158,7 @@ public class CodefTestService {
                 userPrescriptionRepository.save(userPrescription);
 
                 MedicationCompletionEntity medicationCompletion = new MedicationCompletionEntity();
+                medicationCompletion.setCreatedAt(LocalDate.now());
                 medicationCompletion.setMorningTaken(false);
                 medicationCompletion.setLunchTaken(false);
                 medicationCompletion.setDinnerTaken(false);
@@ -162,6 +168,12 @@ public class CodefTestService {
                 medicationCompletionRepository.save(medicationCompletion);
 
                 JsonNode drugList = data.get("resDrugList");
+
+                // resDrugList가 배열이 아닐 경우 처리
+                if (!drugList.isArray()) {
+                    drugList = objectMapper.createArrayNode().add(drugList); // resDrugList가 단일 객체일 경우 배열로 변환
+                }
+
                 int totalDosingDays = 0;
 
                 for (JsonNode drugData : drugList) {
@@ -247,10 +259,6 @@ public class CodefTestService {
             return null;
         }
     }
-
-    }
-
-
-
+}
 
 

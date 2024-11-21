@@ -1,5 +1,6 @@
 package org.zerock.Altari.service;
 
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.TaskScheduler;
@@ -7,6 +8,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.zerock.Altari.dto.MedicationCompletionDTO;
 import org.zerock.Altari.entity.*;
 import org.zerock.Altari.repository.*;
 
@@ -20,6 +22,7 @@ import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
 
 @Service
+@Log4j2
 public class MedicationAlarmService {
 
     @Autowired
@@ -60,6 +63,7 @@ public class MedicationAlarmService {
         for (UserProfileEntity userProfile : userProfiles) {
             MedicationCompletionEntity medicationCompletion = new MedicationCompletionEntity();
             medicationCompletion.setUserProfile(userProfile);
+            medicationCompletion.setCreatedAt(LocalDate.now());
             medicationCompletion.setMorningTaken(false);
             medicationCompletion.setLunchTaken(false);
             medicationCompletion.setDinnerTaken(false);
@@ -145,57 +149,66 @@ public class MedicationAlarmService {
                 MedicationTime += 1;
                 future = taskScheduler.schedule(() -> sendDailyMedicationAlerts(user),
                         new CronTrigger(createCronExpression(lunchMedicationTime)));
-                System.out.println("하루 " +MedicationTime+ "번 복약 알림이 설정되었습니다.");
+                System.out.println("하루 " + MedicationTime + "번 복약 알림이 설정되었습니다.");
 
 
-            } else if (maxDailyDosage == 2 ) {
-                if (Boolean.TRUE.equals(userMedicationTime.getOnMorningMedicationAlarm())){
+            } else if (maxDailyDosage == 2) {
+                if (Boolean.TRUE.equals(userMedicationTime.getOnMorningMedicationAlarm())) {
                     future = taskScheduler.schedule(() -> sendDailyMedicationAlerts(user),
                             new CronTrigger(createCronExpression(morningMedicationTime)));
-                    MedicationTime += 1;}
-                if (Boolean.TRUE.equals(userMedicationTime.getOnDinnerMedicationTimeAlarm())){
+                    MedicationTime += 1;
+                }
+                if (Boolean.TRUE.equals(userMedicationTime.getOnDinnerMedicationTimeAlarm())) {
                     future = taskScheduler.schedule(() -> sendDailyMedicationAlerts(user),
                             new CronTrigger(createCronExpression(dinnerMedicationTime)));
-                    MedicationTime += 1;}
-                System.out.println("하루 " +MedicationTime+ "번 복약 알림이 설정되었습니다.");
+                    MedicationTime += 1;
+                }
+                System.out.println("하루 " + MedicationTime + "번 복약 알림이 설정되었습니다.");
 
 
             } else if (maxDailyDosage == 3) {
-                if (Boolean.TRUE.equals(userMedicationTime.getOnMorningMedicationAlarm())){
+                if (Boolean.TRUE.equals(userMedicationTime.getOnMorningMedicationAlarm())) {
                     future = taskScheduler.schedule(() -> sendDailyMedicationAlerts(user),
                             new CronTrigger(createCronExpression(morningMedicationTime)));
 
-                    MedicationTime += 1;}
-                if (Boolean.TRUE.equals(userMedicationTime.getOnMorningMedicationAlarm())){
+                    MedicationTime += 1;
+                }
+                if (Boolean.TRUE.equals(userMedicationTime.getOnMorningMedicationAlarm())) {
                     future = taskScheduler.schedule(() -> sendDailyMedicationAlerts(user),
                             new CronTrigger(createCronExpression(lunchMedicationTime)));
-                    MedicationTime += 1;}
+                    MedicationTime += 1;
+                }
 
-                if (Boolean.TRUE.equals(userMedicationTime.getOnMorningMedicationAlarm())){
+                if (Boolean.TRUE.equals(userMedicationTime.getOnMorningMedicationAlarm())) {
                     future = taskScheduler.schedule(() -> sendDailyMedicationAlerts(user),
                             new CronTrigger(createCronExpression(dinnerMedicationTime)));
-                    MedicationTime += 1;}
+                    MedicationTime += 1;
+                }
 
-                System.out.println("하루 " +MedicationTime+ "번 복약 알림이 설정되었습니다.");
+                System.out.println("하루 " + MedicationTime + "번 복약 알림이 설정되었습니다.");
 
             } else if (maxDailyDosage == 4) {
-                if (Boolean.TRUE.equals(userMedicationTime.getOnMorningMedicationAlarm())){
+                if (Boolean.TRUE.equals(userMedicationTime.getOnMorningMedicationAlarm())) {
                     future = taskScheduler.schedule(() -> sendDailyMedicationAlerts(user),
                             new CronTrigger(createCronExpression(morningMedicationTime)));
-                    MedicationTime += 1;}
-                if (Boolean.TRUE.equals(userMedicationTime.getOnMorningMedicationAlarm())){
+                    MedicationTime += 1;
+                }
+                if (Boolean.TRUE.equals(userMedicationTime.getOnMorningMedicationAlarm())) {
                     future = taskScheduler.schedule(() -> sendDailyMedicationAlerts(user),
                             new CronTrigger(createCronExpression(lunchMedicationTime)));
-                    MedicationTime += 1;}
-                if (Boolean.TRUE.equals(userMedicationTime.getOnMorningMedicationAlarm())){
+                    MedicationTime += 1;
+                }
+                if (Boolean.TRUE.equals(userMedicationTime.getOnMorningMedicationAlarm())) {
                     future = taskScheduler.schedule(() -> sendDailyMedicationAlerts(user),
                             new CronTrigger(createCronExpression(dinnerMedicationTime)));
-                    MedicationTime += 1;}
-                if (Boolean.TRUE.equals(userMedicationTime.getOnMorningMedicationAlarm())){
+                    MedicationTime += 1;
+                }
+                if (Boolean.TRUE.equals(userMedicationTime.getOnMorningMedicationAlarm())) {
                     future = taskScheduler.schedule(() -> sendDailyMedicationAlerts(user),
                             new CronTrigger(createCronExpression(nightMedicationTime)));
-                    MedicationTime += 1;}
-                System.out.println("하루 " +MedicationTime+ "번 복약 알림이 설정되었습니다.");
+                    MedicationTime += 1;
+                }
+                System.out.println("하루 " + MedicationTime + "번 복약 알림이 설정되었습니다.");
             }
 
             // 새로 예약된 작업을 맵에 저장
@@ -205,26 +218,36 @@ public class MedicationAlarmService {
 
     @Transactional
     public void confirmMedication(UserEntity username,
-                                  String dosingTime
-                                  ) {
+                                  MedicationCompletionDTO medicationCompletionDTO
+    ) {
         UserProfileEntity userProfile = userProfileRepository.findByUsername(username);
         List<UserPrescriptionEntity> activePrescriptions = userPrescriptionRepository.findByUserProfile(userProfile);
         List<MedicationCompletionEntity> medicationCompletions = medicationCompletionRepository.findByUserProfile(userProfile);
 
         LocalDate today = LocalDate.now(); // 오늘 날짜
 
-        for (MedicationCompletionEntity medicationCompletion : medicationCompletions)
-            switch (dosingTime) {
-                case "morning" -> {
+        for (MedicationCompletionEntity medicationCompletion : medicationCompletions) {
+
+            LocalDate createTime = medicationCompletion.getCreatedAt();
+
+            if (createTime.isEqual(today)) {
+                if (medicationCompletionDTO.getMorningTaken()) {
+                    medicationCompletion.setMorningTaken(true);
                 }
-                case "lunch" -> {
+                if (medicationCompletionDTO.getLunchTaken()) {
+                    medicationCompletion.setLunchTaken(true);
                 }
-                case "dinner" -> {
+                if (medicationCompletionDTO.getDinnerTaken()) {
+                    medicationCompletion.setDinnerTaken(true);
                 }
-                case "night" -> {
+                if (medicationCompletionDTO.getNightTaken()) {
+                    medicationCompletion.setNightTaken(true);
                 }
+                // createTime이 오늘인 경우 처리할 로직
+                medicationCompletionRepository.save(medicationCompletion);
             }
 
+        }
 
 
         for (UserPrescriptionEntity prescription : activePrescriptions) {
@@ -282,18 +305,19 @@ public class MedicationAlarmService {
         // is_taken이 false인 처방전 내 모든 약물에 대해 최대 하루 복용 횟수와 총 복용 일수 설정
         for (UserPrescriptionEntity prescription : activePrescriptions) {
             if (prescription.getOnAlarm()) {
-            List<UserMedicationEntity> prescriptionDrugs = prescriptionDrugRepository.findByPrescriptionId(prescription);
+                List<UserMedicationEntity> prescriptionDrugs = prescriptionDrugRepository.findByPrescriptionId(prescription);
 
-            for (UserMedicationEntity prescriptionDrug : prescriptionDrugs) {
-                // 현재 약물의 총 복용 횟수와 지금까지 복용한 횟수를 비교
-                if (prescriptionDrug.getTakenDosage() < prescriptionDrug.getTotalDosage()) {
-                    // 아직 복용이 끝나지 않은 약물만 고려하여 최대 하루 복용 횟수와 총 복용 일수 갱신
-                    allDrugsTaken = false; // 아직 복용이 끝나지 않은 약물이 있음
+                for (UserMedicationEntity prescriptionDrug : prescriptionDrugs) {
+                    // 현재 약물의 총 복용 횟수와 지금까지 복용한 횟수를 비교
+                    if (prescriptionDrug.getTakenDosage() < prescriptionDrug.getTotalDosage()) {
+                        // 아직 복용이 끝나지 않은 약물만 고려하여 최대 하루 복용 횟수와 총 복용 일수 갱신
+                        allDrugsTaken = false; // 아직 복용이 끝나지 않은 약물이 있음
 
-                    maxDailyDosage = Math.max(maxDailyDosage, prescriptionDrug.getDailyDosesNumber());
-                    maxTotalDays = Math.max(maxTotalDays, prescriptionDrug.getTotalDosingDays());
+                        maxDailyDosage = Math.max(maxDailyDosage, prescriptionDrug.getDailyDosesNumber());
+                        maxTotalDays = Math.max(maxTotalDays, prescriptionDrug.getTotalDosingDays());
+                    }
                 }
-            }}
+            }
         }
 
         // 모든 약물의 복용이 끝났으면 null 반환
@@ -401,64 +425,73 @@ public class MedicationAlarmService {
             MedicationTime += 1;
             future = taskScheduler.schedule(() -> sendDailyMedicationAlerts(user),
                     new CronTrigger(createCronExpression(lunchMedicationTime)));
-            System.out.println("하루 " +MedicationTime+ "번 복약 알림이 설정되었습니다.");
+            System.out.println("하루 " + MedicationTime + "번 복약 알림이 설정되었습니다.");
 
 
-        } else if (maxDailyDosage == 2 ) {
-            if (Boolean.TRUE.equals(userMedicationTime.getOnMorningMedicationAlarm())){
-            future = taskScheduler.schedule(() -> sendDailyMedicationAlerts(user),
-                    new CronTrigger(createCronExpression(morningMedicationTime)));
-                MedicationTime += 1;}
-            if (Boolean.TRUE.equals(userMedicationTime.getOnDinnerMedicationTimeAlarm())){
-            future = taskScheduler.schedule(() -> sendDailyMedicationAlerts(user),
-                    new CronTrigger(createCronExpression(dinnerMedicationTime)));
-                MedicationTime += 1;}
-            System.out.println("하루 " +MedicationTime+ "번 복약 알림이 설정되었습니다.");
+        } else if (maxDailyDosage == 2) {
+            if (Boolean.TRUE.equals(userMedicationTime.getOnMorningMedicationAlarm())) {
+                future = taskScheduler.schedule(() -> sendDailyMedicationAlerts(user),
+                        new CronTrigger(createCronExpression(morningMedicationTime)));
+                MedicationTime += 1;
+            }
+            if (Boolean.TRUE.equals(userMedicationTime.getOnDinnerMedicationTimeAlarm())) {
+                future = taskScheduler.schedule(() -> sendDailyMedicationAlerts(user),
+                        new CronTrigger(createCronExpression(dinnerMedicationTime)));
+                MedicationTime += 1;
+            }
+            System.out.println("하루 " + MedicationTime + "번 복약 알림이 설정되었습니다.");
 
 
         } else if (maxDailyDosage == 3) {
-            if (Boolean.TRUE.equals(userMedicationTime.getOnMorningMedicationAlarm())){
-            future = taskScheduler.schedule(() -> sendDailyMedicationAlerts(user),
-                    new CronTrigger(createCronExpression(morningMedicationTime)));
+            if (Boolean.TRUE.equals(userMedicationTime.getOnMorningMedicationAlarm())) {
+                future = taskScheduler.schedule(() -> sendDailyMedicationAlerts(user),
+                        new CronTrigger(createCronExpression(morningMedicationTime)));
 
-                MedicationTime += 1;}
-            if (Boolean.TRUE.equals(userMedicationTime.getOnMorningMedicationAlarm())){
-            future = taskScheduler.schedule(() -> sendDailyMedicationAlerts(user),
-                    new CronTrigger(createCronExpression(lunchMedicationTime)));
-                MedicationTime += 1;}
+                MedicationTime += 1;
+            }
+            if (Boolean.TRUE.equals(userMedicationTime.getOnMorningMedicationAlarm())) {
+                future = taskScheduler.schedule(() -> sendDailyMedicationAlerts(user),
+                        new CronTrigger(createCronExpression(lunchMedicationTime)));
+                MedicationTime += 1;
+            }
 
-            if (Boolean.TRUE.equals(userMedicationTime.getOnMorningMedicationAlarm())){
-            future = taskScheduler.schedule(() -> sendDailyMedicationAlerts(user),
-                    new CronTrigger(createCronExpression(dinnerMedicationTime)));
-                MedicationTime += 1;}
+            if (Boolean.TRUE.equals(userMedicationTime.getOnMorningMedicationAlarm())) {
+                future = taskScheduler.schedule(() -> sendDailyMedicationAlerts(user),
+                        new CronTrigger(createCronExpression(dinnerMedicationTime)));
+                MedicationTime += 1;
+            }
 
-            System.out.println("하루 " +MedicationTime+ "번 복약 알림이 설정되었습니다.");
+            System.out.println("하루 " + MedicationTime + "번 복약 알림이 설정되었습니다.");
 
         } else if (maxDailyDosage == 4) {
-            if (Boolean.TRUE.equals(userMedicationTime.getOnMorningMedicationAlarm())){
-            future = taskScheduler.schedule(() -> sendDailyMedicationAlerts(user),
-                    new CronTrigger(createCronExpression(morningMedicationTime)));
-                MedicationTime += 1;}
-                if (Boolean.TRUE.equals(userMedicationTime.getOnMorningMedicationAlarm())){
-            future = taskScheduler.schedule(() -> sendDailyMedicationAlerts(user),
-                    new CronTrigger(createCronExpression(lunchMedicationTime)));
-                    MedicationTime += 1;}
-                    if (Boolean.TRUE.equals(userMedicationTime.getOnMorningMedicationAlarm())){
-            future = taskScheduler.schedule(() -> sendDailyMedicationAlerts(user),
-                    new CronTrigger(createCronExpression(dinnerMedicationTime)));
-                        MedicationTime += 1;}
-                        if (Boolean.TRUE.equals(userMedicationTime.getOnMorningMedicationAlarm())){
-            future = taskScheduler.schedule(() -> sendDailyMedicationAlerts(user),
-                    new CronTrigger(createCronExpression(nightMedicationTime)));
-                            MedicationTime += 1;}
-            System.out.println("하루 " +MedicationTime+ "번 복약 알림이 설정되었습니다.");
+            if (Boolean.TRUE.equals(userMedicationTime.getOnMorningMedicationAlarm())) {
+                future = taskScheduler.schedule(() -> sendDailyMedicationAlerts(user),
+                        new CronTrigger(createCronExpression(morningMedicationTime)));
+                MedicationTime += 1;
+            }
+            if (Boolean.TRUE.equals(userMedicationTime.getOnMorningMedicationAlarm())) {
+                future = taskScheduler.schedule(() -> sendDailyMedicationAlerts(user),
+                        new CronTrigger(createCronExpression(lunchMedicationTime)));
+                MedicationTime += 1;
+            }
+            if (Boolean.TRUE.equals(userMedicationTime.getOnMorningMedicationAlarm())) {
+                future = taskScheduler.schedule(() -> sendDailyMedicationAlerts(user),
+                        new CronTrigger(createCronExpression(dinnerMedicationTime)));
+                MedicationTime += 1;
+            }
+            if (Boolean.TRUE.equals(userMedicationTime.getOnMorningMedicationAlarm())) {
+                future = taskScheduler.schedule(() -> sendDailyMedicationAlerts(user),
+                        new CronTrigger(createCronExpression(nightMedicationTime)));
+                MedicationTime += 1;
+            }
+            System.out.println("하루 " + MedicationTime + "번 복약 알림이 설정되었습니다.");
         }
 
         // 새로 예약된 작업을 맵에 저장
         scheduledTasks.put(user, future);
     }
 
-    public Boolean onAlarm( UserEntity user, Boolean onAlarm) {
+    public Boolean onAlarm(UserEntity user, Boolean onAlarm) {
 
         if (onAlarm) {
             userScheduleAlerts(user);
@@ -469,4 +502,33 @@ public class MedicationAlarmService {
         }
 
     }
+
+    @Transactional(readOnly = true)
+    @Cacheable(value = "medicationCompletions", key = "#user")
+    public List<MedicationCompletionDTO> getMedicationCompletion(UserEntity user) {
+        UserProfileEntity userProfile = userProfileRepository.findByUsername(user);
+        List<MedicationCompletionEntity> medicationCompletions = medicationCompletionRepository.findByUserProfile(userProfile);
+        List<MedicationCompletionDTO> medicationCompletionList = new ArrayList<>();
+
+        // 각 MedicationCompletionEntity를 MedicationCompletionDTO로 변환
+        try {
+            for (MedicationCompletionEntity entity : medicationCompletions) {
+                MedicationCompletionDTO dto = MedicationCompletionDTO.builder()
+                        .morningTaken(entity.getMorningTaken())
+                        .lunchTaken(entity.getLunchTaken())
+                        .dinnerTaken(entity.getDinnerTaken())
+                        .nightTaken(entity.getNightTaken())
+                        .build();
+
+                medicationCompletionList.add(dto);
+            }
+
+            return medicationCompletionList;
+        } catch (Exception e) {
+            log.error("Error get medicationCompletions", e);
+            throw new RuntimeException("Error get medicationCompletions");
+        }
+    }
 }
+
+

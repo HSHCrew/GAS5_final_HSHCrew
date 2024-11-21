@@ -97,6 +97,9 @@ public class UserProfileEntity {
     // 2. Family History 테이블 (user_profile이 참조하는 family_history 테이블)
     @OneToMany(mappedBy = "userProfile", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     private List<UserMedicationEntity> userMedications = new ArrayList<>();
+
+    @OneToMany(mappedBy = "userProfile", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    private List<MedicationCompletionEntity> medicationCompletions = new ArrayList<>();
 }
 
 

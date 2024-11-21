@@ -5,6 +5,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.zerock.Altari.dto.MedicationCompletionDTO;
 import org.zerock.Altari.dto.TimedMedicationDTO;
 import org.zerock.Altari.dto.UserMedicationTimeDTO;
 import org.zerock.Altari.entity.MedicationEntity;
@@ -50,7 +51,7 @@ public class MedicationController {
 
     @PostMapping("/confirm/{username}")
     public ResponseEntity<String> confirmMedication(@PathVariable String username,
-                                                    String dosingTime,
+                                                    @RequestBody MedicationCompletionDTO medicationCompletionDTO,
                                                     @RequestHeader("Authorization") String accessToken) throws UnsupportedEncodingException {
 
         UserEntity userToken = jWTUtil.getUsernameFromToken(accessToken);
@@ -63,7 +64,7 @@ public class MedicationController {
             throw new EntityNotMatchedException("권한이 없습니다.");
         }
         try {
-            medicationAlarmService.confirmMedication(user, dosingTime); // 복용 확인 메서드 호출
+            medicationAlarmService.confirmMedication(user, medicationCompletionDTO); // 복용 확인 메서드 호출
             return ResponseEntity.ok("약 복용이 확인되었습니다.");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -124,6 +125,25 @@ public class MedicationController {
         }
         UserMedicationTimeDTO MedicationTime = userMedicationTimeService.getMedicationTime(user);
         return ResponseEntity.ok(MedicationTime);
+    }
+
+    @GetMapping("/medication/getMedicationCompletion/{username}")
+    public ResponseEntity<List<MedicationCompletionDTO>> getUserMedicationCompletion(@PathVariable String username,
+                                                                                     @RequestHeader("Authorization") String accessToken) throws UnsupportedEncodingException {
+
+        UserEntity userToken = jWTUtil.getUsernameFromToken(accessToken);
+        UserEntity user = new UserEntity(username);
+        String tokenUsername = userToken.getUsername();
+        String entityUsername = user.getUsername();
+
+        // 3. userToken과 user가 다르면 예외 처리
+        if (!tokenUsername.equals(entityUsername)) {
+            throw new EntityNotMatchedException("권한이 없습니다.");
+        }
+
+        List<MedicationCompletionDTO> medicationCompletion = medicationAlarmService.getMedicationCompletion(user);
+
+        return ResponseEntity.ok(medicationCompletion);
     }
 
 

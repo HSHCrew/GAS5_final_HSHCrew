@@ -32,7 +32,7 @@ public class UserMedicationEntity {
     @JoinColumn(name = "user_prescription_id")
     private UserPrescriptionEntity prescriptionId;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @ManyToOne
     @JoinColumn(name = "medication_id", referencedColumnName = "medication_id")
     private MedicationEntity medication;
 
