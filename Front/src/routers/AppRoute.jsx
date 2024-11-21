@@ -15,6 +15,7 @@ import SignIn from '../pages/SignIn/index.jsx';
 import SignUp from '../pages/SignUp/index.jsx';
 import Search from '../pages/Search/SearchPage.jsx';
 import MedicineInfo from '../pages/MedicineInfo/index.jsx';
+import DiseaseInfo from '../pages/DiseaseInfo/index.jsx';
 import PrescriptionDetail from '../pages/Prescription/index.jsx';
 import UserInfo from '../pages/Setting/UserInfo/index.jsx';
 import HealthNoteProfile from '../pages/Setting/HealthNoteProfile/index.jsx';
@@ -75,6 +76,12 @@ const staticMenuRoute = [
                 name: 'MedicineInfo',
                 element: <MedicineInfo />,
                 path: '/medicineinfo/:id',
+            },
+            {
+                key: 'DiseaseInfo',
+                name: 'DiseaseInfo',
+                element: <DiseaseInfo />,
+                path: '/diseaseinfo/:id',
             },
             {
                 key: 'PrescriptionDetail',

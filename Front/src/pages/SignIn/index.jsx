@@ -168,7 +168,7 @@ function SignIn() {
         <div className="signin-footer">
           <button onClick={handleKakaoLogin} className="kakao-login-button">
             <img src={kakaoTalk} alt="KakaoTalk Logo" className="kakao-icon" />
-            카카오 로그인
+            <p className='KakaoTalk-text'>카카오 로그인</p>
           </button>
 
           <span>회원이 아니신가요? </span>

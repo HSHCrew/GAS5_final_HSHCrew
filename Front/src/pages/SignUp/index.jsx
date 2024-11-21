@@ -250,10 +250,6 @@ const SignupForm = () => {
             <div className="submit-button" onClick={handleSignUp}>
               <p className="submit-text">회원가입</p>
             </div>
-
-            <div className="choice-button" onClick={() => navigate('/healthNote')}>
-              <p className="choice-text">건강노트 선택 화면으로 이동 (임시)</p>
-            </div>
           </div>
 
           <div className="login-prompt">
