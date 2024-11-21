@@ -79,21 +79,59 @@ async def perform_rag_for_question(question: str, k: int = 3) -> Dict:
         print(f"Error details: {str(e)}")
         return None
 
-async def process_article_questions(article_path: str) -> List[Dict]:
+async def calculate_similarities(questions: List[str], search_term: str) -> List[float]:
+    """질문들과 검색어 간의 유사도를 비동기로 계산"""
+    try:
+        # 임베딩 생성을 비동기로 처리
+        question_embeddings_task = asyncio.create_task(
+            embeddings.aembed_documents([q for q in questions])
+        )
+        search_term_embedding_task = asyncio.create_task(
+            embeddings.aembed_query(search_term)
+        )
+        
+        # 두 임베딩 작업이 모두 완료될 때까지 대기
+        question_embeddings, search_term_embedding = await asyncio.gather(
+            question_embeddings_task,
+            search_term_embedding_task
+        )
+        
+        # 코사인 유사도 계산 (넘파이 연산은 충분히 빠르므로 동기로 처리)
+        from numpy import dot
+        from numpy.linalg import norm
+        
+        similarities = [
+            dot(search_term_embedding, q_emb) / (norm(search_term_embedding) * norm(q_emb))
+            for q_emb in question_embeddings
+        ]
+        
+        return similarities
+        
+    except Exception as e:
+        print(f"Error calculating similarities: {str(e)}")
+        return [0.0] * len(questions)  # 에러 시 모든 유사도를 0으로 반환
+
+async def process_article_questions(article_path: str, 
+                                 min_relevance: float = 0.15,  # 최소 관련도 점수
+                                 max_questions: int = 15,      # 최대 질문 수
+                                 min_questions: int = 5        # 최소 질문 수
+                                 ) -> List[Dict]:
     """단일 아티클의 key_questions에 대한 RAG 수행"""
     try:
         with open(article_path, 'r', encoding='utf-8') as f:
             articles = json.load(f)
         
-        # 검색어 추출 (파일명에서)
+        # 검색어 추출
         search_term = os.path.basename(article_path).split('_full_')[1].split('_')[0]
         
-        # 모든 질문 수집
+        # 질문과 메타데이터 수집
         all_questions = []
+        questions_only = []
         for article in articles:
             if 'key_questions' not in article:
                 continue
             for question in article['key_questions']:
+                questions_only.append(question)
                 all_questions.append({
                     'question': question,
                     'article_title': article['title'],
@@ -103,33 +141,36 @@ async def process_article_questions(article_path: str) -> List[Dict]:
         if not all_questions:
             return []
         
-        # 검색어와 질문들의 관련도 계산
-        question_embeddings = embeddings.embed_documents([q['question'] for q in all_questions])
-        search_term_embedding = embeddings.embed_query(search_term)
-        
-        # 코사인 유사도 계산
-        from numpy import dot
-        from numpy.linalg import norm
-        
-        similarities = [
-            dot(search_term_embedding, q_emb) / (norm(search_term_embedding) * norm(q_emb))
-            for q_emb in question_embeddings
-        ]
+        # 유사도 계산을 비동기로 수행
+        similarities = await calculate_similarities(questions_only, search_term)
         
         # 질문에 유사도 점수 추가
         for q, sim in zip(all_questions, similarities):
             q['relevance_score'] = float(sim)
         
-        # 상위 15개 질문 선택
-        selected_questions = sorted(
-            all_questions, 
-            key=lambda x: x['relevance_score'], 
+        # 관련도 점수로 정렬
+        sorted_questions = sorted(
+            all_questions,
+            key=lambda x: x['relevance_score'],
             reverse=True
-        )[:15]
+        )
+        
+        # 임계값을 넘는 질문 선택
+        filtered_questions = [q for q in sorted_questions if q['relevance_score'] >= min_relevance]
+        
+        # 질문 수 조정
+        if len(filtered_questions) < min_questions:
+            # 임계값을 넘지 않더라도 최소 질문 수는 확보
+            selected_questions = sorted_questions[:min_questions]
+        else:
+            # 임계값을 넘는 질문 중 최대 개수까지만 선택
+            selected_questions = filtered_questions[:max_questions]
+        
+        print(f"Selected {len(selected_questions)} questions for {search_term}")
         
         # 선택된 질문들에 대해 RAG 수행
         tasks = [
-            perform_rag_for_question(q['question']) 
+            perform_rag_for_question(q['question'])
             for q in selected_questions
         ]
         
@@ -147,7 +188,7 @@ async def process_article_questions(article_path: str) -> List[Dict]:
                         "article_link": q['article_link'],
                         "rag_results": []
                     }
-                result['relevance_score'] = q['relevance_score']  # 관련도 점수 추가
+                result['relevance_score'] = q['relevance_score']
                 article_results[title]["rag_results"].append(result)
         
         return list(article_results.values())
@@ -168,10 +209,12 @@ async def process_daily_questions(daily_questions_path: str) -> List[Dict]:
                 continue
                 
             file_path = os.path.join(daily_questions_path, filename)
-            search_term = filename.split('_questions_')[1].split('.json')[0]
             
             with open(file_path, 'r', encoding='utf-8') as f:
-                questions = json.load(f)
+                data = json.load(f)
+                
+            search_term = data['search_term']
+            questions = data['day_key_questions']
             
             # 각 질문에 대한 RAG 태스크 생성
             term_tasks = [perform_rag_for_question(question) for question in questions]
@@ -191,7 +234,11 @@ async def process_daily_questions(daily_questions_path: str) -> List[Dict]:
             
             # 최종 결과 형식으로 변환
             all_results = [
-                {"search_term": term, "rag_results": results}
+                {
+                    "search_term": term,
+                    "rag_results": results,
+                    "created_at": datetime.now().isoformat()
+                }
                 for term, results in term_results.items()
                 if results  # 결과가 있는 경우만 포함
             ]
@@ -208,25 +255,25 @@ async def main():
     output_dir = "./data/rag_results"
     os.makedirs(output_dir, exist_ok=True)
     
-    # 1. 아티클 key_questions 처리
-    articles_dir = "./data/medi_press_terms"
-    for filename in os.listdir(articles_dir):
-        if not filename.endswith('.json'):
-            continue
+    # # 1. 아티클 key_questions 처리
+    # articles_dir = "./data/medi_press_terms"
+    # for filename in os.listdir(articles_dir):
+    #     if not filename.endswith('.json'):
+    #         continue
             
-        file_path = os.path.join(articles_dir, filename)
-        search_term = filename.split('_full_')[1].split('_')[0]  # 검색어 추출
-        results = await process_article_questions(file_path)
+    #     file_path = os.path.join(articles_dir, filename)
+    #     search_term = filename.split('_full_')[1].split('_')[0]  # 검색어 추출
+    #     results = await process_article_questions(file_path)
         
-        if results:
-            # term별 파일명 생성
-            output_path = os.path.join(
-                output_dir, 
-                f"article_rag_{search_term}_{datetime.now().strftime('%Y%m%d')}.json"
-            )
-            with open(output_path, 'w', encoding='utf-8') as f:
-                json.dump(results, f, ensure_ascii=False, indent=4)
-            print(f"Saved article RAG results for {search_term}")
+    #     if results:
+    #         # term별 파일명 생성
+    #         output_path = os.path.join(
+    #             output_dir, 
+    #             f"article_top_q_rag_{search_term}_{datetime.now().strftime('%Y%m%d')}.json"
+    #         )
+    #         with open(output_path, 'w', encoding='utf-8') as f:
+    #             json.dump(results, f, ensure_ascii=False, indent=4)
+    #         print(f"Saved article RAG results for {search_term}")
     
     # 2. daily_questions 처리
     daily_questions_dir = "./data/daily_questions"
