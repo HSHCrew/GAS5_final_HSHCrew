@@ -84,47 +84,74 @@ async def process_article_questions(article_path: str) -> List[Dict]:
     try:
         with open(article_path, 'r', encoding='utf-8') as f:
             articles = json.load(f)
-            
-        all_results = []
-        tasks = []
         
-        # 모든 아티클의 모든 질문에 대한 태스크 생성
+        # 검색어 추출 (파일명에서)
+        search_term = os.path.basename(article_path).split('_full_')[1].split('_')[0]
+        
+        # 모든 질문 수집
+        all_questions = []
         for article in articles:
             if 'key_questions' not in article:
                 continue
-                
-            # 각 질문에 대한 RAG 태스크 생성
-            article_tasks = [
-                (article['title'], article['link'], perform_rag_for_question(question))
-                for question in article['key_questions']
-            ]
-            tasks.extend(article_tasks)
+            for question in article['key_questions']:
+                all_questions.append({
+                    'question': question,
+                    'article_title': article['title'],
+                    'article_link': article['link']
+                })
         
-        # 모든 RAG 태스크 병렬 실행
-        if tasks:
-            results = await asyncio.gather(*[task for _, _, task in tasks])
-            
-            # 결과를 아티클별로 그룹화
-            article_results = {}
-            for (title, link, _), result in zip(tasks, results):
-                if result:  # None이 아닌 결과만 처리
-                    if title not in article_results:
-                        article_results[title] = {
-                            "article_title": title,
-                            "article_link": link,
-                            "rag_results": []
-                        }
-                    article_results[title]["rag_results"].append(result)
-            
-            # 최종 결과 형식으로 변환
-            all_results = [
-                article_data
-                for article_data in article_results.values()
-                if article_data["rag_results"]  # 결과가 있는 경우만 포함
-            ]
-                
-        return all_results
-    
+        if not all_questions:
+            return []
+        
+        # 검색어와 질문들의 관련도 계산
+        question_embeddings = embeddings.embed_documents([q['question'] for q in all_questions])
+        search_term_embedding = embeddings.embed_query(search_term)
+        
+        # 코사인 유사도 계산
+        from numpy import dot
+        from numpy.linalg import norm
+        
+        similarities = [
+            dot(search_term_embedding, q_emb) / (norm(search_term_embedding) * norm(q_emb))
+            for q_emb in question_embeddings
+        ]
+        
+        # 질문에 유사도 점수 추가
+        for q, sim in zip(all_questions, similarities):
+            q['relevance_score'] = float(sim)
+        
+        # 상위 15개 질문 선택
+        selected_questions = sorted(
+            all_questions, 
+            key=lambda x: x['relevance_score'], 
+            reverse=True
+        )[:15]
+        
+        # 선택된 질문들에 대해 RAG 수행
+        tasks = [
+            perform_rag_for_question(q['question']) 
+            for q in selected_questions
+        ]
+        
+        # 병렬 실행
+        rag_results = await asyncio.gather(*tasks)
+        
+        # 결과를 아티클별로 그룹화
+        article_results = {}
+        for q, result in zip(selected_questions, rag_results):
+            if result:
+                title = q['article_title']
+                if title not in article_results:
+                    article_results[title] = {
+                        "article_title": title,
+                        "article_link": q['article_link'],
+                        "rag_results": []
+                    }
+                result['relevance_score'] = q['relevance_score']  # 관련도 점수 추가
+                article_results[title]["rag_results"].append(result)
+        
+        return list(article_results.values())
+        
     except Exception as e:
         print(f"Error processing article file: {article_path}")
         print(f"Error details: {str(e)}")
