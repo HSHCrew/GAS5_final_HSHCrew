@@ -1,5 +1,6 @@
 /* 전체 배경 설정 */
 .signin-container {
+  left:5px;
   background-color: #f7fafc;
   display: block;
   min-height: 750px;
@@ -23,7 +24,7 @@
 .signin-logo {
   position: absolute;
   left: 150px;
-  top: 35px;
+  top: 110px;
   width: 300px;
   height: 75px;
   object-fit: cover;
@@ -33,7 +34,7 @@
 .signin-form {
   position: absolute;
   left: 47px;
-  top: 160px;
+  top: 220px;
   width: 428px;
   height: auto;
   background-color: white;
@@ -171,7 +172,7 @@
 
 /* signin-footer 위치 설정 수정 */
 .signin-footer {
-  margin-top: 600px; /* 박스 내에서 아래 여백 확보 */
+  margin-top: 680px; /* 박스 내에서 아래 여백 확보 */
   text-align: center;
   font-size: 1.25rem;
   font-weight: 500;
@@ -232,8 +233,9 @@
   width: 100%;
   max-width: 430px;
   margin: 0 auto; /* 버튼을 가운데 정렬 */
-  display: block;
+  display: flex;
   margin-bottom: 20px;
+  align-items: center;
 }
 
 .kakao-login-button:hover {
@@ -242,10 +244,13 @@
 
 /* 카카오톡 아이콘 */
 .kakao-icon {
-  width: 25px;
-  height: 25px;
+  width: 35px;
+  height: 35px;
   margin-right: 20px;
-  margin-left: -20px;
+  margin-left: 90px;
+}
+.KakaoTalk-text {
+  line-height: 1;
 }
 
 /* Toastify 팝업 기본 스타일 */

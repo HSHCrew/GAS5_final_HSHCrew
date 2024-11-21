@@ -12,6 +12,8 @@ const UserInfo = () => {
     phoneNumber: '',
     role: '',
   });
+  const [profileImage, setProfileImage] = useState(userLogo); // 기본 이미지를 초기값으로 설정
+  const [selectedImage, setSelectedImage] = useState(null); 
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -31,8 +33,8 @@ const UserInfo = () => {
       const response = await apiClient.get(`/altari/getInfo/userProfile/${username}`);
 
       const dateOfBirthArray = response.data.dateOfBirth;
-      const formattedDateOfBirth = Array.isArray(dateOfBirthArray) 
-        ? formatDateArray(dateOfBirthArray) 
+      const formattedDateOfBirth = Array.isArray(dateOfBirthArray)
+        ? formatDateArray(dateOfBirthArray)
         : response.data.dateOfBirth;
 
       setProfile({
@@ -41,6 +43,12 @@ const UserInfo = () => {
         phoneNumber: formatPhoneNumber(response.data.phoneNumber),
         role: response.data.role || "USER",
       });
+
+      // 프로필 이미지 설정
+      if (response.data.profileImage) {
+        setProfileImage(response.data.profileImage);
+      }
+      
       setLoading(false);
     } catch (error) {
       console.error("Failed to fetch user profile:", error);
@@ -69,15 +77,40 @@ const UserInfo = () => {
     }
   };
 
-  const handleProfileChange = (field, value) => {
-    const updatedProfile = { ...profile, [field]: value };
-    setProfile(updatedProfile);
-  };
 
   const handleProfileUpdate = (field, value) => {
     const updatedProfile = { ...profile, [field]: value };
     setProfile(updatedProfile);
     updateUserProfile(updatedProfile); // 블러 시에만 API 호출
+    
+  };
+  
+  const handleImageChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      setSelectedImage(file);
+      uploadImage(file); // 이미지 변경 시 업로드
+    }
+  };
+
+  const uploadImage = async (file) => {
+    const formData = new FormData();
+    formData.append('profileImage', file);
+    formData.append('username', username);
+
+    try {
+      const response = await apiClient.put(`/altari/updateInfo/userProfile/${username}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      if (response.data.profileImageUrl) {
+        setProfileImage(response.data.profileImageUrl); // 서버에서 반환된 이미지 URL로 업데이트
+      }
+    } catch (error) {
+      console.error("Failed to upload profile image:", error);
+    }
   };
 
   const handleLogout = () => {
@@ -93,7 +126,7 @@ const UserInfo = () => {
   const handleDeleteAccount = async () => {
     try {
       // apiClient 사용
-      await apiClient.delete(`/api/v1/delete-userProfile/${username}`);
+      await apiClient.delete(`/altari/delete/${username}`);
       handleLogout(); // 계정 삭제 후 로그아웃 처리
     } catch (error) {
       console.error("Failed to delete account:", error);
@@ -107,9 +140,17 @@ const UserInfo = () => {
       <Header title="내정보" />
       <div className="userinfo-box">
         <div className="profile-section">
-          <img src={userLogo} alt="Profile" className="profile-image" />
-          <p className="profile-name">{profile.fullName}</p>
-          <button className="profile-edit">사진 수정</button>
+          <img src={profileImage} alt="Profile" className="profile-image" />
+          <label htmlFor="file-upload" className="profile-edit">
+            사진 수정
+          </label>
+          <input
+            id="file-upload"
+            type="file"
+            accept="image/*"
+            onChange={handleImageChange}
+            style={{ display: 'none' }}
+          />
         </div>
 
         <div className="info-section">

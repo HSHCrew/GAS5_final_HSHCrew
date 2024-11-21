@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // useNavigate 추가
 import apiClient from '../../api/apiClient'; // axios 설정된 apiClient 불러오기
 import './style.css';
 
 function RegistrationPrescription() {
+    const navigate = useNavigate(); // useNavigate 초기화
     const [formData, setFormData] = useState({
         userName: '',
         identityFront: '', // 주민등록번호 앞자리
@@ -14,7 +16,6 @@ function RegistrationPrescription() {
     const [successMessage, setSuccessMessage] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
 
-    // 입력 필드 변경 핸들러
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prevState => ({
@@ -23,31 +24,27 @@ function RegistrationPrescription() {
         }));
     };
 
-    // 첫 번째 API 호출: 인증하기
     const handleAuthenticate = async () => {
         setSuccessMessage('');
         setErrorMessage('');
-    
-        // 필수 입력 필드가 비어 있는지 확인
+
         if (!formData.userName || !formData.identityFront || !formData.identityBack || !formData.phoneNo) {
             setErrorMessage('모든 필드를 입력해 주세요.');
             return;
         }
-    
-        // 입력 데이터 정리
+
         const sanitizedData = {
             userName: formData.userName,
             identity: formData.identityFront + formData.identityBack,
-            phoneNo: formData.phoneNo.replace(/-/g, '') // 전화번호 포맷 제거
+            phoneNo: formData.phoneNo.replace(/-/g, '')
         };
-    
+
         try {
             console.log('Sending to /altari/prescriptions/enter-info:', sanitizedData);
 
-            // API 호출
             const response = await apiClient.post('/altari/prescriptions/enter-info', sanitizedData);
 
-            setUserData(response.data.data); // 응답 데이터 저장
+            setUserData(response.data.data);
             setSuccessMessage('카카오톡 인증을 완료한 후 인증확인 버튼을 눌러주세요!');
         } catch (error) {
             const errorMsg = error.response?.data?.message || '인증에 실패했습니다.';
@@ -55,7 +52,6 @@ function RegistrationPrescription() {
         }
     };
 
-    // 두 번째 API 호출: 인증 완료
     const handleCompleteAuthentication = async () => {
         if (!userData) {
             setErrorMessage('먼저 인증을 완료해주세요.');
@@ -65,7 +61,6 @@ function RegistrationPrescription() {
         setSuccessMessage('');
         setErrorMessage('');
 
-        // 두 번째 API 호출 데이터 구성
         const secondApiData = {
             is2Way: true,
             twoWayInfo: {
@@ -77,11 +72,11 @@ function RegistrationPrescription() {
         };
 
         try {
-            // API 호출
             const response = await apiClient.post('/altari/prescriptions/verify-auth', secondApiData);
 
             if (response.status === 200) {
                 setSuccessMessage('인증 완료가 성공적으로 완료되었습니다.');
+                navigate('/medicationManagement'); // 인증 완료 시 페이지 이동
             } else {
                 setErrorMessage(`오류가 발생했습니다: ${response.data.message}`);
             }

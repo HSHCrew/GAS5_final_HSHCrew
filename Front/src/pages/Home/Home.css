@@ -161,6 +161,8 @@
     background-color: #f0f0f0;
     margin-left: 10px;
     flex-shrink: 0;
+    margin-bottom: 3px;
+    margin-top: 3px;
 }
 
 .home-medication-image img {
@@ -278,7 +280,7 @@
 }
 
 .home-transition-wrapper {
-    width: 90%;
+    width: 95%;
     max-width: 600px;
     overflow: hidden; /* 요소가 이동할 때 레이아웃이 깨지지 않도록 */
     margin: 0 auto;

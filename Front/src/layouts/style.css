@@ -1,5 +1,6 @@
 #layout-container {
-    width: 100%;
+    /* width: 100%; */
+    width: var(--max-width);
     min-width: var(--min-width);
     max-width: var(--max-width);
 

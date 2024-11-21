@@ -71,7 +71,7 @@ const SearchPage = () => {
 
     // 결과 클릭 시 상세 페이지로 이동
     const handleResultClick = (id) => {
-        const detailPath = activeTab === 'disease' ? `/disease/${id}` : `/medicineinfo/${id}`;
+        const detailPath = activeTab === 'disease' ? `/diseaseinfo/${id}` : `/medicineinfo/${id}`;
         navigate(detailPath); // 상세 페이지로 이동
     };
 

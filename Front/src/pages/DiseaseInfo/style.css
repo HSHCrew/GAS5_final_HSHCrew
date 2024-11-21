@@ -1,0 +1,121 @@
+.disease-info-container {
+    width: 100%;
+    height: 100vh; /* 화면 전체 높이 */
+    background-color: #ffffff;
+    display: flex;
+    flex-direction: column;
+}
+
+.disease-info-header {
+    width: 100%;
+    height: 120px; /* 헤더 높이 조정 */
+    display: flex;
+    align-items: center;
+    padding: 3px 15px; /* 패딩 감소 */
+    border-bottom: 3px solid #f0f0f0;
+}
+
+.disease-info-back-arrow {
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.disease-info-header-content {
+    display: flex;
+    align-items: center;
+    margin-left: 15px; /* 헤더 내 콘텐츠 간격 */
+}
+
+.disease-info-header-text {
+    margin-left: 15px;
+}
+
+.disease-info-name {
+    font-size: 25px; /* 약 이름 글자 크기와 동일하게 설정 */
+    font-weight: bold;
+    color: #333333;
+}
+
+.disease-info-classification {
+    font-size: 15px; /* 성분 정보 글자 크기와 동일하게 설정 */
+    color: #666666;
+    margin-top: 5px;
+    max-width: 450px;
+}
+
+.disease-info-tabs {
+    display: flex;
+    justify-content: space-around;
+    margin: 20px 0;
+}
+
+.disease-info-tab {
+    width: 120px; /* 탭 너비 증가 */
+    height: 50px; /* 탭 높이 증가 */
+    background-color: #afafaf;
+    border-radius: 20px; /* 둥글기 조정 */
+    border: none;
+    font-size: 18px; /* 글자 크기 증가 */
+    font-weight: bold;
+    color: white;
+    cursor: pointer;
+    line-height: 2.5;
+    text-align: center;
+    padding-right: 4px;
+    padding-left: 2px;
+}
+
+.disease-info-tab.active {
+    background-color: #333333;
+}
+
+.disease-info-content-container {
+    flex: 1; /* 컨테이너가 남은 영역을 채우도록 설정 */
+    padding: 20px;
+    background-color: #ffffff; /* 배경색 통일 */
+    overflow-y: auto; /* 내용이 길어질 경우 스크롤 가능 */
+}
+
+.disease-info-content {
+    font-size: 18px; /* 약 정보와 같은 글자 크기 */
+    color: #333333;
+    line-height: 1.8; /* 줄 간격 */
+    margin-left: 30px;
+}
+
+.disease-info-content-title {
+    font-weight: bold;
+    margin-bottom: 10px;
+    font-size: 20px;
+    color: #333333;
+}
+
+.disease-info-error {
+    color: red;
+    font-size: 1.2rem;
+    text-align: center;
+}
+
+/* 로딩 스피너 */
+.loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #f0f0f0;
+    border-top: 5px solid #333333;
+    border-radius: 50%;
+    margin: 40px auto;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+

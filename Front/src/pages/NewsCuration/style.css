@@ -1,7 +1,7 @@
 .news-curation-list {
     position: relative;
     padding: 30px;
-    max-width: 800px;
+    max-width: 550px;
     margin: auto;
     background-color: #f5f5f5;
     color: #333;
@@ -130,10 +130,10 @@
 }
 
 /* 닫기(X) 버튼 스타일 */
-.close-button {
+.news-close-button {
     position: absolute;
     top: -70px; /* 컨테이너 상단 외곽 위치 */
-    right: -50px;
+    right: 0px;
     background: none;
     border: none;
     cursor: pointer;
@@ -141,13 +141,13 @@
     outline: none;
 }
 
-.close-button .close-icon {
+.news-close-button .news-close-icon {
     width: 25px;
     height: 25px;
     opacity: 0.7;
     transition: opacity 0.2s;
 }
 
-.close-button:hover .close-icon {
+.news-close-button:hover .close-icon {
     opacity: 1; /* 마우스를 올렸을 때 강조 */
 }

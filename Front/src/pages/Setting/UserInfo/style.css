@@ -43,16 +43,24 @@
 
 /* 프로필 섹션 */
 .profile-section {
-  padding: 20px;
-  text-align: center;
-  border-bottom: 10px solid #e5e8eb;
+  display: flex;
+  flex-direction: column; /* 수직 정렬 */
+  align-items: center; /* 중앙 정렬 */
 }
 
 .profile-image {
-  width: 140px;
-  height: 140px;
-  object-fit: cover;
+  width: 150px; /* 원하는 크기로 이미지 설정 */
+  height: 150px;
   border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 10px; /* 이미지와 버튼 사이의 간격 */
+}
+
+.profile-edit {
+  font-size: 14px; /* 버튼의 글꼴 크기 설정 */
+  color: #007bff; /* 버튼 텍스트 색상 */
+  cursor: pointer;
+  text-decoration: underline; /* 버튼을 클릭 가능한 형태로 보이게 설정 */
 }
 
 .profile-name {

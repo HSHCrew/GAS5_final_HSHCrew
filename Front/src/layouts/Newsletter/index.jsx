@@ -5,7 +5,7 @@ import "./style.css";
 function NewsCurationPopup() {
     const popupRef = useRef(null);
     const [isDragging, setIsDragging] = useState(false);
-    const [position, setPosition] = useState({ x: 700, y: 75 }); // 초기 위치
+    const [position, setPosition] = useState({ x: 1150, y: 730 }); // 초기 위치
     const navigate = useNavigate(); // useNavigate 훅 사용
 
     const handleMouseDown = (e) => {
