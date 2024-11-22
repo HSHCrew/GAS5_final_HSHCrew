@@ -38,7 +38,6 @@ public class UserPrescriptionService {
     private UserMedicationRepository userMedicationRepository;
 
     @Transactional(readOnly = true)
-    @Cacheable(value = "userPrescriptions", key = "#username")
     public List<UserPrescriptionDTO> getUserPrescription(UserEntity username) {
 
         Optional<UserProfileEntity> optionalUserProfile = Optional.ofNullable(userProfileRepository.findByUsername(username));
@@ -99,7 +98,6 @@ public class UserPrescriptionService {
     }
 
     @Transactional(readOnly = true)
-    @Cacheable(value = "Prescriptions", key = "#userPrescriptionId")
     public UserPrescriptionDTO getPrescription(Integer userPrescriptionId) {
 
         try {

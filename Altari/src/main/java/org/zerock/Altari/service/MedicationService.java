@@ -35,7 +35,6 @@ public class MedicationService {
     }
 
     @Transactional(readOnly = true)
-    @Cacheable(value = "medications", key = "'all_drugs'") // 모든 약을 캐시 처리
     public List<MedicationEntity> getAllDrugs() {
         List<MedicationEntity> drugs = medicationRepository.findAll();
         if (drugs.isEmpty()) {
@@ -45,7 +44,6 @@ public class MedicationService {
     }
 
     @Transactional(readOnly = true)
-    @Cacheable(value = "medications", key = "#medicationId") // 특정 약 정보를 캐시 처리
     public MedicationEntity getDrugInfo(Integer medicationId) {
         MedicationEntity medication = medicationRepository.findByMedicationId(medicationId);
         if (medication == null) {
@@ -55,7 +53,6 @@ public class MedicationService {
     }
 
     @Transactional(readOnly = true)
-    @Cacheable(value = "medications", key = "#UserPrescriptionId")
     public TimedMedicationDTO getTimedMedicationList(Integer UserPrescriptionId) {
         UserPrescriptionEntity userPrescription = userPrescriptionRepository.findByUserPrescriptionId(UserPrescriptionId);
         List<UserMedicationEntity> timedMedicationList = userMedicationRepository.findByPrescriptionId(userPrescription);
