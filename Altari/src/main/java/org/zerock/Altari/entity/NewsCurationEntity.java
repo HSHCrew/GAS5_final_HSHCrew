@@ -24,12 +24,16 @@ public class NewsCurationEntity {
     @Column(name = "news_curation_id")
     private Integer newsCurationId;
 
-    @ManyToOne(cascade = CascadeType.REMOVE)
-    @JoinColumn(name = "medication_id")
-    private MedicationEntity medication;
+    @Column(name = "keyword", columnDefinition = "TEXT")
+    private String keyword;
 
-    @Column(name = "news_content")
-    private String newsContent;
+    @Column(name = "curation_content", columnDefinition = "TEXT")
+    private String curationContent;
+
+    @ManyToOne
+    @JoinColumn(name = "article_id", nullable = false)
+    private MedicationEntity article;
+
     @CreatedDate
     private LocalDateTime news_curation_created_at;
 

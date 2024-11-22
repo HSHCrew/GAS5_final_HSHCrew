@@ -12,10 +12,14 @@ import org.zerock.Altari.dto.UserHealthInfoDTO;
 import org.zerock.Altari.dto.UserProfileDTO;
 import org.zerock.Altari.entity.UserEntity;
 import org.zerock.Altari.entity.UserProfileEntity;
+import org.zerock.Altari.exception.EntityNotMatchedException;
 import org.zerock.Altari.repository.UserProfileRepository;
 import org.zerock.Altari.repository.UserRepository;
+import org.zerock.Altari.security.util.JWTUtil;
 import org.zerock.Altari.service.MedicationAlarmService;
 import org.zerock.Altari.service.UserProfileService;
+
+import java.io.UnsupportedEncodingException;
 
 @RestController
 @RequestMapping("/altari")
@@ -26,23 +30,42 @@ public class UserProfileController {
     private final UserProfileService userProfileService;
     private final UserRepository userRepository;
     private final MedicationAlarmService medicationAlarmService;
+    private final JWTUtil jwtUtil;
 
     //
     @GetMapping("/getInfo/userProfile/{username}")
-    public ResponseEntity<UserProfileDTO> getUserProfile(@PathVariable String username
-    ) {
-        UserEntity userEntity = new UserEntity(username);
-        UserProfileDTO userProfile = userProfileService.getUserProfile(userEntity);
+    public ResponseEntity<UserProfileDTO> getUserProfile(@PathVariable String username,
+
+                                                         @RequestHeader("Authorization") String accessToken) throws UnsupportedEncodingException {
+
+        UserEntity userToken = jwtUtil.getUsernameFromToken(accessToken);
+        UserEntity user = new UserEntity(username);
+        String tokenUsername = userToken.getUsername();
+        String entityUsername = user.getUsername();
+
+        // 3. userToken과 user가 다르면 예외 처리
+        if (!tokenUsername.equals(entityUsername)) {
+            throw new EntityNotMatchedException("권한이 없습니다.");
+        }
+        UserProfileDTO userProfile = userProfileService.getUserProfile(user);
         return ResponseEntity.ok(userProfile);
     }
 
     @PutMapping("/updateInfo/userProfile/{username}")
     public ResponseEntity<UserProfileDTO> updateUserProfile(@PathVariable String username,
-                                                               @Valid @RequestBody UserProfileDTO userProfileDTO) {
-        UserEntity userEntity = new UserEntity(username);
-        UserProfileDTO updatedProfile = userProfileService.updateUserProfile(userEntity, userProfileDTO);
+                                                               @Valid @RequestBody UserProfileDTO userProfileDTO,
+                                                            @RequestHeader("Authorization") String accessToken) throws UnsupportedEncodingException {
 
-        UserEntity user = userRepository.findByUsername(username);
+        UserEntity userToken = jwtUtil.getUsernameFromToken(accessToken);
+        UserEntity user = new UserEntity(username);
+        String tokenUsername = userToken.getUsername();
+        String entityUsername = user.getUsername();
+
+        // 3. userToken과 user가 다르면 예외 처리
+        if (!tokenUsername.equals(entityUsername)) {
+            throw new EntityNotMatchedException("권한이 없습니다.");
+        }
+        UserProfileDTO updatedProfile = userProfileService.updateUserProfile(user, userProfileDTO);
         medicationAlarmService.userScheduleAlerts(user);
 
         return ResponseEntity.ok(updatedProfile);

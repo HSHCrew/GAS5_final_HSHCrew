@@ -1,0 +1,200 @@
+.prescription-page-container {
+  width: 100%;
+  padding: 20px;
+  background-color: #f9f9f9;
+  font-family: 'Arial', sans-serif;
+}
+
+.prescription-page-header {
+  display: flex;
+  align-items: center;
+  background-color: #ffffff;
+  padding: 15px;
+  border-bottom: 1px solid #e0e0e0;
+  position: relative;
+}
+
+.prescription-page-back-button {
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+}
+
+.plus-icon {
+  margin-left: 30px;
+  width: 24px;
+  height: 24px;
+}
+
+.prescription-title-container {
+  margin-left: 20px;
+}
+
+.prescription-title {
+  font-size: 1.6rem;
+  font-weight: bold;
+  margin: 0;
+  color: #333333;
+}
+
+.prescription-date {
+  font-size: 1rem;
+  color: #666666;
+  margin-top: 5px;
+}
+
+/* 복약 일정 */
+.prescription-schedule {
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin: 20px 0;
+  text-align: center;
+}
+
+.schedule-sub-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #444444;
+}
+
+.schedule-status {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #489374;
+  margin: 20px 0;
+}
+
+.schedule-remaining-days {
+  font-size: 1rem;
+  color: #444444;
+  margin-bottom: 15px;
+}
+
+.schedule-days {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #76bca0;
+}
+
+.schedule-progress-bar-container {
+  width: 100%;
+  height: 8px;
+  background-color: #dcdcdc;
+  border-radius: 4px;
+  margin: 10px 0;
+  position: relative;
+}
+
+.schedule-progress-bar {
+  height: 100%;
+  background-color: #76bca0;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.schedule-day-count {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  color: #444444;
+  margin-top: 10px;
+}
+
+/* 복약 성공률 */
+.prescription-complete-success {
+  text-align: center;
+  margin-top: 30px;
+}
+
+.circular-progress {
+  position: relative;
+  width: 230px;
+  height: 230px;
+  margin: 0 auto;
+}
+
+.progress-ring {
+  transform: rotate(-90deg);
+}
+
+.progress-ring__background {
+  fill: none;
+  stroke: #d3d3d3;
+  stroke-width: 15;
+}
+
+.progress-ring__circle {
+  fill: none;
+  stroke: #489374;
+  stroke-width: 15;
+  transition: stroke-dashoffset 0.5s;
+}
+
+.circular-progress-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+.progress-percentage {
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.progress-label {
+  font-size: 1rem;
+  color: #555555;
+}
+
+/* 약 정보 */
+.medication-list {
+  margin-top: 20px;
+}
+
+.medication-item {
+  display: flex;
+  align-items: center;
+  background-color: #ffffff;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.medication-item:hover {
+  background-color: #f4f4f4;
+}
+
+.medication-image {
+  width: 60px;
+  height: 60px;
+  border-radius: 5px;
+  margin-right: 10px;
+  overflow: hidden;
+}
+
+.medication-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.medication-name {
+  font-size: 1rem;
+  font-weight: bold;
+  margin: 0;
+  color: #333333;
+}
+
+.medication-dosage {
+  font-size: 0.9rem;
+  color: #666666;
+  margin-top: 5px;
+}

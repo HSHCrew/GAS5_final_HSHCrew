@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import './SignupForm.css';
 import { useNavigate } from 'react-router-dom';
+import apiClient from '../../api/apiClient'; // apiClient로 교체
 
 import altariLogo from '../../assets/altari-logo.svg';
 
@@ -33,33 +34,25 @@ const SignupForm = () => {
     }
   };
 
-  const handleCheckId = () => {
+  const handleCheckId = async () => {
     if (!formData.username) {
       setIdAvailable(null);
       return;
     }
 
     setCheckingId(true);
-    const url = 'http://localhost:8080/altari/check/username';
 
-    fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ username: formData.username }),
-    })
-      .then((response) => response.json())
-      .then((isDuplicate) => {
-        setIdAvailable(!isDuplicate);
-      })
-      .catch((error) => {
-        console.error('아이디 중복 확인 중 오류 발생:', error);
-        setIdAvailable(false);
-      })
-      .finally(() => {
-        setCheckingId(false);
+    try {
+      const response = await apiClient.post('/altari/check/username', {
+        username: formData.username,
       });
+      setIdAvailable(!response.data.isDuplicate); // 서버에서 중복 여부를 응답하는 경우
+    } catch (error) {
+      console.error('아이디 중복 확인 중 오류 발생:', error);
+      setIdAvailable(false);
+    } finally {
+      setCheckingId(false);
+    }
   };
 
   const handleCheckPasswordMatch = () => {
@@ -70,7 +63,7 @@ const SignupForm = () => {
     }
   };
 
-  const handleSignUp = () => {
+  const handleSignUp = async () => {
     if (idAvailable === false) {
       alert('이미 사용 중인 아이디입니다. 다른 아이디를 선택해주세요.');
       return;
@@ -96,9 +89,6 @@ const SignupForm = () => {
       return;
     }
 
-    const registerUrl = 'http://localhost:8080/altari/register';
-    const loginUrl = 'http://localhost:8080/altari/login';
-
     const requestData = {
       username: formData.username,
       password: formData.password,
@@ -108,51 +98,29 @@ const SignupForm = () => {
       phoneNumber: formData.phoneNumber,
     };
 
-    // 회원가입 요청
-    fetch(registerUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(requestData),
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error('회원가입에 실패했습니다.');
-        }
-        return response.json();
-      })
-      .then((data) => {
-        alert('회원가입이 완료되었습니다!');
-        
-        // 자동 로그인 요청
-        return fetch(loginUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ username: formData.username, password: formData.password }),
-        });
-      })
-      .then((loginResponse) => {
-        if (!loginResponse.ok) {
-          throw new Error('자동 로그인에 실패했습니다.');
-        }
-        return loginResponse.json();
-      })
-      .then((loginData) => {
-        // 로그인 성공 시 토큰과 사용자 이름 저장
-        localStorage.setItem('token', loginData.accessToken);
-        localStorage.setItem('refreshToken', loginData.refreshToken);
-        localStorage.setItem('username', formData.username); // username 저장
-
-        // 건강노트 선택 화면으로 이동
-        navigate('/healthNote');
-      })
-      .catch((error) => {
-        console.error('오류:', error);
-        alert('오류가 발생했습니다: ' + error.message);
+    try {
+      // 회원가입 요청
+      await apiClient.post('/altari/register', requestData);
+      alert('회원가입이 완료되었습니다!');
+      
+      // 자동 로그인 요청
+      const loginResponse = await apiClient.post('/altari/login', {
+        username: formData.username,
+        password: formData.password,
       });
+
+      // 로그인 성공 시 토큰과 사용자 이름 저장
+      const { accessToken, refreshToken } = loginResponse.data;
+      localStorage.setItem('token', accessToken);
+      localStorage.setItem('refreshToken', refreshToken);
+      localStorage.setItem('username', formData.username);
+
+      // 건강노트 선택 화면으로 이동
+      navigate('/healthNote');
+    } catch (error) {
+      console.error('오류:', error);
+      alert('오류가 발생했습니다: ' + error.message);
+    }
   };
 
   return (
@@ -281,10 +249,6 @@ const SignupForm = () => {
 
             <div className="submit-button" onClick={handleSignUp}>
               <p className="submit-text">회원가입</p>
-            </div>
-
-            <div className="choice-button" onClick={() => navigate('/healthNote')}>
-              <p className="choice-text">건강노트 선택 화면으로 이동 (임시)</p>
             </div>
           </div>
 

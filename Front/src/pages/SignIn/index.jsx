@@ -1,10 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import './SignIn.css'; 
+import './SignIn.css';
 import { useNavigate } from 'react-router-dom';
-import apiRequest from '../../utils/apiRequest';
+import apiClient from '../../api/apiClient';
 
 import altariLogo from '../../assets/altari-logo.svg';
 import lockerIcon from '../../assets/locker.svg';
+import kakaoTalk from '../../assets/kakaotalk.svg';
+
+// Toastify import
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function SignIn() {
   const [username, setUsername] = useState('');
@@ -12,8 +17,12 @@ function SignIn() {
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false); // "자동 로그인" 상태
+  const [rememberMe, setRememberMe] = useState(false);
   const navigate = useNavigate();
+
+  const KAKAO_CLIENT_ID = "e8e345ebe8a751ac4562318628819200";
+  const REDIRECT_URI = "http://localhost:3030/kakao/callback";
+  const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${KAKAO_CLIENT_ID}&response_type=code&redirect_uri=${REDIRECT_URI}`;
 
   useEffect(() => {
     const token = localStorage.getItem('token') || sessionStorage.getItem('token');
@@ -24,7 +33,7 @@ function SignIn() {
 
   const validateToken = async (token) => {
     try {
-      const response = await apiRequest('http://localhost:8080/altari/refresh', { headers: { 'Authorization': `Bearer ${token}` } });
+      const response = await apiClient.get('/altari/refresh');
       if (response.status === 200) {
         navigate('/home');
       } else {
@@ -41,42 +50,55 @@ function SignIn() {
     setErrorMessage('');
     setIsLoading(true);
 
+    // 입력 필드 검증
+    if (!username || !password) {
+      setErrorMessage('아이디와 비밀번호를 모두 입력해주세요.');
+      setIsLoading(false);
+      return;
+    }
+
     try {
-        // Axios 인스턴스를 사용하여 로그인 API 호출
-        const response = await apiRequest('http://localhost:8080/altari/login', {
-            method: 'POST',
-            data: { username, password }
+      const response = await apiClient.post('/altari/login', {
+        username,
+        password
+      });
+
+      const { accessToken, refreshToken } = response.data;
+
+      if (accessToken && refreshToken) {
+        const storage = rememberMe ? localStorage : sessionStorage;
+        storage.setItem('token', accessToken);
+        storage.setItem('refreshToken', refreshToken);
+        storage.setItem('username', username);
+
+        // Toast 알림 추가
+        toast.success('로그인 성공!', {
+          position: 'top-center',
+          autoClose: 2000, // 2초 후 자동 닫힘
         });
 
-        // 서버로부터 토큰 응답을 받은 후 저장
-        const { accessToken, refreshToken } = response.data;
-
-        if (accessToken && refreshToken) {
-            if (rememberMe) {
-                localStorage.setItem('token', accessToken);
-                localStorage.setItem('refreshToken', refreshToken);
-                localStorage.setItem('username', username);
-            } else {
-                sessionStorage.setItem('token', accessToken);
-                sessionStorage.setItem('refreshToken', refreshToken);
-                sessionStorage.setItem('username', username);
-            }
-            alert('로그인 성공!');
-            navigate('/home');
-        } else {
-            setErrorMessage('로그인 실패: 올바른 아이디와 비밀번호를 입력해주세요.');
-        }
+        // 2초 후 페이지 이동
+        setTimeout(() => {
+          navigate('/home');
+        }, 2000);
+      } else {
+        setErrorMessage('로그인 실패: 올바른 아이디와 비밀번호를 입력해주세요.');
+      }
     } catch (error) {
-        if (error.response && error.response.data && error.response.data.msg) {
-            setErrorMessage(error.response.data.msg); // 서버에서 온 오류 메시지 사용
-        } else {
-            setErrorMessage('로그인 실패: 서버 오류가 발생했습니다.');
-        }
+      if (error.response && error.response.data && error.response.data.msg) {
+        setErrorMessage(error.response.data.msg);
+      } else {
+        setErrorMessage('로그인 실패: 서버 오류가 발생했습니다.');
+      }
     } finally {
-        setIsLoading(false);
+      setIsLoading(false);
     }
-};
-  
+  };
+
+  const handleKakaoLogin = () => {
+    window.location.href = kakaoAuthUrl;
+  };
+
   const handleSignUp = () => {
     navigate('/signUp');
   };
@@ -123,7 +145,6 @@ function SignIn() {
             </button>
           </div>
 
-          {/* "자동 로그인" 체크박스 추가: 로그인 폼 내부에 위치 */}
           <div className="remember-me-container">
             <input
               type="checkbox"
@@ -135,7 +156,6 @@ function SignIn() {
             <label htmlFor="rememberMe" className="remember-me-label">자동 로그인</label>
           </div>
 
-          {/* 에러 메시지 표시 */}
           {errorMessage && <p className="error-message">{errorMessage}</p>}
 
           <div className="signin-button-container">
@@ -146,12 +166,19 @@ function SignIn() {
         </form>
 
         <div className="signin-footer">
+          <button onClick={handleKakaoLogin} className="kakao-login-button">
+            <img src={kakaoTalk} alt="KakaoTalk Logo" className="kakao-icon" />
+            <p className='KakaoTalk-text'>카카오 로그인</p>
+          </button>
+
           <span>회원이 아니신가요? </span>
           <a onClick={handleSignUp} className="signup-link" role="button">
             회원가입
           </a>
         </div>
       </div>
+      {/* Toastify 컨테이너 */}
+      <ToastContainer />
     </div>
   );
 }

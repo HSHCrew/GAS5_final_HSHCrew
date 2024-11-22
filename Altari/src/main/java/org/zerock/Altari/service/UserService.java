@@ -34,6 +34,16 @@ public class UserService {
         return new UserDTO(userEntity);
     }
 
+    public UserDTO kakaoRead(String username, String password) {
+        Optional<UserEntity> result = userRepository.findById(username); //
+        UserEntity userEntity = result.orElseThrow(UserExceptions.BAD_CREDENTIALS::get);
+
+        if (!passwordEncoder.matches(password, userEntity.getPassword())) {
+            throw UserExceptions.BAD_CREDENTIALS.get();
+        }
+        return new UserDTO(userEntity);
+    }
+
     public UserDTO getByUsername(String username) {
         Optional<UserEntity> result = userRepository.findById(username);
         UserEntity userEntity = result.orElseThrow(UserExceptions.NOT_FOUND::get);

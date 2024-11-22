@@ -29,7 +29,7 @@ public class EasyCodefToken {
         accessToken = codef.requestNewToken(EasyCodefServiceType.DEMO);  // 토큰 요청 후 전역 변수에 저장
         lastTokenUpdateTime = LocalDateTime.now();  // 마지막 토큰 발급 시간 기록
 
-        System.out.println("Access Token 발급");
+        System.out.println("Access Token 발급: "+ accessToken);
         System.out.println("토큰 발급 시간: " + lastTokenUpdateTime);
     }
 

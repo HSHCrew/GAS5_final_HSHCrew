@@ -2,7 +2,7 @@
 .chatting-page-wrapper {
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
   background-color: #f0f0f5;
   width: 100%;
   min-height: 100vh;
@@ -17,9 +17,8 @@
   display: flex;
   flex-direction: column;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-  min-height: 100vh;
-  margin-bottom: 140px;
+  min-height: 100vh; /* 전체 화면에 맞춤 */
+  margin-bottom: 70px;
 }
 
 /* 메시지 표시 영역 */
@@ -29,15 +28,17 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
-  overflow-y: auto;
   background-color: #f9f9f9;
+  margin-bottom: 70px; /* 입력란과 겹치지 않도록 여백 */
+  overflow: visible; /* 스크롤 제거 */
 }
 
 /* 메시지와 아이콘을 포함하는 컨테이너 */
 .message-container {
   display: flex;
-  align-items: flex-end; /* 아이콘과 메시지 하단을 맞춤 */
+  align-items: flex-start;
   margin-bottom: 10px;
+  width: 100%;
 }
 
 .message-container.sent {
@@ -50,63 +51,64 @@
 
 /* 답장 아이콘 스타일 */
 .message-icon {
-  width: 70px;
-  height: 70px;
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
   margin-right: 10px;
-  transform: scaleX(-1);
 }
 
-/* 메시지 스타일 */
+/* 메시지 텍스트 스타일 */
 .chatting-message {
   max-width: 70%;
-  padding: 10px 15px;
+  padding: 12px 27px;
   border-radius: 15px;
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.4;
   word-wrap: break-word;
+  white-space: pre-wrap;
 }
 
-/* 수신한 메시지 */
 .chatting-message-received {
   background-color: #e1e1e6;
   border-bottom-left-radius: 0;
-  display: flex;
-  align-items: center;
 }
 
-/* 보낸 메시지 */
 .chatting-message-sent {
   background-color: #4CAF50;
-  color: white;
   align-self: flex-end;
   border-bottom-right-radius: 0;
+}
+
+.chatting-message-sent .markdown-content {
+  color: white !important;
 }
 
 /* 메시지 입력 영역 */
 .input-section {
   position: fixed;
   width: 100%;
-  max-width: 630px;
+  max-width: 650px;
   display: flex;
   align-items: center;
   padding: 10px;
   border-top: 1px solid #ddd;
   background-color: #fff;
-  bottom: 70px;
+  bottom: 70px; /* 화면 하단 고정 */
+  left: 50%;
+  transform: translateX(-50%);
+  box-sizing: border-box;
 }
 
 .input-box {
   flex: 1;
-  height: 40px;
   padding: 10px;
   border: 1px solid #ddd;
   border-radius: 20px;
-  font-size: 14px;
+  font-size: 15px;
   outline: none;
   margin-right: 10px;
-  box-sizing: border-box;
   resize: none;
+  font-family: 'Noto Sans KR', sans-serif
 }
 
 .send-button {
@@ -116,8 +118,7 @@
   border: none;
   border-radius: 20px;
   cursor: pointer;
-  font-size: 14px;
-  transition: background-color 0.3s ease;
+  font-size: 15px;
 }
 
 .send-button:hover {

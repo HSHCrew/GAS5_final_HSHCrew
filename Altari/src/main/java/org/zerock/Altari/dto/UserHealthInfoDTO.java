@@ -22,5 +22,4 @@ public class UserHealthInfoDTO {
     private List<DiseaseEntity> familyDiseases;
     private List<MedicationEntity> allergyMedications;
 
-
 }

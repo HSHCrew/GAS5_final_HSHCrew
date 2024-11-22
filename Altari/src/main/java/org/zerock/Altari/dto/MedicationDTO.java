@@ -1,8 +1,6 @@
 package org.zerock.Altari.dto;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
+import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -16,7 +14,9 @@ import java.time.LocalDateTime;
 @ToString
 public class MedicationDTO {
 
-    private String medicationId; // 품목기준코드
+
+    private Integer medicationId;
+    private String itemSeq; // 품목기준코드
     private String resultCode; // 결과코드
     private String resultMsg; // 결과메시지
     private Integer numOfRows; // 한 페이지 결과 수

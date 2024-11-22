@@ -14,6 +14,7 @@ import org.zerock.Altari.exception.RegisterExceptions;
 import org.zerock.Altari.exception.UserExceptions;
 import org.zerock.Altari.repository.*;
 
+import java.time.LocalTime;
 import java.util.Optional;
 
 @Service
@@ -28,6 +29,8 @@ public class RegisterService {
     private final UserProfileService userProfileService;
     @Autowired
     private JdbcTemplate jdbcTemplate;
+    @Autowired
+    private UserMedicationTimeRepository userMedicationTimeRepository;
 
     @Transactional
     public UserEntity join(RegisterDTO registerDTO) {
@@ -51,9 +54,22 @@ public class RegisterService {
                     .dateOfBirth(registerDTO.getDateOfBirth())
                     .phoneNumber(formattedPhoneNumber)
                     .username(user)
+                    .morningMedicationTime(LocalTime.parse("10:00"))
+                    .lunchMedicationTime(LocalTime.parse("14:00"))
+                    .dinnerMedicationTime(LocalTime.parse("19:00"))
                     .build();
 
             userProfileRepository.save(userProfile);
+
+            UserMedicationTimeEntity userMedicationTime = UserMedicationTimeEntity.builder()
+                    .onMorningMedicationAlarm(true)
+                    .onLunchMedicationTimeAlarm(true)
+                    .onDinnerMedicationTimeAlarm(true)
+                    .onNightMedicationTimeAlarm(true)
+                    .userProfile(userProfile)
+                    .build();
+
+            userMedicationTimeRepository.save(userMedicationTime);
 
             return user;
 
@@ -71,6 +87,7 @@ public class RegisterService {
         return user != null; // 중복이면 true, 아니면 false
     }
 
+    @Transactional
     public void deleteUser(String username) {
         // 외래 키 제약을 비활성화
         jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 0");

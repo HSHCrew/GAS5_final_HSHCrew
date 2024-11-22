@@ -6,9 +6,13 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
 
 @Entity
-@Table(name = "drug")
+@Table(name = "medication")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -17,58 +21,64 @@ import java.time.LocalDateTime;
 public class MedicationEntity {
 
     @Id
-    @Column(name = "item_seq", nullable = false, unique = true)
-    private String medicationId; // 품목기준코드
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "medication_id")
+    private Integer medicationId; //
 
+    @Column(name = "medication_code")
+    private String itemSeq; // 대표코드
 
-    @Column(nullable = false, name = "result_code")
-    private String resultCode; // 결과코드
+    @Column(name = "medication_item_standard_code")
+    private String medicaitonItemStandardCode; // 품목기준코드
 
-    @Column(nullable = false, name = "result_msg")
-    private String resultMsg; // 결과메시지
+    @Column(name = "medication_item_dur", columnDefinition = "TEXT")
+    private String medicationItemDur; // 품목dur
 
-    @Column(name = "num_of_rows")
-    private Integer numOfRows; // 한 페이지 결과 수
-
-    @Column(name = "page_no")
-    private Integer pageNo; // 페이지 번호
-
-    @Column(name = "total_count")
-    private Integer totalCount; // 전체 결과 수
-
-    @Column(name = "entp_name")
+    @Column(name = "medication_brand_name", columnDefinition = "TEXT")
     private String entpName; // 업체명
 
-    @Column(name = "item_name")
+    @Column(name = "medication_name", unique = true, columnDefinition = "TEXT")
     private String medicationName; // 제품명
 
+    @Column(name = "ingredient_code", columnDefinition = "TEXT")
+    private String ingredientCode; // 주성분 코드
+
+    @Column(name = "ingredient", columnDefinition = "TEXT")
+    private String ingredient; // 성분/함량
+
+    @Column(name = "additives", columnDefinition = "TEXT")
+    private String additives; // 첨가제
 
     @Lob
-    @Column(name = "efcy_qesitm")
+    @Column(name = "medication_efficacy_info", columnDefinition = "TEXT")
     private String medicationInfo; // 효능 문항
 
     @Lob
-    @Column(name = "use_method_qesitm")
+    @Column(name = "medication_use_info", columnDefinition = "TEXT")
     private String useMethodQesitm; // 사용법 문항
 
     @Lob
-    @Column(name = "atpn_warn_qesitm")
-    private String atpnWarnQesitm; // 주의사항 경고 문항
-
-    @Lob
-    @Column(name = "atpn_qesitm")
+    @Column(name = "medication_caution_info", columnDefinition = "TEXT")
     private String atpnQesitm; // 주의사항 문항
 
     @Lob
-    @Column(name = "intrc_qesitm")
+    @Column(name = "medication_caution_warning_info", columnDefinition = "TEXT")
+    private String medicationCautionWarningInfo; // 주의사항 경고 문항
+
+    @Lob
+    @Column(name = "medication_interaction_info", columnDefinition = "TEXT")
     private String interactionInfo; // 상호작용 문항
 
     @Lob
-    @Column(name = "se_qesitm")
+    @Column(name = "taking_info", columnDefinition = "TEXT")
+    private String takingInfo; // 복약정보 문항
+
+    @Lob
+    @Column(name = "medication_se_info", columnDefinition = "TEXT")
     private String seQesitm; // 부작용 문항
 
     @Lob
-    @Column(name = "deposit_method_qesitm")
+    @Column(name = "medication_storage_method_info", columnDefinition = "TEXT")
     private String depositMethodQesitm; // 보관법 문항
 
     @Column(name = "open_de")
@@ -77,12 +87,28 @@ public class MedicationEntity {
     @Column(name = "update_de")
     private String updateDe; // 수정일자
 
-    @Lob
-    @Column(name = "item_image")
+    @Column(name = "medication_image", columnDefinition = "TEXT")
     private String itemImage; // 약물 이미지 URL
+
     @CreatedDate
-    private LocalDateTime drug_created_at;
+    private LocalDateTime medication_created_at;
     @LastModifiedDate
-    private LocalDateTime drug_updated_at;
+    private LocalDateTime medication_updated_at;
+
+
+    public MedicationEntity(Integer medicationId) {
+        this.medicationId = medicationId;
+    }
+
+    @Override
+    public String toString() {
+        return "MedicationEntity{" +
+                "id=" + medicationId +
+                ", name='" + medicationName + '\'' +
+                ", dosage='" + medicationInfo + '\'' +
+                // 다른 속성들 추가
+                '}';
+    }
+
 
 }

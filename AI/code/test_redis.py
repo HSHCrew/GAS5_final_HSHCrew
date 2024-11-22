@@ -21,7 +21,7 @@ async def test_redis():
         value = await redis.get('test_key')
         print(f"Retrieved value: {value}")
         
-        await redis.close()
+        await redis.aclose()
         
     except Exception as e:
         print(f"Error: {e}")

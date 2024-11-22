@@ -15,15 +15,18 @@ import SignIn from '../pages/SignIn/index.jsx';
 import SignUp from '../pages/SignUp/index.jsx';
 import Search from '../pages/Search/SearchPage.jsx';
 import MedicineInfo from '../pages/MedicineInfo/index.jsx';
-import OnMedication from '../pages/Prescription/OnMedication/index.jsx';
-import EndMedication from '../pages/Prescription/EndMedication/index.jsx';
-import UserInfo from '../pages/Setting/UserInfo/index.jsx'
+import DiseaseInfo from '../pages/DiseaseInfo/index.jsx';
+import PrescriptionDetail from '../pages/Prescription/index.jsx';
+import UserInfo from '../pages/Setting/UserInfo/index.jsx';
 import HealthNoteProfile from '../pages/Setting/HealthNoteProfile/index.jsx';
 import TermsPage from '../pages/Setting/TermsPage/index.jsx';
 import SetAlarm from '../pages/Setting/SetAlarm/index.jsx';
 import NewsCurationPopup from '../layouts/Newsletter/index.jsx';
 import NewsCurationList from '../pages/NewsCuration/index.jsx';
 import NewsCurationDetail from '../pages/NewsCuration/Curation/index.jsx';
+
+// KakaoCallback 컴포넌트를 추가로 임포트
+import KakaoCallback from '../pages/KakaoCallback';
 
 const staticMenuRoute = [
     {
@@ -51,6 +54,12 @@ const staticMenuRoute = [
                 path: '/signUp',
             },
             {
+                key: 'KakaoCallback', // 카카오 콜백 경로 추가
+                name: 'KakaoCallback',
+                element: <KakaoCallback />,
+                path: '/kakao/callback',
+            },
+            {
                 key: 'HealthNote',
                 name: 'HealthNote',
                 element: <HealthNote />,
@@ -66,19 +75,19 @@ const staticMenuRoute = [
                 key: 'MedicineInfo',
                 name: 'MedicineInfo',
                 element: <MedicineInfo />,
-                path: '/medicineinfo',
+                path: '/medicineinfo/:id',
             },
             {
-                key: 'OnMedication',
-                name: 'OnMedication',
-                element: <OnMedication />,
-                path: '/onMedication',
+                key: 'DiseaseInfo',
+                name: 'DiseaseInfo',
+                element: <DiseaseInfo />,
+                path: '/diseaseinfo/:id',
             },
             {
-                key: 'EndMedication',
-                name: 'EndMedication',
-                element: <EndMedication />,
-                path: '/endMedication',
+                key: 'PrescriptionDetail',
+                name: 'PrescriptionDetail',
+                element: <PrescriptionDetail />,
+                path: '/prescriptionDetail/:id',
             },
             {
                 key: 'UserInfo',
@@ -114,7 +123,7 @@ const staticMenuRoute = [
                 key: 'NewsCurationDetail',
                 name: 'NewsCurationDetail',
                 element: <NewsCurationDetail />,
-                path: '/news-curation/:id', // 뉴스 큐레이션 상세 페이지 경로
+                path: '/news-curation/:id',
             },
         ],
     },
@@ -159,7 +168,7 @@ const staticMenuRoute = [
     {
         key: 'FooterOnlyLayout',
         name: 'FooterOnlyLayout',
-        element: <FooterOnlyLayout />, // FooterOnlyLayout을 적용
+        element: <FooterOnlyLayout />,
         path: null,
         childList: [
             {
@@ -168,12 +177,9 @@ const staticMenuRoute = [
                 element: <UserInfo />,
                 path: '/userInfo',
             },
-            // 추가적으로 하단 네비게이션만 필요로 하는 페이지를 여기에 추가할 수 있습니다.
         ],
     },
 ];
-
-
 
 const AppRoute = () => {
     const [menuList, setMenuList] = useState([]);
@@ -218,7 +224,6 @@ const AppRoute = () => {
     return (
         <>
             <Routes>{menuList.length && menuRoutes}</Routes>
-            {/* 현재 경로가 "/home"일 때만 NewsCurationPopup 렌더링 */}
             {location.pathname === '/home' && <NewsCurationPopup />}
         </>
     );

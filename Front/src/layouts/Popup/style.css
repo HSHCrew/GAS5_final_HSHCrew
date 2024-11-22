@@ -11,6 +11,7 @@
     align-items: flex-end; /* 팝업이 하단에 나타나도록 */
     z-index: 10;
     animation: fadeIn 0.3s ease;
+
 }
 
 /* 팝업 스타일 */
@@ -23,13 +24,17 @@
     align-items: center;
     text-align: center;
     background-color: #ffffff;
-    padding: 30px;
+    padding: 25px 55px;
     border-radius: 15px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    font-size: 16px;
+    font-size: 22px;
+    font-weight: bold;
     color: #333;
     width: 250px;
     animation: slideUp 0.3s ease;
+    cursor: pointer; 
+    font-family: 'Noto Sans KR', sans-serif;
+    white-space: nowrap;
 }
 
 /* 팝업 화살표 */

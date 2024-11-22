@@ -16,4 +16,6 @@ public interface UserPrescriptionRepository extends JpaRepository<UserPrescripti
     Optional<UserPrescriptionEntity> findByPrescribeNo(String prescribeNo);
 
     List<UserPrescriptionEntity> findByUserProfileAndIsTakenFalse(UserProfileEntity userProfile);
+
+    UserPrescriptionEntity findByUserPrescriptionId(Integer userPrescriptionId);
 }

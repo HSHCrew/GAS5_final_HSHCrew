@@ -1,69 +1,127 @@
-.container {
-    width: 450px;
-    min-width: 650px;
+.medicine-info-container {
+    width: 100%;
     height: 100%;
-    background-color: var(--background-white);
+    background-color: #ffffff;
 }
-  
-.info-box {
+
+.medicine-info-header {
     width: 100%;
-    height: 100vh;
-    background-color: white;
-}
-  
-.header {
-    width: 100%;
-    height: 110px;
+    height: 120px; /* 헤더 높이 조정 */
     display: flex;
     align-items: center;
-    border-bottom: 5px solid #f0f0f0;
-    padding: 5px;
+    padding: 3px 15px; /* 패딩 감소 */
+    border-bottom: 3px solid #f0f0f0;
 }
-  
-.medicine-info {
-    font-size: 1.8rem;
-    font-weight: bold;
-    text-align: left;
-    color: black;
-    margin-left: 20px;
-}
-  
-.ingredient {
-    font-size: 1.3rem;
-    color: #727272;
-}
-  
-.back-arrow-img {
-    width: 50px;
-    height: 50px;
+
+.medicine-info-back-arrow {
+    width: 40px;
+    height: 40px;
     cursor: pointer;
-    margin-left:15px;
+    margin-left: 10px;
+    margin-right: 5px;
 }
-  
-.button-container {
+
+.medicine-info-header-content {
+    display: flex;
+    align-items: center;
+    margin-left: 15px; /* 헤더 내 콘텐츠 간격 */
+}
+
+.medicine-info-header-image {
+    width: 80px;
+    height: 80px;
+    border-radius: 8px;
+    object-fit: cover;
+    background-color: #f0f0f0;
+}
+
+/* 이미지 없음 박스 스타일 */
+.medicine-info-no-image {
+    width: 80px;
+    height: 80px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #ddd;
+    color: #999;
+    font-size: 20px;
+    text-align: center;
+}
+
+.medicine-info-header-text {
+    margin-left: 15px;
+}
+
+.medicine-info-name {
+    font-size: 22px; /* 약 이름 글자 크기 증가 */
+    font-weight: bold;
+    color: #333333;
+}
+
+.medicine-info-ingredient {
+    font-size: 10px; /* 성분 정보 글자 크기 증가 */
+    color: #666666;
+    margin-top: 5px;
+    max-width: 450px;
+}
+
+.medicine-info-tabs {
     display: flex;
     justify-content: space-around;
     margin: 20px 0;
 }
-  
-.button-tab {
-    width: 150px;
-    height: 50px;
-    background-color: #afafaf;
-    border-radius: 15px;
-    border: none;
-    font-size: 1.2rem;
-    font-weight: bold;
-    text-align: center;
-    cursor: pointer;
-    margin-top:20px;
-    }
 
-.content-container {
-    padding: 20px;
+.medicine-info-tab {
+    width: 120px; /* 탭 너비 증가 */
+    height: 50px; /* 탭 높이 증가 */
+    background-color: #afafaf;
+    border-radius: 20px; /* 둥글기 조정 */
+    border: none;
+    font-size: 18px; /* 글자 크기 증가 */
+    font-weight: bold;
+    color: white;
+    cursor: pointer;
 }
 
-.content {
+.medicine-info-tab.active {
+    background-color: #333333;
+}
+
+
+.medicine-info-container {
+    width: 100%;
+    height: 100vh; /* 화면 전체 높이 */
+    background-color: #ffffff;
+    display: flex;
+    flex-direction: column;
+}
+
+.medicine-info-content-container {
+    flex: 1; /* 컨테이너가 남은 영역을 채우도록 설정 */
+    padding: 20px;
+    background-color: #ffffff; /* 약 정보 배경색 통일 */
+    overflow-y: auto; /* 내용이 길어질 경우 스크롤 가능 */
+}
+
+.medicine-info-content {
     font-size: 18px;
-    color: #333;
+    color: #333333;
+    line-height: 1.8; /* 줄 간격 */
+    margin-left: 30px;
+}
+
+.mediciine-info-content-subtitle {
+    margin-left: -20px;
+    margin-bottom: 10px;
+    margin-top: -10px;
+
+}
+.medicine-info-content li {
+    margin-left: 18px;
+}
+.medicine-info-error {
+    color: red;
+    font-size: 1.2rem;
+    text-align: center;
 }

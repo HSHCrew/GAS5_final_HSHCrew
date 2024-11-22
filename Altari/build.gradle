@@ -36,6 +36,11 @@ dependencies {
     // MySQL 8.0 JDBC 드라이버 추가
     runtimeOnly 'mysql:mysql-connector-java:8.0.33' // 사용하려는 MySQL 버전에 맞게 조정
 
+    implementation 'org.springframework.boot:spring-boot-starter-cache'
+
+    // 추가적으로 필요한 다른 의존성들
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
@@ -64,4 +69,8 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+repositories {
+    mavenCentral() // Maven Central 저장소
 }

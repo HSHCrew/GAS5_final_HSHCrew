@@ -1,8 +1,6 @@
 package org.zerock.Altari.dto;
 
 import lombok.*;
-import org.zerock.Altari.entity.MedicationEntity;
-import org.zerock.Altari.entity.PrescriptionDrugEntity;
 import org.zerock.Altari.entity.UserProfileEntity;
 
 import java.time.LocalDate;
@@ -28,10 +26,11 @@ public class UserPrescriptionDTO {
     private UserProfileEntity userProfile;
     private LocalDateTime user_prescription_created_at;
     private LocalDateTime user_prescription_updated_at;
-    private List<PrescriptionDrugDTO> drugs;
+    private List<UserMedicationDTO> drugs;
     private String prescriptionInfo;
     private String aiSummary;
     private Boolean isTaken;
     private Boolean onAlarm;
+    private Integer totalDosingDay;
 }
 

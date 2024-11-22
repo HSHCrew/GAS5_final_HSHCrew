@@ -1,34 +1,35 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import apiRequest from '../../utils/apiRequest';
+import apiClient from '../../api/apiClient'; // apiClient로 변경
 import './style.css';
 
 import userLogo from '../../assets/user.svg';
 
 function Setting() {
   const [profileName, setProfileName] = useState('');
+  const [profileImage, setProfileImage] = useState(userLogo); // 기본 이미지를 초기값으로 설정
   const username = localStorage.getItem('username') || sessionStorage.getItem('username');
-  const accessToken = localStorage.getItem('token') || sessionStorage.getItem('token');
 
   useEffect(() => {
-    if (username && accessToken) {
+    if (username) {
       fetchUserProfile();
     } else {
-      console.error("Username 또는 Access Token이 없습니다. 로그인 후 다시 시도하세요.");
+      console.error('Username이 없습니다. 로그인 후 다시 시도하세요.');
     }
-  }, [username, accessToken]);
+  }, [username]);
 
   const fetchUserProfile = async () => {
     try {
-      const response = await apiRequest(`http://localhost:8080/altari/getInfo/userProfile/${username}`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${accessToken}`, // 엑세스 토큰 추가
-        },
-      });
+      // 프로필 데이터 요청
+      const response = await apiClient.get(`/altari/getInfo/userProfile/${username}`);
       setProfileName(response.data.fullName || '');
+      
+      // 프로필 이미지 설정
+      if (response.data.profileImage) {
+        setProfileImage(response.data.profileImage);
+      }
     } catch (error) {
-      console.error("Failed to fetch user profile:", error);
+      console.error('Failed to fetch user profile:', error);
     }
   };
 
@@ -40,7 +41,8 @@ function Setting() {
         </div>
 
         <div className="profile-section">
-          <img src={userLogo} alt="Profile" className="profile-image" />
+          {/* 프로필 이미지 */}
+          <img src={profileImage} alt="Profile" className="profile-image" />
           <p className="profile-name">{profileName}</p>
           <Link to="/userInfo" className="profile-edit">
             개인정보 수정
