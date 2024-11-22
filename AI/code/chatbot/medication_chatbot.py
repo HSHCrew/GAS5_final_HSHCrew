@@ -5,7 +5,7 @@ from langchain_core.prompts import load_prompt
 from langchain.prompts.chat import (
     ChatPromptTemplate,
     SystemMessagePromptTemplate,
-    MessagesPlaceholder
+    MessagesPlaceholder,
 )
 from langchain_community.chat_message_histories import ChatMessageHistory
 from langchain_core.runnables.history import RunnableWithMessageHistory
@@ -18,10 +18,11 @@ from redis import asyncio as aioredis
 import pickle
 from datetime import datetime, timedelta
 from .exceptions import ChatbotSessionError, MessageError
-from .models import ChatMessage
+from .models import ChatMessage, IntentClassification
 from .config import ChatbotSettings
 from .services import ChatService, SessionService
-
+from langchain_core.output_parsers import JsonOutputParser
+from .prompt_manager import PromptManager
 
 class MedicationChatbot:
     def __init__(
@@ -29,7 +30,8 @@ class MedicationChatbot:
         user_id: int, 
         chat_service: ChatService,
         session_service: SessionService,
-        settings: ChatbotSettings
+        settings: ChatbotSettings,
+        # prompt_manager: PromptManager
     ):
         load_dotenv()
         logging.langsmith("gas5-fp-chatbot")
@@ -38,7 +40,7 @@ class MedicationChatbot:
         self.chat_service = chat_service
         self.session_service = session_service
         self.settings = settings
-        
+        # self.prompt_manager = prompt_manager
         self.llm = ChatOpenAI(
             model_name=self.settings.MODEL_NAME,
             temperature=self.settings.TEMPERATURE,
@@ -183,6 +185,18 @@ class MedicationChatbot:
         
         except Exception as e:
             raise ChatbotSessionError(f'Error loading conversation chain: {str(e)}')
+        
+        
+    async def classify_intent(self, message: str) -> IntentClassification:
+        """사용자 메시지의 의도 분류"""
+        try:
+            prompt = await self.prompt_manager.get_prompt_template('classify_intent')
+            chain = prompt | self.llm | JsonOutputParser(pydantic_object=IntentClassification)
+            
+            return await chain.ainvoke({"message": message})
+        except Exception as e:
+            raise ChatbotSessionError(f"Intent classification failed: {str(e)}")
+
 
     async def respond(self, message: str) -> str:
         try:
