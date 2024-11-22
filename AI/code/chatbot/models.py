@@ -98,3 +98,8 @@ class ChatRequest(BaseModel):
     class Config:
         min_length_message = 1
         max_length_message = 1000
+
+class IntentClassification(BaseModel):
+    intent: Literal["medical", "harmful", "irrelevant", "clarification"]
+    confidence: float = Field(ge=0, le=1)
+    explanation: str
