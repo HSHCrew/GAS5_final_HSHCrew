@@ -9,24 +9,21 @@ const NewsCurationList = () => {
     const newsCurationData = [
         {
             id: 1,
-            title: '알코올 사용 장애 치료에서 GLP-1 약물의 가능성',
-            summary: '새해 결심을 위한 건강한 식단 가이드.',
-            date: '2024-10-13',
-            image: 'https://cdn.jamanetwork.com/UI/app/img/covers/psych.jpg',
+            title: '조기 발병 비의존성 당뇨병과 치매 위험 증가',
+            date: '2024-11-19',
+            image: 'https://scx1.b-cdn.net/csz/news/800a/2018/1-diabetes.jpg',
         },
         {
             id: 2,
-            title: '2024년 꼭 알아야 할 운동 트렌드',
-            summary: '새해 결심을 위한 건강한 식단 가이드.',
-            date: '2024-10-13',
-            image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800',
+            title: '소득 수준에 따른 비의존성 당뇨병 사망률 격차',
+            date: '2024-11-19',
+            image: 'https://scx1.b-cdn.net/csz/news/800a/2024/diabetes-equipment.jpg',
         },
         {
             id: 3,
-            title: '마음 챙김과 스트레스 관리의 중요성',
-            summary: '건강한 마음을 위한 간단한 명상법.',
-            date: '2024-01-20',
-            image: 'https://images.unsplash.com/photo-1556761175-4b46a572b786?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800',
+            title: '티르제파타이드, 비의존성 당뇨병 예방과 체중 감량 효과',
+            date: '2024-11-19',
+            image: 'https://scx1.b-cdn.net/csz/news/800a/2024/child-with-candy.jpg',
         },
     ];
 

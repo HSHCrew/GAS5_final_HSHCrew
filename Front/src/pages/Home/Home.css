@@ -371,3 +371,8 @@ img {
     user-drag: none; /* 크롬 브라우저에서 이미지 드래그 금지 */
     -webkit-user-drag: none; /* 웹킷 엔진 (크롬, 사파리 등)에서 드래그 금지 */
 }
+
+.no-medications-message{
+    margin-top:270px ;
+    font-size: 30px;
+}

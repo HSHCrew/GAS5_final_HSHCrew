@@ -30,7 +30,7 @@ const Popup = ({ isVisible, closePopup }) => {
          <div className="popup" onClick={(e) => e.stopPropagation()}>
             <div className="popup-arrow"></div>
             <div className="popup-content" onClick={handleregistrationPrescription}>
-               처방전 추가하기 ε＝┏(･ω･)┛
+               처방전 추가하기 <p className='popup-paper'>📄</p>
             </div>
          </div>
       </div>

@@ -47,6 +47,12 @@
     position: absolute;
     bottom: -10px;
 }
+.popup-paper {
+    display: inline;
+    font-size: 30px;
+    margin-left: 10px;
+    line-height: 3;
+}
 
 /* 애니메이션: 팝업이 부드럽게 나타남 */
 @keyframes slideUp {

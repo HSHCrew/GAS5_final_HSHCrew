@@ -175,7 +175,7 @@ const Home = () => {
                             )}
                             <div className="home-medication-info-container">
                                 <p className="home-medication-info">{medication.medicationName}</p>
-                                <p className="home-medication-count">{medication.oneDose || ''}</p>
+                                <p className="home-medication-count">{medication.oneDose || ''}정</p>
                             </div>
                         </div>
                     ))}
@@ -277,7 +277,7 @@ const Home = () => {
 
                         {/* 모든 약물 그룹이 비어있을 때 메시지 표시 */}
                         {!hasMedications && (
-                            <p className="no-medications-message">복약할 약이 없습니다.</p>
+                            <p className="no-medications-message">Σ(•’╻’•)<br/><br/>복약할 약이 없습니다.</p>
                         )}
                     </div>
                 </CSSTransition>
