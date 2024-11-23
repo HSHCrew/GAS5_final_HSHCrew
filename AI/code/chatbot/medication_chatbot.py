@@ -16,9 +16,9 @@ from pydantic import BaseModel, Field
 import traceback
 from redis import asyncio as aioredis
 import pickle
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from .exceptions import ChatbotSessionError, MessageError
-from .models import ChatMessage, IntentClassification
+from .models import ChatMessage, IntentClassification, ChatSession
 from .config import ChatbotSettings
 from .services import ChatService, SessionService
 from langchain_core.output_parsers import JsonOutputParser
@@ -31,7 +31,7 @@ class MedicationChatbot:
         chat_service: ChatService,
         session_service: SessionService,
         settings: ChatbotSettings,
-        # prompt_manager: PromptManager
+        prompt_manager: PromptManager
     ):
         load_dotenv()
         logging.langsmith("gas5-fp-chatbot")
@@ -40,7 +40,7 @@ class MedicationChatbot:
         self.chat_service = chat_service
         self.session_service = session_service
         self.settings = settings
-        # self.prompt_manager = prompt_manager
+        self.prompt_manager = prompt_manager
         self.llm = ChatOpenAI(
             model_name=self.settings.MODEL_NAME,
             temperature=self.settings.TEMPERATURE,
@@ -65,21 +65,21 @@ class MedicationChatbot:
     async def _update_session_timestamp(self) -> None:
         """세션 마지막 접근 시간 업데이트"""
         session_key = f"chatbot:session:{self.user_id}"
-        await self.redis.hset(
+        await self.session_service.redis.hset(
             session_key,
             mapping={
-                "last_accessed": datetime.utcnow().isoformat(),
+                "last_accessed": datetime.now(UTC).isoformat(),
                 "medication_count": len(self.medication_info)
             }
         )
-        await self.redis.expire(session_key, self.settings.SESSION_TTL)
+        await self.session_service.redis.expire(session_key, self.settings.SESSION_TTL)
 
     async def _validate_session(self) -> bool:
         """세션 유효성 검증"""
         session_key = f"chatbot:session:{self.user_id}"
         chat_key = await self.get_chat_key(self.user_id)
         
-        async with self.redis.pipeline(transaction=True) as pipe:
+        async with self.session_service.redis.pipeline(transaction=True) as pipe:
             await pipe.exists(session_key)
             await pipe.exists(chat_key)
             session_exists, chat_exists = await pipe.execute()
@@ -90,10 +90,10 @@ class MedicationChatbot:
             return True
         
         if not chat_exists:
-            # 채팅 기록이 없으면 초기화
+            print(f"[DEBUG] Chat key {chat_key} does not exist.")
             await self.reset_chat()
             return True
-            
+        
         await self._update_session_timestamp()
         return True
 
@@ -105,14 +105,14 @@ class MedicationChatbot:
             message = ChatMessage(
                 role=role,
                 content=content,
-                timestamp=datetime.utcnow()
+                timestamp=datetime.now(UTC)
             )
             
             chat_key = await self.get_chat_key(self.user_id)
             
-            async with self.redis.pipeline(transaction=True) as pipe:
+            async with self.chat_service.redis.pipeline(transaction=True) as pipe:
                 # JSON으로 직렬화
-                await pipe.rpush(chat_key, message.json())  # pickle.dumps 대신 json() 사용
+                await pipe.rpush(chat_key, message.model_dump_json())
                 await pipe.ltrim(chat_key, -self.settings.MAX_HISTORY_LENGTH, -1)
                 await pipe.expire(chat_key, timedelta(days=self.settings.MESSAGE_TTL))
                 await pipe.execute()
@@ -157,7 +157,7 @@ class MedicationChatbot:
             if isinstance(last_accessed, str):
                 last_accessed = datetime.fromisoformat(last_accessed)
                 
-            time_diff = datetime.utcnow() - last_accessed
+            time_diff = datetime.now(UTC) - last_accessed
             return time_diff.total_seconds() > self.settings.session_ttl_seconds
             
         except Exception:
@@ -186,81 +186,87 @@ class MedicationChatbot:
         except Exception as e:
             raise ChatbotSessionError(f'Error loading conversation chain: {str(e)}')
         
-        
     async def classify_intent(self, message: str) -> IntentClassification:
         """사용자 메시지의 의도 분류"""
         try:
+            print("[DEBUG] Loading classify_intent prompt template")
             prompt = await self.prompt_manager.get_prompt_template('classify_intent')
-            chain = prompt | self.llm | JsonOutputParser(pydantic_object=IntentClassification)
+            print("[DEBUG] Creating classification chain")
             
-            return await chain.ainvoke({"message": message})
+            # JsonOutputParser를 직접 생성하고 결과를 IntentClassification으로 변환
+            output_parser = JsonOutputParser()
+            chain = prompt | self.llm | output_parser
+            
+            print(f"[DEBUG] Classifying message: {message}")
+            result = await chain.ainvoke({"message": message})
+            print(f"[DEBUG] Raw classification result: {result}")
+            
+            # dict를 IntentClassification 객체로 변환
+            return IntentClassification(
+                intent=result["intent"],
+                confidence=result["confidence"],
+                explanation=result["explanation"]
+            )
+            
         except Exception as e:
-            raise ChatbotSessionError(f"Intent classification failed: {str(e)}")
-
+            print(f"[ERROR] Intent classification error: {str(e)}")
+            # 폴백 로직
+            harmful_keywords = ["system", "prompt", "assistant", "model", "instruction"]
+            if any(keyword in message.lower() for keyword in harmful_keywords):
+                return IntentClassification(
+                    intent="harmful",
+                    confidence=1.0,
+                    explanation="시스템 관련 키워드가 감지되었습니다."
+                )
+            
+            medical_keywords = ["약", "복용", "효과", "부작용", "주의", "보관", "용법"]
+            if any(keyword in message for keyword in medical_keywords):
+                return IntentClassification(
+                    intent="medical_or_daily",
+                    confidence=0.8,
+                    explanation="의약품 관련 키워드가 감지되었습니다."
+                )
+            
+            return IntentClassification(
+                intent="medical_or_daily",
+                confidence=0.5,
+                explanation="의도를 명확히 파악할 수 없어 의료 상담으로 처리합니다."
+            )
 
     async def respond(self, message: str) -> str:
         try:
-            # 사용자 메시지 저장
-            await self.chat_service.save_message(
-                self.user_id, 
-                ChatMessage(role="human", content=message)
-            )
-            
             # 세션 정보 가져오기
             session = await self.session_service.get_session(self.user_id)
             if not session:
                 raise ChatbotSessionError("Session not found. Please start a new chat.")
             
-            # 대화 기록 가져오기
-            session_history = await self.get_session_history()
+            # 의도 분류 
+            intent_result = await self.classify_intent(message)
+            intent = intent_result.intent  # IntentClassification 객체에서 intent 추출
             
-            # Chain 실행
-            chain = await self.get_conversation_chain()
-            chain_with_history = RunnableWithMessageHistory(
-                runnable=chain,
-                get_session_history=lambda _: session_history,
-                input_messages_key="question",
-                history_messages_key="chat_history",
-            )
+            # 의도에 따른 응답 생성
+            if intent == "harmful":
+                response = "잘못된 질문입니다."
+            elif intent == "clarification":
+                response = await self._generate_medical_response(
+                    f"이전 질문에 대해 좀 더 자세히 설명해주세요.: {message}", 
+                    session
+                )
+            else:   
+                response = await self._generate_medical_response(message, session)
             
-            # medication_info를 문자열로 결합
-            medication_info_str = ""
-            if session and session.medication_info:
-                medication_info_str = "\n\n".join([
-                    f"약물 {idx+1}:\n{info}" 
-                    for idx, info in enumerate(session.medication_info)
-                    if info  # None이 아닌 경우만 포함
-                ])
+            # 대화 기록 저장 (사용자 메시지와 응답을 한 번에 저장)
+            async with self.chat_service.redis.pipeline(transaction=True) as pipe:
+                # 사용자 메시지 저장
+                user_message = ChatMessage(role="human", content=message)
+                await self.chat_service.save_message(self.user_id, user_message)
+                
+                # 챗봇 응답 저장
+                bot_message = ChatMessage(role="assistant", content=response)
+                await self.chat_service.save_message(self.user_id, bot_message)
             
-            # 사용자 정보 구성
-            user_info_str = f"사용자 ID: {self.user_id}"
-            if session and session.user_info:
-                user_info_str += f"\n{session.user_info}"
-            
-            # 프롬프트에 전달할 데이터 구성
-            prompt_data = {
-                "question": message,
-                "medication_info": medication_info_str or "등록된 약물 정보가 없습니다.",
-                "user_info": user_info_str
-            }
-            
-            print(f"\nPrompt Data:")
-            print(f"User Info: {prompt_data['user_info']}")
-            print(f"Medication Info: {prompt_data['medication_info'][:200]}...")
-            
-            response = await chain_with_history.ainvoke(
-                prompt_data,
-                config={"configurable": {"session_id": self.user_id}},
-            )
-            
-            # 응답 저장
-            await self.chat_service.save_message(
-                self.user_id,
-                ChatMessage(role="assistant", content=response)
-            )
-            
-            # 세션 마지막 접근 시간 업데이트
-            session.last_accessed = datetime.utcnow()
+            # 세션 업데이트
+            session.last_accessed = datetime.now(UTC)
             await self.session_service.create_session(
                 user_id=self.user_id,
                 medication_info=session.medication_info,
@@ -268,28 +274,41 @@ class MedicationChatbot:
             )
             
             return response
+            
         except Exception as e:
-            traceback.print_exc()  # 상세한 에러 로그 출력
+            traceback.print_exc()
             raise Exception(f'Error during responding: {str(e)}')
 
-    async def reset_chat(self):
-        """채팅 기록을 초기화하고 시작 메시지를 반환합니다."""
-        chat_key = await self.get_chat_key(self.user_id)
-        await self.redis.delete(chat_key)
-        return await self.start_chat()
-
-    async def cleanup(self) -> None:
-        """채팅 세션 정리"""
-        try:
-            # 세션 삭제
-            session_key = f"chatbot:session:{self.user_id}"
-            await self.session_service.redis.delete(session_key)
+    async def _generate_medical_response(self, message: str, session: ChatSession) -> str:
+        """의료 관련 응답 생성"""
+        # 대화 기록 가져오기
+        session_history = await self.get_session_history()
+        
+        # Chain 실행
+        chain = await self.get_conversation_chain()
+        chain_with_history = RunnableWithMessageHistory(
+            runnable=chain,
+            get_session_history=lambda _: session_history,
+            input_messages_key="question",
+            history_messages_key="chat_history",
+            session_key=f"chatbot:session:{self.user_id}"
+        )
             
-            # 채팅 기록 삭제
-            chat_key = await self.chat_service.get_chat_key(self.user_id)
-            await self.chat_service.redis.delete(chat_key)
-            
-            print(f"Cleaned up session and chat history for user {self.user_id}")
-        except Exception as e:
-            print(f"Error during cleanup for user {self.user_id}: {str(e)}")
-            raise
+        # medication_info 문자열 구성
+        medication_info_str = "\n\n".join([
+            f"약물 {idx+1}:\n{info}" 
+            for idx, info in enumerate(session.medication_info)
+            if info
+        ]) or "등록된 약물 정보가 없습니다."
+        
+        # 프롬프트 데이터 구성
+        prompt_data = {
+            "question": message,
+            "medication_info": medication_info_str,
+            "user_info": f"사용자 ID: {self.user_id}\n{session.user_info}"
+        }
+        
+        return await chain_with_history.ainvoke(
+            prompt_data,
+            config={"configurable": {"session_id": self.user_id}},
+        )
