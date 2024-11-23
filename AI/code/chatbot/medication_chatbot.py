@@ -304,14 +304,15 @@ class MedicationChatbot:
                 "1"
             )
 
-            # 복잡한 분석 로직 수행
-            analysis_result = await self._analyze_response(original_message, original_response)
+            # 테스트용 지연 추가 (3초)
+            await asyncio.sleep(3)
             
-            if not analysis_result.needs_follow_up:
-                return None
-                
-            follow_up_message = await self._generate_follow_up_message(analysis_result)
-            
+            # 테스트용 후속 메시지
+            follow_up_message = f"[후속 메시지] 이전 답변 '{original_message}'에 대한 추가 정보입니다:\n\n" + \
+                               "1. 복용 시 주의사항을 추가로 알려드립니다.\n" + \
+                               "2. 부작용이 있다면 즉시 의사와 상담하세요.\n" + \
+                               "3. 이 정보가 도움이 되셨나요?"
+
             if follow_up_message:
                 # 후속 메시지 저장
                 await self.chat_service.save_message(
