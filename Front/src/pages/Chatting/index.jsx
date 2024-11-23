@@ -10,43 +10,112 @@ function Chatting() {
     { id: 1, text: '안녕하세요! 어떻게 도와드릴까요?', sent: false },
   ]);
   const [input, setInput] = useState('');
-
-  // 마지막 메시지를 참조하기 위한 ref
+  const [isStreaming, setIsStreaming] = useState(false);
   const lastMessageRef = useRef(null);
 
   // 서버에 메시지 전송 및 응답 받기
   const sendMessageToServer = async (message) => {
     try {
-      const response = await axios.post('http://localhost:8000/user/medications/chat_message', {
-        user_id: 1,
-        message: message,
+      setIsStreaming(true);
+      
+      // 사용자 메시지 추가
+      const userMessage = { id: Date.now(), text: message, sent: true };
+      setMessages(prev => [...prev, userMessage]);
+      
+      // 챗봇 응답을 위한 빈 메시지 추가
+      const botMessageId = Date.now() + 1;
+      setMessages(prev => [...prev, { id: botMessageId, text: '', sent: false }]);
+
+      // 스트리밍 응답 처리
+      const response = await fetch('http://localhost:8000/user/medications/chat/message/stream', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_id: 1,
+          message: message,
+        }),
       });
-      // 서버의 응답을 messages 배열에 추가
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        { id: Date.now(), text: response.data.response, sent: false },
-      ]);
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        
+        const chunk = decoder.decode(value);
+        const lines = chunk.split('\n');
+        
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            try {
+              const data = JSON.parse(line.slice(6));
+              setMessages(prev => prev.map(msg => 
+                msg.id === botMessageId
+                  ? { ...msg, text: msg.text + data.token }
+                  : msg
+              ));
+            } catch (e) {
+              console.error('Error parsing SSE data:', e);
+            }
+          }
+        }
+      }
+
+      // 후속 메시지 폴링 시작
+      pollForFollowUp();
+      
     } catch (error) {
-      console.error("메시지를 서버에 전송하는 중 오류가 발생했습니다.", error);
+      console.error("Error sending message:", error);
+      setMessages(prev => [...prev, {
+        id: Date.now(),
+        text: "메시지 전송 중 오류가 발생했습니다.",
+        sent: false
+      }]);
+    } finally {
+      setIsStreaming(false);
     }
   };
 
+  const pollForFollowUp = async (maxAttempts = 30) => {
+    let attempts = 0;
+    const pollInterval = setInterval(async () => {
+      try {
+        const response = await axios.get(`http://localhost:8000/user/medications/chat/follow-up/1`);
+        
+        if (response.data.follow_up) {
+          setMessages(prev => [...prev, {
+            id: Date.now(),
+            text: response.data.follow_up,
+            sent: false
+          }]);
+          clearInterval(pollInterval);
+        } else if (response.data.status === "completed" || attempts >= maxAttempts) {
+          clearInterval(pollInterval);
+        }
+        
+        attempts++;
+      } catch (error) {
+        console.error("Follow-up polling error:", error);
+        clearInterval(pollInterval);
+      }
+    }, 1000);
+  };
+
   const handleSend = () => {
-    if (input.trim()) {
-      // 사용자가 보낸 메시지 추가
-      const newMessage = { id: Date.now(), text: input, sent: true };
-      setMessages((prevMessages) => [...prevMessages, newMessage]);
-      
-      // 서버로 메시지 전송
-      sendMessageToServer(input);
+    if (input.trim() && !isStreaming) {
+      const message = input.trim();
       setInput('');
+      sendMessageToServer(message);
     }
   };
 
   const handleKeyPress = (e) => {
     if (e.key === 'Enter') {
       if (e.ctrlKey) {
-        setInput((prevInput) => prevInput + '\n');
+        setInput(prev => prev + '\n');
       } else {
         e.preventDefault();
         handleSend();
@@ -67,18 +136,15 @@ function Chatting() {
         <div className="message-section">
           {messages.map((message, index) => (
             <div
-              key={message.id}
               ref={index === messages.length - 1 ? lastMessageRef : null} // 마지막 메시지에 ref 추가
               className={`message-container ${message.sent ? 'sent' : 'received'}`}
             >
               {!message.sent && (
                 <img src={example} className="message-icon" alt="User Avatar" />
               )}
-              <div
-                className={`chatting-message ${
-                  message.sent ? 'chatting-message-sent' : 'chatting-message-received'
-                }`}
-              >
+              <div className={`chatting-message ${
+                message.sent ? 'chatting-message-sent' : 'chatting-message-received'
+              }`}>
                 <ReactMarkdown
                   components={{
                     p: ({ node, ...props }) => (
@@ -105,8 +171,13 @@ function Chatting() {
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyPress}
             rows="1"
+            disabled={isStreaming}
           />
-          <button className="send-button" onClick={handleSend}>
+          <button 
+            className="send-button" 
+            onClick={handleSend}
+            disabled={isStreaming}
+          >
             전송
           </button>
         </div>

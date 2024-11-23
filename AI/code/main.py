@@ -1,7 +1,7 @@
 import os
 from typing import Dict, List, Optional
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException, Depends, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.ext.asyncio import AsyncSession
 from redis import asyncio as aioredis
@@ -9,6 +9,8 @@ from sqlalchemy import select, delete, and_, update
 from sqlalchemy import func
 import json
 from contextlib import asynccontextmanager
+from fastapi.responses import StreamingResponse
+import asyncio
 
 # Local imports
 from summarizer.Summarizer import Summarizer
@@ -94,12 +96,27 @@ async def redis_health_check():
 @app.post('/user/medications/chat/message')
 async def chat_message(
     request: ChatRequest,
+    background_tasks: BackgroundTasks,
     db: AsyncSession = Depends(get_db)
 ):
     try:
         chatbot = await chatbot_manager.get_chatbot(request.user_id, db)
-        response = await chatbot.respond(request.message)
-        return {"response": response}
+        
+        # 첫 번째 응답 즉시 생성
+        main_response = await chatbot.respond(request.message)
+        
+        # 후속 메시지 생성을 백그라운드 작업으로 예약
+        background_tasks.add_task(
+            chatbot.generate_follow_up,
+            request.message,
+            main_response
+        )
+        
+        return {
+            "response": main_response,
+            "has_follow_up": True  # 프론트엔드에 후속 메시지가 올 것임을 알림
+        }
+        
     except ChatbotSessionError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
@@ -144,7 +161,7 @@ async def chat_reset(
             "initial_response": initial_response
         }
     except Exception as e:
-        print(f"[ERROR] Error resetting chat: {str(e)}")
+        print(f"Error resetting chat: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 # 약물 정보 처리 엔드포인트
@@ -265,6 +282,82 @@ async def get_user_medication_summaries(
         medication_info = [summary[0].restructured for summary in summaries]
         
         return {"medication_info": medication_info}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# 후속 메시지를 조회하는 새로운 엔드포인트 추가
+@app.get('/user/medications/chat/follow-up/{user_id}')
+async def get_follow_up(
+    user_id: int,
+    last_checked_timestamp: Optional[float] = None,
+    db: AsyncSession = Depends(get_db)
+):
+    try:
+        # 가장 최근의 후속 메시지 조회
+        chatbot = await chatbot_manager.get_chatbot(user_id, db)
+        messages = await chatbot.chat_service.get_chat_history(user_id)
+        
+        # 마지막 확인 이후의 메시지만 필터링
+        recent_messages = [
+            msg for msg in messages 
+            if last_checked_timestamp is None or 
+               msg.timestamp.timestamp() > last_checked_timestamp
+        ]
+        
+        # assistant의 메시지 중 follow-up 메타데이터가 있는 것 찾기
+        follow_ups = [
+            msg for msg in recent_messages
+            if msg.role == "assistant" and 
+               msg.metadata.get("is_follow_up", False)
+        ]
+        
+        if follow_ups:
+            return {
+                "follow_up": follow_ups[-1].content,
+                "timestamp": follow_ups[-1].timestamp.timestamp(),
+                "status": "found"
+            }
+        
+        # 백그라운드 작업이 아직 진행 중인지 확인
+        if await chatbot.is_processing_follow_up():
+            return {
+                "follow_up": None,
+                "status": "processing"
+            }
+            
+        return {
+            "follow_up": None,
+            "status": "completed"
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post('/user/medications/chat/message/stream')
+async def chat_message_stream(
+    request: ChatRequest,
+    background_tasks: BackgroundTasks,
+    db: AsyncSession = Depends(get_db)
+):
+    try:
+        chatbot = await chatbot_manager.get_chatbot(request.user_id, db)
+        
+        async def generate():
+            async for token in chatbot.respond_stream(request.message):
+                yield f"data: {json.dumps({'token': token})}\n\n"
+                
+        # 후속 메시지 생성을 백그라운드 작업으로 예약
+        background_tasks.add_task(
+            chatbot.generate_follow_up,
+            request.message,
+            ""  # 전체 응답은 스트리밍 완료 후 저장됨
+        )
+        
+        return StreamingResponse(
+            generate(),
+            media_type="text/event-stream"
+        )
+        
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

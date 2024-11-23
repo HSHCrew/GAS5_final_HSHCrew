@@ -23,6 +23,13 @@ from .config import ChatbotSettings
 from .services import ChatService, SessionService
 from langchain_core.output_parsers import JsonOutputParser
 from .prompt_manager import PromptManager
+from fastapi.background import BackgroundTasks
+from typing import Optional, Tuple
+from fastapi.responses import StreamingResponse
+from langchain.callbacks import AsyncIteratorCallbackHandler
+from typing import AsyncIterator
+import json
+import asyncio
 
 class MedicationChatbot:
     def __init__(
@@ -163,15 +170,15 @@ class MedicationChatbot:
         except Exception:
             return True
 
-    async def get_conversation_chain(self):
+    async def get_conversation_chain(self, llm=None) -> RunnableWithMessageHistory:
+        """대화 체인 생성"""
         try:
-            prompt_path = os.path.join(self.prompt_path, 'system_template.yaml')
-            if not os.path.exists(prompt_path):
-                raise FileNotFoundError(f"System prompt template not found at {prompt_path}")
-                
-            system_prompt = load_prompt(prompt_path, encoding='utf-8')
-            system_message = SystemMessagePromptTemplate.from_template(system_prompt.template)
+            # llm이 전달되지 않은 경우 기본 llm 사용
+            model = llm or self.llm
             
+            # 시스템 프롬프트 템플릿 로드
+            system_prompt = await self.prompt_manager.get_prompt_template('system_template')
+            system_message = SystemMessagePromptTemplate.from_template(system_prompt.template)
             chat_prompt = ChatPromptTemplate.from_messages([
                 system_message,
                 ("system", "User Info: {user_info}"),
@@ -180,9 +187,11 @@ class MedicationChatbot:
                 ("human", "{question}")
             ])
             
-            chain = chat_prompt | self.llm | StrOutputParser()
+            # 체인 생성
+            chain = chat_prompt | model | StrOutputParser()
+            
             return chain
-        
+            
         except Exception as e:
             raise ChatbotSessionError(f'Error loading conversation chain: {str(e)}')
         
@@ -233,18 +242,18 @@ class MedicationChatbot:
                 explanation="의도를 명확히 파악할 수 없어 의료 상담으로 처리합니다."
             )
 
-    async def respond(self, message: str) -> str:
+    async def respond(self, message: str) -> dict:
+        """첫 번째 응답만 반환"""
         try:
             # 세션 정보 가져오기
             session = await self.session_service.get_session(self.user_id)
             if not session:
                 raise ChatbotSessionError("Session not found. Please start a new chat.")
             
-            # 의도 분류 
+            # 의도 분류 및 응답 생성
             intent_result = await self.classify_intent(message)
             intent = intent_result.intent  # IntentClassification 객체에서 intent 추출
             
-            # 의도에 따른 응답 생성
             if intent == "harmful":
                 response = "잘못된 질문입니다."
             elif intent == "clarification":
@@ -255,60 +264,185 @@ class MedicationChatbot:
             else:   
                 response = await self._generate_medical_response(message, session)
             
-            # 대화 기록 저장 (사용자 메시지와 응답을 한 번에 저장)
+            # 대화 기록 저장
             async with self.chat_service.redis.pipeline(transaction=True) as pipe:
                 # 사용자 메시지 저장
                 user_message = ChatMessage(role="human", content=message)
                 await self.chat_service.save_message(self.user_id, user_message)
                 
-                # 챗봇 응답 저장
+                # 첫 번째 챗봇 응답 저장
                 bot_message = ChatMessage(role="assistant", content=response)
                 await self.chat_service.save_message(self.user_id, bot_message)
             
-            # 세션 업데이트
-            session.last_accessed = datetime.now(UTC)
-            await self.session_service.create_session(
-                user_id=self.user_id,
-                medication_info=session.medication_info,
-                user_info=session.user_info
-            )
-            
-            return response
+            return {
+                "response": response,
+                "message_id": f"{self.user_id}:{datetime.now(UTC).timestamp()}"  # 메시지 식별자 추가
+            }
             
         except Exception as e:
             traceback.print_exc()
             raise Exception(f'Error during responding: {str(e)}')
 
-    async def _generate_medical_response(self, message: str, session: ChatSession) -> str:
-        """의료 관련 응답 생성"""
-        # 대화 기록 가져오기
-        session_history = await self.get_session_history()
-        
-        # Chain 실행
-        chain = await self.get_conversation_chain()
-        chain_with_history = RunnableWithMessageHistory(
-            runnable=chain,
-            get_session_history=lambda _: session_history,
-            input_messages_key="question",
-            history_messages_key="chat_history",
-            session_key=f"chatbot:session:{self.user_id}"
-        )
+    async def generate_follow_up(self, original_message: str, original_response: str) -> Optional[str]:
+        """후속 메시지 생성 및 저장"""
+        try:
+            # 복잡한 분석 로직 수행
+            analysis_result = await self._analyze_response(original_message, original_response)
             
-        # medication_info 문자열 구성
-        medication_info_str = "\n\n".join([
-            f"약물 {idx+1}:\n{info}" 
-            for idx, info in enumerate(session.medication_info)
-            if info
-        ]) or "등록된 약물 정보가 없습니다."
-        
-        # 프롬프트 데이터 구성
-        prompt_data = {
-            "question": message,
-            "medication_info": medication_info_str,
-            "user_info": f"사용자 ID: {self.user_id}\n{session.user_info}"
-        }
-        
-        return await chain_with_history.ainvoke(
-            prompt_data,
-            config={"configurable": {"session_id": self.user_id}},
-        )
+            if not analysis_result.needs_follow_up:
+                return None
+            
+            follow_up_message = await self._generate_follow_up_message(analysis_result)
+            
+            if follow_up_message:
+                # 후속 메시지 저장
+                await self.chat_service.save_message(
+                    self.user_id,
+                    ChatMessage(
+                        role="assistant", 
+                        content=follow_up_message,
+                        metadata={"is_follow_up": True}
+                    )
+                )
+            
+            return follow_up_message
+            
+        except Exception as e:
+            print(f"Error generating follow-up: {str(e)}")
+            return None
+
+    async def _generate_medical_response(
+        self, 
+        message: str, 
+        session: ChatSession,
+        streaming_llm=None,
+        callback=None
+    ) -> str:
+        """의료 관련 응답 생성"""
+        try:
+            # 대화 기록 가져오기
+            session_history = await self.get_session_history()
+            
+            # Chain 생성 (스트리밍 또는 기본 LLM 사용)
+            chain = await self.get_conversation_chain(streaming_llm or self.llm)
+            chain_with_history = RunnableWithMessageHistory(
+                runnable=chain,
+                get_session_history=lambda _: session_history,
+                input_messages_key="question",
+                history_messages_key="chat_history",
+                session_key=f"chatbot:session:{self.user_id}"
+            )
+            
+            # medication_info 문자열 구성
+            medication_info_str = "\n\n".join([
+                f"약물 {idx+1}:\n{info}" 
+                for idx, info in enumerate(session.medication_info)
+                if info
+            ]) or "등록된 약물 정보가 없습니다."
+            
+            # 프롬프트 데이터 구성
+            prompt_data = {
+                "question": message,
+                "medication_info": medication_info_str,
+                "user_info": f"사용자 ID: {self.user_id}\n{session.user_info}"
+            }
+            
+            # 응답 생성
+            return await chain_with_history.ainvoke(
+                prompt_data,
+                config={"configurable": {"session_id": self.user_id}},
+            )
+            
+        except Exception as e:
+            print(f"[ERROR] Failed to generate medical response: {e}")
+            raise
+
+    async def respond_stream(self, message: str) -> AsyncIterator[str]:
+        """스트리밍 응답 생성"""
+        try:
+            # 세션 정보 가져오기
+            session = await self.session_service.get_session(self.user_id)
+            if not session:
+                raise ChatbotSessionError("Session not found. Please start a new chat.")
+            
+            # 콜백 핸들러 설정
+            callback = AsyncIteratorCallbackHandler()
+            
+            # 스트리밍을 위한 LLM 인스턴스 생성
+            streaming_llm = ChatOpenAI(
+                model_name=self.settings.MODEL_NAME,
+                temperature=self.settings.TEMPERATURE,
+                streaming=True,
+                callbacks=[callback]
+            )
+            
+            # 의도 분류 (스트리밍하지 않음)
+            intent_result = await self.classify_intent(message)
+            intent = intent_result.intent
+            
+            if intent == "harmful":
+                yield "잘못된 질문입니다."
+                # 유해 메시지 저장
+                await self.chat_service.save_message(
+                    self.user_id,
+                    ChatMessage(role="human", content=message)
+                )
+                await self.chat_service.save_message(
+                    self.user_id,
+                    ChatMessage(role="assistant", content="잘못된 질문입니다.")
+                )
+                return
+            
+            # 질문 준비
+            if intent == "clarification":
+                processed_message = f"이전 질문에 대해 좀 더 자세히 설명해주세요.: {message}"
+            else:
+                processed_message = message
+            
+            # 사용자 메시지 먼저 저장
+            await self.chat_service.save_message(
+                self.user_id,
+                ChatMessage(role="human", content=message)
+            )
+            
+            # 응답 생성 및 스트리밍
+            collected_tokens = []
+            try:
+                # 응답 생성 시작
+                task = asyncio.create_task(
+                    self._generate_medical_response(
+                        processed_message, 
+                        session,
+                        streaming_llm=streaming_llm,
+                        callback=callback
+                    )
+                )
+                
+                # 토큰 스트리밍
+                async for token in callback.aiter():
+                    collected_tokens.append(token)
+                    yield token
+                    
+                # 응답 완료 대기
+                await task
+                
+                # 전체 응답 저장
+                full_response = "".join(collected_tokens)
+                await self.chat_service.save_message(
+                    self.user_id,
+                    ChatMessage(role="assistant", content=full_response)
+                )
+                
+            except Exception as e:
+                error_msg = f"응답 생성 중 오류가 발생했습니다: {str(e)}"
+                yield error_msg
+                await self.chat_service.save_message(
+                    self.user_id,
+                    ChatMessage(role="assistant", content=error_msg)
+                )
+                
+        except Exception as e:
+            error_msg = f"Error: {str(e)}"
+            print(f"[ERROR] Streaming error: {str(e)}")
+            traceback.print_exc()
+            yield error_msg
