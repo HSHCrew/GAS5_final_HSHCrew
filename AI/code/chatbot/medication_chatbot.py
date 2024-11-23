@@ -283,15 +283,33 @@ class MedicationChatbot:
             traceback.print_exc()
             raise Exception(f'Error during responding: {str(e)}')
 
+    async def is_processing_follow_up(self) -> bool:
+        """후속 메시지 생성 작업이 진행 중인지 확인"""
+        try:
+            processing_key = f"chatbot:follow_up:processing:{self.user_id}"
+            is_processing = await self.chat_service.redis.get(processing_key)
+            return bool(is_processing)
+        except Exception as e:
+            print(f"[ERROR] Failed to check follow-up status: {e}")
+            return False
+
     async def generate_follow_up(self, original_message: str, original_response: str) -> Optional[str]:
         """후속 메시지 생성 및 저장"""
+        processing_key = f"chatbot:follow_up:processing:{self.user_id}"
         try:
+            # 처리 시작 표시
+            await self.chat_service.redis.setex(
+                processing_key,
+                300,  # 5분 타임아웃
+                "1"
+            )
+
             # 복잡한 분석 로직 수행
             analysis_result = await self._analyze_response(original_message, original_response)
             
             if not analysis_result.needs_follow_up:
                 return None
-            
+                
             follow_up_message = await self._generate_follow_up_message(analysis_result)
             
             if follow_up_message:
@@ -310,6 +328,9 @@ class MedicationChatbot:
         except Exception as e:
             print(f"Error generating follow-up: {str(e)}")
             return None
+        finally:
+            # 처리 완료 표시 (에러가 발생하더라도)
+            await self.chat_service.redis.delete(processing_key)
 
     async def _generate_medical_response(
         self, 

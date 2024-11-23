@@ -15,7 +15,7 @@ import asyncio
 # Local imports
 from summarizer.Summarizer import Summarizer
 from chatbot.config import RedisSettings, ChatbotSettings
-from chatbot.manager import ChatbotManager
+from chatbot.chatbot_manager import ChatbotManager
 from chatbot.exceptions import ChatbotSessionError
 
 from chatbot.models import ChatRequest, UserMedicationsRequest
@@ -93,14 +93,15 @@ async def redis_health_check():
         return {"status": "unhealthy", "error": str(e)}
 
 # 챗봇 엔드포인트
-@app.post('/user/medications/chat/message')
+@app.post('/user/{user_id}/medications/chat/message')
 async def chat_message(
+    user_id: int,
     request: ChatRequest,
     background_tasks: BackgroundTasks,
     db: AsyncSession = Depends(get_db)
 ):
     try:
-        chatbot = await chatbot_manager.get_chatbot(request.user_id, db)
+        chatbot = await chatbot_manager.get_chatbot(user_id, db)
         
         # 첫 번째 응답 즉시 생성
         main_response = await chatbot.respond(request.message)
@@ -286,7 +287,7 @@ async def get_user_medication_summaries(
         raise HTTPException(status_code=500, detail=str(e))
 
 # 후속 메시지를 조회하는 새로운 엔드포인트 추가
-@app.get('/user/medications/chat/follow-up/{user_id}')
+@app.get('/user/{user_id}/medications/chat/follow-up')
 async def get_follow_up(
     user_id: int,
     last_checked_timestamp: Optional[float] = None,
@@ -297,50 +298,41 @@ async def get_follow_up(
         chatbot = await chatbot_manager.get_chatbot(user_id, db)
         messages = await chatbot.chat_service.get_chat_history(user_id)
         
-        # 마지막 확인 이후의 메시지만 필터링
-        recent_messages = [
-            msg for msg in messages 
-            if last_checked_timestamp is None or 
-               msg.timestamp.timestamp() > last_checked_timestamp
-        ]
-        
-        # assistant의 메시지 중 follow-up 메타데이터가 있는 것 찾기
-        follow_ups = [
-            msg for msg in recent_messages
-            if msg.role == "assistant" and 
-               msg.metadata.get("is_follow_up", False)
-        ]
-        
-        if follow_ups:
-            return {
-                "follow_up": follow_ups[-1].content,
-                "timestamp": follow_ups[-1].timestamp.timestamp(),
-                "status": "found"
-            }
-        
-        # 백그라운드 작업이 아직 진행 중인지 확인
+        # 백그라운드 작업 상태 확인
         if await chatbot.is_processing_follow_up():
             return {
                 "follow_up": None,
                 "status": "processing"
             }
             
+        # 마지막 메시지가 assistant의 메시지이고, 
+        # 그 이전 메시지도 assistant의 메시지인 경우를 후속 메시지로 간주
+        if len(messages) >= 2 and \
+           messages[-1].role == "assistant" and \
+           messages[-2].role == "assistant":
+            return {
+                "follow_up": messages[-1].content,
+                "status": "completed"
+            }
+            
         return {
             "follow_up": None,
-            "status": "completed"
+            "status": "completed"  # 후속 메시지가 없음이 확인됨
         }
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post('/user/medications/chat/message/stream')
+# 챗봇 스트리밍 엔드포인트
+@app.post('/user/{user_id}/medications/chat/message/stream')
 async def chat_message_stream(
+    user_id: int,
     request: ChatRequest,
     background_tasks: BackgroundTasks,
     db: AsyncSession = Depends(get_db)
 ):
     try:
-        chatbot = await chatbot_manager.get_chatbot(request.user_id, db)
+        chatbot = await chatbot_manager.get_chatbot(user_id, db)
         
         async def generate():
             async for token in chatbot.respond_stream(request.message):

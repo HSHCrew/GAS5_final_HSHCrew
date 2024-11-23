@@ -90,10 +90,7 @@ class UserMedicationsRequest(BaseModel):
         from_attributes = True
 
 class ChatRequest(BaseModel):
-    user_id: int
-    message: str = None
-    user_info: str = None
-    medication_info: list[str] = None
+    message: str
     
     class Config:
         min_length_message = 1
@@ -103,3 +100,8 @@ class IntentClassification(BaseModel):
     intent: Literal["medical_or_daily", "harmful", "clarification"]
     confidence: float = Field(ge=0, le=1)
     explanation: str
+    
+class AnalysisResult(BaseModel):
+    needs_follow_up: bool
+    reason: Optional[str] = None
+    context: Optional[dict] = None
