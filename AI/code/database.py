@@ -1,28 +1,18 @@
-from motor.motor_asyncio import AsyncIOMotorClient
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import declarative_base, sessionmaker
 
 # SQLite 설정
-DATABASE_URL = "sqlite+aiosqlite:////test.db"
+DATABASE_URL = "sqlite+aiosqlite:///test.db"
 engine = create_async_engine(DATABASE_URL, echo=True)
 AsyncSessionLocal = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
-# MongoDB 설정
-MONGODB_URL = "mongodb://localhost:27017"
-mongodb_client = AsyncIOMotorClient(MONGODB_URL)
-mongodb = mongodb_client.gas5fp  # 데이터베이스 이름
-summary_collection = mongodb.summaries  # 컬렉션 이름
+# Base 클래스 생성
+Base = declarative_base()
 
-# 의존성 함수들
+# 의존성 함수
 async def get_db():
     async with AsyncSessionLocal() as session:
         try:
             yield session
         finally:
-            await session.close()
-
-async def get_mongodb():
-    try:
-        yield mongodb
-    finally:
-        mongodb_client.close() 
+            await session.close() 

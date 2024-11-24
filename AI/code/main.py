@@ -11,6 +11,7 @@ import json
 from contextlib import asynccontextmanager
 from fastapi.responses import StreamingResponse
 import asyncio
+from datetime import datetime
 
 # Local imports
 from summarizer.Summarizer import Summarizer
@@ -31,6 +32,7 @@ from chatbot.database.models import (
     UserMedication,
     MedicationSummary
 )
+from chatbot.db_models import VoiceTranscription
 
 # 환경 변수 로드
 
@@ -352,6 +354,88 @@ async def chat_message_stream(
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+# 테스트용 엔드포인트 추가
+@app.post("/test/transcription")
+async def test_transcription_save(
+    db: AsyncSession = Depends(get_db)
+):
+    """음성 대화 내용 저장 테스트"""
+    try:
+        # 테스트용 데이터
+        test_transcriptions = [
+            "안녕하세요, 테스트 메시지입니다.",
+            "두 번째 테스트 메시지입니다.",
+            "마지막 테스트 메시지입니다."
+        ]
+        
+        saved_records = []
+        test_stream_id = f"test_stream_{datetime.now().timestamp()}"
+        
+        for transcription in test_transcriptions:
+            db_transcription = VoiceTranscription(
+                user_id=1,  # 테스트용 사용자 ID
+                transcription=transcription,
+                original_message_id=test_stream_id
+            )
+            db.add(db_transcription)
+            await db.commit()
+            await db.refresh(db_transcription)
+            
+            saved_records.append({
+                "id": db_transcription.id,
+                "transcription": db_transcription.transcription,
+                "original_message_id": db_transcription.original_message_id,
+                "created_at": db_transcription.created_at.isoformat()
+            })
+        
+        return {
+            "status": "success",
+            "message": f"Saved {len(saved_records)} transcriptions",
+            "saved_records": saved_records
+        }
+        
+    except Exception as e:
+        await db.rollback()
+        return {
+            "status": "error",
+            "message": str(e)
+        }
+
+@app.get("/test/transcription/{user_id}")
+async def get_user_transcriptions(
+    user_id: int,
+    db: AsyncSession = Depends(get_db)
+):
+    """특정 사용자의 음성 대화 내용 조회"""
+    try:
+        result = await db.execute(
+            select(VoiceTranscription)
+            .where(VoiceTranscription.user_id == user_id)
+            .order_by(VoiceTranscription.created_at.desc())
+        )
+        
+        transcriptions = result.scalars().all()
+        
+        return {
+            "status": "success",
+            "user_id": user_id,
+            "transcriptions": [
+                {
+                    "id": t.id,
+                    "transcription": t.transcription,
+                    "original_message_id": t.original_message_id,
+                    "created_at": t.created_at.isoformat()
+                }
+                for t in transcriptions
+            ]
+        }
+        
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": str(e)
+        }
 
 def main():
     uvicorn.run(app, host="0.0.0.0", port=8000)

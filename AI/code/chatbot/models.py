@@ -1,7 +1,9 @@
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 from datetime import datetime, UTC
 from typing import Literal, Optional, List, Dict, Any
 import json
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Text
+from sqlalchemy.sql import func
 
 class ChatMessage(BaseModel):
     role: Literal["human", "assistant"]
@@ -9,7 +11,7 @@ class ChatMessage(BaseModel):
     timestamp: datetime = Field(default_factory=datetime.now)
     metadata: Optional[Dict[str, Any]] = Field(default_factory=dict)
 
-    @validator('content')
+    @field_validator('content')
     def validate_content(cls, v):
         if not v or not v.strip():
             raise ValueError("Message content cannot be empty")
@@ -20,7 +22,7 @@ class MedicationInfo(BaseModel):
     name: str
     details: Dict[str, Any]
     
-    @validator('summary', 'name')
+    @field_validator('summary', 'name')
     def validate_strings(cls, v):
         if not v or not v.strip():
             raise ValueError("Field cannot be empty")
@@ -105,3 +107,19 @@ class AnalysisResult(BaseModel):
     needs_follow_up: bool
     reason: Optional[str] = None
     context: Optional[dict] = None
+
+# Pydantic 모델로 VoiceTranscription 정의
+class VoiceTranscriptionBase(BaseModel):
+    transcription: str
+    original_message_id: Optional[str] = None
+
+class VoiceTranscriptionCreate(VoiceTranscriptionBase):
+    user_id: int
+
+class VoiceTranscriptionResponse(VoiceTranscriptionBase):
+    id: int
+    user_id: int
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
