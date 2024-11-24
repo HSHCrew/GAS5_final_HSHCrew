@@ -100,6 +100,15 @@ public class UserProfileEntity {
 
     @OneToMany(mappedBy = "userProfile", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     private List<MedicationCompletionEntity> medicationCompletions = new ArrayList<>();
+
+    @OneToMany(mappedBy = "userProfile", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    private List<MedicationSummaryEntity> medicationSummaries = new ArrayList<>();
+
+    @OneToMany(mappedBy = "userProfile", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    private List<ChatSummaryEntity> chatSummaries = new ArrayList<>();
+
+    @OneToMany(mappedBy = "userProfile", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    private List<ExpertFeedbackEntity> expertFeedbackEntities = new ArrayList<>();
 }
 
 
