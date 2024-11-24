@@ -48,7 +48,7 @@ async def lifespan(app: FastAPI):
         raise
     finally:
         # shutdown 이벤트
-        # await chatbot_manager.cleanup_all()
+        await chatbot_manager.cleanup_all()
         await redis.close()
         await engine.dispose()
         print("Application shutdown completed")
