@@ -227,27 +227,36 @@ public class MedicationAlarmService {
 
         LocalDate today = LocalDate.now(); // 오늘 날짜
 
-        for (MedicationCompletionEntity medicationCompletion : medicationCompletions) {
+        boolean alreadyCompletedToday = medicationCompletions.stream()
+                .anyMatch(medicationCompletion -> medicationCompletion.getCreatedAt().isEqual(today));
 
-            LocalDate createTime = medicationCompletion.getCreatedAt();
+        if (!alreadyCompletedToday) {
+            // 오늘 날짜에 해당하는 데이터가 없다면 새로운 데이터 처리
+            for (MedicationCompletionEntity medicationCompletion : medicationCompletions) {
 
-            if (createTime.isEqual(today)) {
-                if (medicationCompletionDTO.getMorningTaken()) {
-                    medicationCompletion.setMorningTaken(true);
+                LocalDate createTime = medicationCompletion.getCreatedAt();
+
+                if (createTime.isEqual(today)) {
+                    if (medicationCompletionDTO.getMorningTaken()) {
+                        medicationCompletion.setMorningTaken(true);
+                    }
+                    if (medicationCompletionDTO.getLunchTaken()) {
+                        medicationCompletion.setLunchTaken(true);
+                    }
+                    if (medicationCompletionDTO.getDinnerTaken()) {
+                        medicationCompletion.setDinnerTaken(true);
+                    }
+                    if (medicationCompletionDTO.getNightTaken()) {
+                        medicationCompletion.setNightTaken(true);
+                    }
+
+                    // createTime이 오늘인 경우 처리할 로직
+                    medicationCompletionRepository.save(medicationCompletion);
                 }
-                if (medicationCompletionDTO.getLunchTaken()) {
-                    medicationCompletion.setLunchTaken(true);
-                }
-                if (medicationCompletionDTO.getDinnerTaken()) {
-                    medicationCompletion.setDinnerTaken(true);
-                }
-                if (medicationCompletionDTO.getNightTaken()) {
-                    medicationCompletion.setNightTaken(true);
-                }
-                // createTime이 오늘인 경우 처리할 로직
-                medicationCompletionRepository.save(medicationCompletion);
             }
-
+        } else {
+            // 오늘 날짜에 이미 완료된 데이터가 존재하므로 새로운 데이터는 저장하지 않음
+            System.out.println("오늘 날짜의 약 복용 정보가 이미 존재합니다.");
         }
 
 
