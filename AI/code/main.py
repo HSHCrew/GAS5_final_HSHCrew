@@ -48,7 +48,8 @@ async def lifespan(app: FastAPI):
         raise
     finally:
         # shutdown 이벤트
-        await chatbot_manager.cleanup_all()
+        # 챗봇 인스턴스 정리
+        # await chatbot_manager.cleanup_all()
         await redis.close()
         await engine.dispose()
         print("Application shutdown completed")
@@ -122,18 +123,20 @@ async def chat_reset(
     db: AsyncSession = Depends(get_db)
 ):
     try:
-        # 기존 챗봇 인스턴스 가져오기
-        chatbot = await chatbot_manager.get_chatbot(request.user_id, db)
+        print(f"\n[DEBUG] Starting chat reset endpoint for user {request.user_id}")
         
-        # 세션 및 채팅 기록 초기화
-        await chatbot.cleanup()
+        # 리셋 전 세션 상태 확인
+        session_before = await chatbot_manager.session_service.get_session(request.user_id)
+        print(f"[DEBUG] Session exists before reset: {session_before is not None}")
         
-        # ChatbotManager에서 인스턴스 제거
-        if request.user_id in chatbot_manager.instances:
-            del chatbot_manager.instances[request.user_id]
+        # ChatbotManager의 reset_chat 메서드를 사용하여 세션 초기화
+        new_chatbot = await chatbot_manager.reset_chat(request.user_id, db)
         
-        # 새로운 챗봇 인스턴스 생성 및 세션 시작
-        new_chatbot = await chatbot_manager.get_chatbot(request.user_id, db)
+        # 리셋 후 세션 상태 확인
+        session_after = await chatbot_manager.session_service.get_session(request.user_id)
+        print(f"[DEBUG] Session exists after reset: {session_after is not None}")
+        
+        # 초기 응답 받기
         initial_response = await new_chatbot.start_chat()
         
         return {
@@ -141,7 +144,7 @@ async def chat_reset(
             "initial_response": initial_response
         }
     except Exception as e:
-        print(f"Error resetting chat: {str(e)}")
+        print(f"[ERROR] Error resetting chat: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 # 약물 정보 처리 엔드포인트
