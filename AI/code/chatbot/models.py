@@ -1,15 +1,17 @@
-from pydantic import BaseModel, Field, validator
-from datetime import datetime
+from pydantic import BaseModel, Field, field_validator
+from datetime import datetime, UTC
 from typing import Literal, Optional, List, Dict, Any
 import json
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Text
+from sqlalchemy.sql import func
 
 class ChatMessage(BaseModel):
     role: Literal["human", "assistant"]
     content: str
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=datetime.now)
     metadata: Optional[Dict[str, Any]] = Field(default_factory=dict)
 
-    @validator('content')
+    @field_validator('content')
     def validate_content(cls, v):
         if not v or not v.strip():
             raise ValueError("Message content cannot be empty")
@@ -20,7 +22,7 @@ class MedicationInfo(BaseModel):
     name: str
     details: Dict[str, Any]
     
-    @validator('summary', 'name')
+    @field_validator('summary', 'name')
     def validate_strings(cls, v):
         if not v or not v.strip():
             raise ValueError("Field cannot be empty")
@@ -39,8 +41,8 @@ class ChatSession:
         self.user_id = user_id
         self.medication_info = medication_info
         self.user_info = user_info
-        self.created_at = created_at or datetime.utcnow()
-        self.last_accessed = last_accessed or datetime.utcnow()
+        self.created_at = created_at or datetime.now(UTC)
+        self.last_accessed = last_accessed or datetime.now(UTC)
         self.metadata = metadata or {}
 
     def to_redis_hash(self) -> Dict[str, str]:
@@ -70,8 +72,8 @@ class ChatSession:
                 user_id=int(decoded_data.get('user_id', 0)),
                 medication_info=medication_info,
                 user_info=decoded_data.get('user_info', ''),
-                created_at=datetime.fromisoformat(decoded_data.get('created_at', datetime.utcnow().isoformat())),
-                last_accessed=datetime.fromisoformat(decoded_data.get('last_accessed', datetime.utcnow().isoformat())),
+                created_at=datetime.fromisoformat(decoded_data.get('created_at', datetime.now(UTC).isoformat())),
+                last_accessed=datetime.fromisoformat(decoded_data.get('last_accessed', datetime.now(UTC).isoformat())),
                 metadata=json.loads(decoded_data.get('metadata', '{}'))
             )
         except Exception as e:
@@ -90,11 +92,34 @@ class UserMedicationsRequest(BaseModel):
         from_attributes = True
 
 class ChatRequest(BaseModel):
-    user_id: int
-    message: str = None
-    user_info: str = None
-    medication_info: list[str] = None
+    message: str
     
     class Config:
         min_length_message = 1
         max_length_message = 1000
+
+class IntentClassification(BaseModel):
+    intent: Literal["medical_or_daily", "harmful", "clarification"]
+    confidence: float = Field(ge=0, le=1)
+    explanation: str
+    
+class AnalysisResult(BaseModel):
+    needs_follow_up: bool
+    reason: Optional[str] = None
+    context: Optional[dict] = None
+
+# Pydantic 모델로 VoiceTranscription 정의
+class VoiceTranscriptionBase(BaseModel):
+    transcription: str
+    original_message_id: Optional[str] = None
+
+class VoiceTranscriptionCreate(VoiceTranscriptionBase):
+    user_id: int
+
+class VoiceTranscriptionResponse(VoiceTranscriptionBase):
+    id: int
+    user_id: int
+    created_at: datetime
+
+    class Config:
+        from_attributes = True

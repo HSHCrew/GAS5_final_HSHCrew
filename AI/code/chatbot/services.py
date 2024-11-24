@@ -36,6 +36,16 @@ class ChatService:
         messages = await self.redis.lrange(chat_key, 0, -1)
         return [ChatMessage.parse_raw(msg) for msg in messages]
 
+    async def cleanup(self, user_id: int) -> None:
+        """채팅 기록 삭제"""
+        try:
+            chat_key = await self.get_chat_key(user_id)
+            await self.redis.delete(chat_key)
+            print(f"Deleted chat history for user {user_id}")
+        except Exception as e:
+            print(f"Error deleting chat history for user {user_id}: {str(e)}")
+            raise
+
 class SessionService:
     def __init__(self, redis_client: aioredis.Redis, settings: ChatbotSettings):
         self.redis = redis_client
@@ -107,3 +117,13 @@ class SessionService:
         except Exception as e:
             print(f"[ERROR] Failed to create session: {str(e)}")
             raise ChatbotSessionError(f"Failed to create session: {str(e)}")
+
+    async def cleanup(self, user_id: int) -> None:
+        """세션 정보 삭제"""
+        try:
+            session_key = f"chatbot:session:{user_id}"
+            await self.redis.delete(session_key)
+            print(f"Deleted session for user {user_id}")
+        except Exception as e:
+            print(f"Error deleting session for user {user_id}: {str(e)}")
+            raise

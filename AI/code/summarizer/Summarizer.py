@@ -19,16 +19,24 @@ from .config import SummarizerSettings
 class Summarizer:
     def __init__(self, project_name: str = "medication-summarizer"):
         load_dotenv()
-        logging.langsmith("gas5-fp")
         
         settings = SummarizerSettings()
         
-        # 콜백 설정
-        self.tracer = LangChainTracer()
-        self.callback_manager = CallbackManager([
-            self.tracer,
-            AsyncRunCollector()
-        ])
+        # LangSmith 설정
+        try:
+            logging.langsmith("gas5-fp")
+        except Exception as e:
+            print(f"Warning: LangSmith initialization failed: {e}")
+        
+        callbacks = [AsyncRunCollector()]
+        if os.getenv("LANGCHAIN_API_KEY"): 
+            try:
+                self.tracer = LangChainTracer()
+                callbacks.append(self.tracer)
+            except Exception as e:
+                print(f"Warning: LangChain tracer initialization failed: {e}")
+        
+        self.callback_manager = CallbackManager(callbacks)
         
         # LLM 설정
         self.llm = ChatOpenAI(
@@ -110,3 +118,15 @@ class Summarizer:
         # 모든 태스크 동시 실행
         results = await asyncio.gather(*tasks)
         return results
+
+    @classmethod
+    def create(cls, 
+              llm: Optional[ChatOpenAI] = None,
+              settings: Optional[SummarizerSettings] = None,
+              project_name: str = "medication-summarizer") -> "Summarizer":
+        instance = cls(project_name)
+        if llm:
+            instance.llm = llm
+        if settings:
+            instance.settings = settings
+        return instance

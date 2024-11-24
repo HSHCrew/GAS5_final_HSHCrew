@@ -5,6 +5,9 @@ class SummarizerSettings(BaseSettings):
     TEMPERATURE: float = 0
     VERIFICATION_THRESHOLD: int = 80
     MAX_RETRY_ATTEMPTS: int = 2
+    BATCH_SIZE: int = 10
+    TIMEOUT_SECONDS: int = 30
     
     class Config:
+        env_prefix = "SUMMARIZER_"
         env_file = ".env" 

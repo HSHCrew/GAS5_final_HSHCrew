@@ -4,21 +4,23 @@ from .database import get_db
 from .models import ChatRequest
 from .manager import ChatbotManager
 
-router = APIRouter(prefix="/user/medications")
+router = APIRouter()
 
-def get_chatbot_manager():
-    from main import chatbot_manager  # 순환 참조 방지를 위한 지연 임포트
-    return chatbot_manager
-
-@router.post("/chat_message")
-async def chat_message(
+@router.post('/user/medications/chat/reset')
+async def chat_reset(
     request: ChatRequest,
-    db: AsyncSession = Depends(get_db),
-    manager: ChatbotManager = Depends(get_chatbot_manager)
+    db: AsyncSession = Depends(get_db)
 ):
     try:
-        chatbot = await manager.get_chatbot(request.user_id, db)
-        response = await chatbot.respond(request.message)
-        return {"response": response}
+        # Reset chat using ChatbotManager
+        new_chatbot = await ChatbotManager.reset_chat(request.user_id, db)
+        
+        initial_response = await new_chatbot.start_chat()
+        
+        return {
+            "message": "Chat session reset successfully",
+            "initial_response": initial_response
+        }
     except Exception as e:
+        print(f"Error resetting chat: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e)) 

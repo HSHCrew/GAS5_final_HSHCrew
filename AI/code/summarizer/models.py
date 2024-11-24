@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, UTC
 from pydantic import BaseModel, Field
 
-@dataclass
+@dataclass(frozen=False)
 class ProcessResult:
     """처리 결과 데이터 구조"""
     index: Optional[int] = None
@@ -11,8 +11,9 @@ class ProcessResult:
     summary: str = ""
     fewshots: str = ""
     failed: str = ""
-    processed_at: datetime = datetime.utcnow()
+    processed_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     
+    @property
     def is_successful(self) -> bool:
         return not bool(self.failed)
     
@@ -23,7 +24,7 @@ class ProcessResult:
             "fewshots": self.fewshots,
             "failed": self.failed,
             "processed_at": self.processed_at.isoformat(),
-            "success": self.is_successful()
+            "success": self.is_successful
         }
 
 class Topic(BaseModel):

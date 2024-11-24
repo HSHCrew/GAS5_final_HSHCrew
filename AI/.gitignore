@@ -1,3 +1,8 @@
 .env
-AI/code/test.db
-AI/code/chatbot/__pysache__/config.cpython-311.pyc
+*/__pycache__/*
+*/*/__pycache__/*
+*/*/*/__pycache__/*
+*/data/*
+*/*/data/*
+*/*/*/data/*
+*/test.db
