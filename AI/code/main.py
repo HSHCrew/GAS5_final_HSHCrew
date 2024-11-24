@@ -74,7 +74,6 @@ app.add_middleware(
 redis_settings = RedisSettings()
 redis = aioredis.from_url(
     url=redis_settings.REDIS_URL,
-    password=redis_settings.REDIS_PASSWORD,
     encoding=redis_settings.REDIS_ENCODING,
     decode_responses=redis_settings.REDIS_DECODE_RESPONSES
 )
