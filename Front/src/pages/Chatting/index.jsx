@@ -17,7 +17,7 @@ function Chatting() {
   // 서버에 메시지 전송 및 응답 받기
   const sendMessageToServer = async (message) => {
     try {
-      const response = await axios.post('http://localhost:8000/user/medications/chat_message', {
+      const response = await axios.post('http://localhost:8000/user/medications/chat/message', {
         user_id: 1,
         message: message,
       });

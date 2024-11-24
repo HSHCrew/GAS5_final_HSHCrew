@@ -218,9 +218,14 @@
     outline: none; /* 버튼 클릭 후 포커스 스타일 제거 */
 }
 
+.home-confirm-button.taken {
+    background-color: #cccccc;  /* 복약 완료시 회색으로 변경 */
+    cursor: not-allowed;
+}
+
 .home-confirm-button:disabled {
-    background-color: #ccc;
-    cursor: default;
+    opacity: 0.7;
+    cursor: not-allowed;
 }
 
 /* 사용자 프로필 정보 */

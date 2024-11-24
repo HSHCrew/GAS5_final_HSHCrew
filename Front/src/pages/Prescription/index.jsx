@@ -10,14 +10,18 @@ const PrescriptionDetail = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const [prescription, setPrescription] = useState(null);
-  const [progressPercentage, setProgressPercentage] = useState(0); // 복약 성공률
+  const [progressPercentage, setProgressPercentage] = useState(0);
   const [error, setError] = useState(false);
   const [completionMessage, setCompletionMessage] = useState("");
 
   useEffect(() => {
-    if (!id) {
-      console.error("prescriptionId가 유효하지 않습니다.");
-      setError(true);
+    // 인증 체크를 먼저 수행
+    const username = localStorage.getItem("username") || sessionStorage.getItem("username");
+    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+
+    if (!username || !token) {
+      console.warn("사용자 인증 정보가 없습니다.");
+      navigate('/signin', { state: { from: `/prescription/${id}` } }); // 현재 페이지 정보를 state로 전달
       return;
     }
 
@@ -61,14 +65,32 @@ const PrescriptionDetail = () => {
 
     const fetchProgress = async () => {
       try {
-        const username = localStorage.getItem("username") || "defaultUsername"; // 사용자 이름 가져오기
-        const progressResponse = await apiClient.get(`/altari/medication/progress/${username}`);
+        const username = localStorage.getItem("username") || sessionStorage.getItem("username");
+        const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+    
+        if (!username || !token) {
+          console.warn("사용자 인증 정보가 없습니다.");
+          setProgressPercentage(0);
+          setCompletionMessage("진행 중");
+          return;
+        }
+    
+        const progressResponse = await apiClient.get(
+          `/altari/medication/progress/${username}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          }
+        );
+        
         const progressData = progressResponse.data["prescription_progress: "];
         const prescriptionProgress = progressData.find(
           (progress) => progress.prescriptionId === parseInt(id)
         );
+        
         if (prescriptionProgress) {
-          setProgressPercentage(prescriptionProgress.progress);
+          setProgressPercentage(Number(prescriptionProgress.progress).toFixed(1));
           setCompletionMessage(
             prescriptionProgress.progress === 100 ? "모든 약 복용 완료" : "진행 중"
           );
@@ -214,7 +236,7 @@ const PrescriptionDetail = () => {
             <div>
               <p className="medication-name">{drug.medication.medicationName}</p>
               <p className="medication-dosage">
-                {drug.oneDose}정 x {drug.dailyDosesNumber}회 / {drug.totalDosingDays}일
+                {drug.oneDose}정 / 1일 x {drug.dailyDosesNumber}회 / {drug.totalDosingDays}일
               </p>
             </div>
           </div>

@@ -18,6 +18,13 @@ const Home = () => {
         onLunchMedicationTimeAlarm: false,
         onDinnerMedicationTimeAlarm: false,
         onNightMedicationTimeAlarm: false,
+    
+    });
+    const [medicationStatus, setMedicationStatus] = useState({
+        morningTaken: false,
+        lunchTaken: false,
+        dinnerTaken: false,
+        nightTaken: false
     });
 
     const [morningTime, setMorningTime] = useState('');
@@ -37,17 +44,37 @@ const Home = () => {
         }
         return nodeRefs.current[dayIndex];
     };
+
+    const fetchMedicationStatus = async () => {
+        try {
+            const response = await apiClient.get(
+                `/altari/medication/getMedicationCompletion/${username}`,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                }
+            );
+            console.log('Medication status:', response.data);
+            
+            // 응답 데이터가 배열이므로 첫 번째 항목 사용
+            if (response.data && response.data.length > 0) {
+                setMedicationStatus(response.data[0]);
+            }
+        } catch (error) {
+            console.error('복약 상태 조회 실패:', error);
+        }
+    };
     
     // 사용자 프로필 및 알림 상태 조회
     useEffect(() => {
         const fetchUserProfileAndAlarms = async () => {
             try {
-                setLoadingProfile(true); // 로딩 시작
+                setLoadingProfile(true);
                 const profileResponse = await apiClient.get(`/altari/getInfo/userProfile/${username}`);
                 const profileData = profileResponse.data;
                 setUserProfile(profileData);
     
-                // 시간 정보 설정
                 if (profileData.morningMedicationTime) {
                     setMorningTime(formatTime(profileData.morningMedicationTime));
                 }
@@ -64,11 +91,13 @@ const Home = () => {
                 const alarmResponse = await apiClient.get(`/altari/medication/getAlarm/${username}`);
                 setAlarms(alarmResponse.data);
                 console.log('Fetched alarms:', alarmResponse.data);
+
+                await fetchMedicationStatus();
     
             } catch (error) {
                 console.error('사용자 데이터 가져오기 실패:', error);
             } finally {
-                setLoadingProfile(false); // 로딩 완료 후 상태 업데이트
+                setLoadingProfile(false);
             }
         };
     
@@ -93,28 +122,43 @@ const Home = () => {
         navigate(`/medicineinfo/${medicationId}`);
     };
 
-    const handleConfirmMedicationGroup = async (meds) => {
+    const handleConfirmMedicationGroup = async (meds, timeKey) => {
         try {
-            // meds 인자를 활용하여 백엔드에 복약 확인 요청
-            await apiClient.post(`/altari/confirm/${username}`, { medications: meds });
-            console.log('복약 확인 완료');
+            // MedicationCompletionDTO 형식에 맞게 데이터 구성
+            const requestData = {
+                morningTaken: timeKey === 'morning' ? true : false,
+                lunchTaken: timeKey === 'lunch' ? true : false,
+                dinnerTaken: timeKey === 'dinner' ? true : false,
+                nightTaken: timeKey === 'night' ? true : false
+            };
     
-            // 복약 완료 상태로 로컬 상태 업데이트
-            const updatedMedications = { ...medications };
-            
-            meds.forEach((med) => {
-                ['morningMedications', 'lunchMedications', 'dinnerMedications', 'nightMedications'].forEach((timeKey) => {
-                    const medIndex = updatedMedications[timeKey].findIndex((m) => m.medicationId === med.medicationId);
-                    if (medIndex !== -1) {
-                        updatedMedications[timeKey][medIndex].isTaken = true; // 복약 완료로 상태 변경
+            console.log('Sending request:', requestData);
+    
+            const response = await apiClient.post(
+                `/altari/confirm/${username}`,
+                requestData,
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
                     }
-                });
-            });
-    
-            // 상태 업데이트하여 변경 사항 반영
-            setMedications(updatedMedications);
+                }
+            );
+            
+            console.log('Response:', response.data);
+            
+            // 복약 상태 업데이트
+            await fetchMedicationStatus();
+            
+            // 성공 메시지 표시 (선택사항)
+            alert('복약이 확인되었습니다.');
         } catch (error) {
             console.error('복약 확인 실패:', error);
+            if (error.response) {
+                console.error('에러 상태:', error.response.status);
+                console.error('에러 데이터:', error.response.data);
+            }
+            alert('복약 확인 중 오류가 발생했습니다.');
         }
     };
     
@@ -148,9 +192,11 @@ const Home = () => {
     };
     
 
-    const renderGroupedMedications = (meds = [], time, alarmKey) => {
+    const renderGroupedMedications = (meds = [], time, alarmKey, timeKey) => {
         if (!meds || meds.length === 0) return null;
     
+        const isTaken = medicationStatus[`${timeKey}Taken`];
+
         return (
             <div key={`${time}-${alarmKey}`} className="home-medication-group-card">
                 <img src={clockIcon} alt="Clock" className="home-clock-icon" />
@@ -175,18 +221,18 @@ const Home = () => {
                             )}
                             <div className="home-medication-info-container">
                                 <p className="home-medication-info">{medication.medicationName}</p>
-                                <p className="home-medication-count">{medication.oneDose || ''}</p>
+                                <p className="home-medication-count">{medication.oneDose || ''}정</p>
                             </div>
                         </div>
                     ))}
                 </div>
                 {/* 확인 버튼 */}
                 <button
-                    className="home-confirm-button"
-                    onClick={() => handleConfirmMedicationGroup(meds)}
-                    disabled={meds.every((med) => med.isTaken)}
+                    className={`home-confirm-button ${isTaken ? 'taken' : ''}`}
+                    onClick={() => handleConfirmMedicationGroup(meds, timeKey)}
+                    disabled={isTaken}  // 복약 완료시 버튼 비활성화
                 >
-                    {meds.every((med) => med.isTaken) ? '복약 완료' : '확인'}
+                    {isTaken ? '복약 완료' : '확인'}
                 </button>
                 {/* 알림 토글 */}
                 <div className="home-notification-container">
@@ -253,26 +299,30 @@ const Home = () => {
                         {medications.morningMedications.length > 0 &&
                             renderGroupedMedications(
                                 medications.morningMedications,
-                                morningTime || '08:00', // 유저 프로필에서 불러온 아침 복용 시간
-                                'onMorningMedicationAlarm'
+                                morningTime || '08:00',
+                                'onMorningMedicationAlarm',
+                                'morning'
                             )}
                         {medications.lunchMedications.length > 0 &&
                             renderGroupedMedications(
                                 medications.lunchMedications,
                                 lunchTime || '13:00', // 유저 프로필에서 불러온 점심 복용 시간
-                                'onLunchMedicationTimeAlarm'
+                                'onLunchMedicationTimeAlarm',
+                                'lunch'
                             )}
                         {medications.dinnerMedications.length > 0 &&
                             renderGroupedMedications(
                                 medications.dinnerMedications,
                                 dinnerTime || '19:00', // 유저 프로필에서 불러온 저녁 복용 시간
-                                'onDinnerMedicationTimeAlarm'
+                                'onDinnerMedicationTimeAlarm',
+                                'dinner'
                             )}
                         {medications.nightMedications.length > 0 &&
                             renderGroupedMedications(
                                 medications.nightMedications,
                                 nightTime || '22:00', // 유저 프로필에서 계산된 야간 복용 시간
-                                'onNightMedicationTimeAlarm'
+                                'onNightMedicationTimeAlarm',
+                                'night'
                             )}
 
                         {/* 모든 약물 그룹이 비어있을 때 메시지 표시 */}
