@@ -2,6 +2,7 @@ package org.zerock.Altari.service;
 
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -333,17 +334,16 @@ public class MedicationAlarmService {
         return result;
     }
 
+
     private void cancelScheduledAlerts(UserEntity user) {
         ScheduledFuture<?> future = scheduledTasks.remove(user);
         if (future != null) {
             future.cancel(false); // 작업을 취소합니다.
         }
     }
-
     public void sendDailyMedicationAlerts(UserEntity user) {
         checkMedications(user);
     }
-
     public void checkMedications(UserEntity username) {
         UserProfileEntity userProfile = userProfileRepository.findByUsername(username);
         String toPhoneNumber = userProfile.getPhoneNumber(); // 사용자 전화번호
@@ -354,7 +354,6 @@ public class MedicationAlarmService {
     }
 
     @Transactional(readOnly = true)
-    @Cacheable(value = "userMedicationAlarm", key = "#username")
     public Map<String, Object> calculateProgressByPrescription(UserEntity username) {
         UserProfileEntity userProfile = userProfileRepository.findByUsername(username);
         List<UserPrescriptionEntity> prescriptions = userPrescriptionRepository.findByUserProfile(userProfile);
@@ -504,7 +503,6 @@ public class MedicationAlarmService {
     }
 
     @Transactional(readOnly = true)
-    @Cacheable(value = "medicationCompletions", key = "#user")
     public List<MedicationCompletionDTO> getMedicationCompletion(UserEntity user) {
         UserProfileEntity userProfile = userProfileRepository.findByUsername(user);
         List<MedicationCompletionEntity> medicationCompletions = medicationCompletionRepository.findByUserProfile(userProfile);

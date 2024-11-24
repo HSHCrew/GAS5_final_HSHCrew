@@ -31,12 +31,16 @@ public class ArticleEntity {
     @Column(columnDefinition = "TEXT")
     private String content; // 내용
 
-    @Column()
-    private LocalDate date; // 날짜 (LocalDate 타입 사용)
+    @Column(columnDefinition = "TEXT")
+    private String date; // 날짜 (LocalDate 타입 사용)
 
     @Column(columnDefinition = "TEXT")
     private String link; // 링크
 
     @Column(columnDefinition = "TEXT")
     private String imageUrl; // 이미지 URL
+
+    @ManyToOne
+    @JoinColumn(name = "disease_id")
+    private DiseaseEntity disease;
 }
