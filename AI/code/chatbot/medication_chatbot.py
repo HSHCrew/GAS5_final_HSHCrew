@@ -334,12 +334,14 @@ class MedicationChatbot:
             })
 
             # 신뢰도가 낮은 경우 (예: 0.7 미만) 추가 설명 생성
-            if evaluation_result["confidence"] < 1.0:
+            if evaluation_result["confidence"] < 1.0 and evaluation_result["additional_explanation"]:
                 follow_up_message = (
                     "💊 추가 정보를 안내해 드립니다:\n\n"
                     f"{evaluation_result['additional_explanation']}\n\n"
                     "❗ 더 자세한 정보가 필요하시다면 추가 질문해 주세요."
                 )
+            elif evaluation_result["confidence"] < 1.0 and not evaluation_result["additional_explanation"]:
+                follow_up_message = "❗ 더 자세한 정보가 필요하시다면 추가 질문해 주세요."
 
             if follow_up_message:
                 # 후속 메시지 저장

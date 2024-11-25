@@ -13,7 +13,9 @@ template: |
   2. Check if any important details were missed
   3. Evaluate if the explanation was clear and complete
   4. If confidence is low, provide additional explanation
-  
+
+  단, 사용자가 다른 정보를 필요로하지 않는 경우는 추가 설명을 제공하지 않아도 됩니다.
+
   [Output Format]
   Return a JSON with the following structure:
   {{

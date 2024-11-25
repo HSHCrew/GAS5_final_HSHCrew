@@ -12,7 +12,7 @@ function Chatting() {
   const [input, setInput] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
   const lastMessageRef = useRef(null);
-  const userId = 3; // 테스트용 사용자 ID
+  const userId = 9999; // 테스트용 사용자 ID
 
   // 서버에 메시지 전송 및 응답 받기
   const sendMessageToServer = async (message) => {
