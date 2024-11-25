@@ -132,8 +132,8 @@
 /* 닫기(X) 버튼 스타일 */
 .news-close-button {
     position: absolute;
-    top: -70px; /* 컨테이너 상단 외곽 위치 */
-    right: 0px;
+    top: 20px; /* 상단으로부터의 거리 */
+    right: 20px; /* 우측으로부터의 거리 */
     background: none;
     border: none;
     cursor: pointer;
@@ -148,6 +148,36 @@
     transition: opacity 0.2s;
 }
 
-.news-close-button:hover .close-icon {
-    opacity: 1; /* 마우스를 올렸을 때 강조 */
+.news-close-button:hover .news-close-icon {
+    opacity: 1;
+}
+
+/* 로딩 관련 스타일 수정 */
+.loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 0;
+}
+
+.loading-spinner {
+    width: 30px;
+    height: 30px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 15px;
+}
+
+.loading-container p {
+    color: #666;
+    font-size: 14px;
+    margin: 0;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
