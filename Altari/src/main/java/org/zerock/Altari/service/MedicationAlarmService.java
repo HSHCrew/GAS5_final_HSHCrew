@@ -2,6 +2,7 @@ package org.zerock.Altari.service;
 
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -226,27 +227,36 @@ public class MedicationAlarmService {
 
         LocalDate today = LocalDate.now(); // 오늘 날짜
 
-        for (MedicationCompletionEntity medicationCompletion : medicationCompletions) {
+        boolean alreadyCompletedToday = medicationCompletions.stream()
+                .anyMatch(medicationCompletion -> medicationCompletion.getCreatedAt().isEqual(today));
 
-            LocalDate createTime = medicationCompletion.getCreatedAt();
+        if (!alreadyCompletedToday) {
+            // 오늘 날짜에 해당하는 데이터가 없다면 새로운 데이터 처리
+            for (MedicationCompletionEntity medicationCompletion : medicationCompletions) {
 
-            if (createTime.isEqual(today)) {
-                if (medicationCompletionDTO.getMorningTaken()) {
-                    medicationCompletion.setMorningTaken(true);
+                LocalDate createTime = medicationCompletion.getCreatedAt();
+
+                if (createTime.isEqual(today)) {
+                    if (medicationCompletionDTO.getMorningTaken()) {
+                        medicationCompletion.setMorningTaken(true);
+                    }
+                    if (medicationCompletionDTO.getLunchTaken()) {
+                        medicationCompletion.setLunchTaken(true);
+                    }
+                    if (medicationCompletionDTO.getDinnerTaken()) {
+                        medicationCompletion.setDinnerTaken(true);
+                    }
+                    if (medicationCompletionDTO.getNightTaken()) {
+                        medicationCompletion.setNightTaken(true);
+                    }
+
+                    // createTime이 오늘인 경우 처리할 로직
+                    medicationCompletionRepository.save(medicationCompletion);
                 }
-                if (medicationCompletionDTO.getLunchTaken()) {
-                    medicationCompletion.setLunchTaken(true);
-                }
-                if (medicationCompletionDTO.getDinnerTaken()) {
-                    medicationCompletion.setDinnerTaken(true);
-                }
-                if (medicationCompletionDTO.getNightTaken()) {
-                    medicationCompletion.setNightTaken(true);
-                }
-                // createTime이 오늘인 경우 처리할 로직
-                medicationCompletionRepository.save(medicationCompletion);
             }
-
+        } else {
+            // 오늘 날짜에 이미 완료된 데이터가 존재하므로 새로운 데이터는 저장하지 않음
+            System.out.println("오늘 날짜의 약 복용 정보가 이미 존재합니다.");
         }
 
 
@@ -333,17 +343,16 @@ public class MedicationAlarmService {
         return result;
     }
 
+
     private void cancelScheduledAlerts(UserEntity user) {
         ScheduledFuture<?> future = scheduledTasks.remove(user);
         if (future != null) {
             future.cancel(false); // 작업을 취소합니다.
         }
     }
-
     public void sendDailyMedicationAlerts(UserEntity user) {
         checkMedications(user);
     }
-
     public void checkMedications(UserEntity username) {
         UserProfileEntity userProfile = userProfileRepository.findByUsername(username);
         String toPhoneNumber = userProfile.getPhoneNumber(); // 사용자 전화번호
@@ -354,7 +363,6 @@ public class MedicationAlarmService {
     }
 
     @Transactional(readOnly = true)
-    @Cacheable(value = "userMedicationAlarm", key = "#username")
     public Map<String, Object> calculateProgressByPrescription(UserEntity username) {
         UserProfileEntity userProfile = userProfileRepository.findByUsername(username);
         List<UserPrescriptionEntity> prescriptions = userPrescriptionRepository.findByUserProfile(userProfile);
@@ -504,7 +512,6 @@ public class MedicationAlarmService {
     }
 
     @Transactional(readOnly = true)
-    @Cacheable(value = "medicationCompletions", key = "#user")
     public List<MedicationCompletionDTO> getMedicationCompletion(UserEntity user) {
         UserProfileEntity userProfile = userProfileRepository.findByUsername(user);
         List<MedicationCompletionEntity> medicationCompletions = medicationCompletionRepository.findByUserProfile(userProfile);

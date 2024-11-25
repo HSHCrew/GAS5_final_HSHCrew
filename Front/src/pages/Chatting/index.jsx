@@ -37,6 +37,11 @@ function Chatting() {
         body: JSON.stringify({
           message: message,
         }),
+=======
+      const response = await axios.post('http://localhost:8000/user/medications/chat/message', {
+        user_id: 1,
+        message: message,
+>>>>>>> sunho_front13
       });
 
       const reader = response.body.getReader();

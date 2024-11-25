@@ -27,11 +27,21 @@ public class NewsCurationEntity {
     @Column(name = "keyword", columnDefinition = "TEXT")
     private String keyword;
 
-    @Column(name = "curation_content", columnDefinition = "TEXT")
+    @Column(name = "curation_content_eng", columnDefinition = "TEXT")
     private String curationContent;
 
+    @Column(name = "curation_content", columnDefinition = "TEXT")
+    private String koreanCurationContent;
+
+    @Column(name = "generated_at")
+    private String generatedAt;
+
     @ManyToOne
-    @JoinColumn(name = "article_id", nullable = false)
+    @JoinColumn(name = "disease_id")
+    private DiseaseEntity disease;
+
+    @ManyToOne
+    @JoinColumn(name = "article_id")
     private MedicationEntity article;
 
     @CreatedDate

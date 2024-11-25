@@ -18,7 +18,6 @@ public class DiseaseService {
 
     // 모든 질병 정보를 캐시
     @Transactional(readOnly = true)
-    @Cacheable(value = "diseases", key = "'all_diseases'")
     public List<DiseaseEntity> getAllDiseases() {
         List<DiseaseEntity> diseases = diseaseRepository.findAll();
         if (diseases.isEmpty()) {
@@ -28,7 +27,6 @@ public class DiseaseService {
     }
 
     // 특정 질병 정보를 캐시
-    @Cacheable(value = "diseases", key = "#diseaseId")
     @Transactional(readOnly = true)
     public DiseaseEntity getDiseaseInfo(Integer diseaseId) {
         DiseaseEntity disease = diseaseRepository.findByDiseaseId(diseaseId);
