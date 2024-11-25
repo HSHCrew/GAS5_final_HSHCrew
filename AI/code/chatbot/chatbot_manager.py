@@ -66,8 +66,10 @@ class ChatbotManager:
 
             await self._cleanup_expired()
             
-            # DB에서 약물 정보 조회
-            query = select(MedicationSummary).where(MedicationSummary.user_id == user_id)
+            # DB에서 약물 정보 조회 - user_profile_id 사용
+            query = select(MedicationSummary).where(
+                MedicationSummary.user_profile_id == user_id
+            )
             result = await db.execute(query)
             summaries = result.scalars().all()
             print(f"[DEBUG] Found {len(summaries)} summaries in DB")
@@ -79,12 +81,9 @@ class ChatbotManager:
                 if summary.restructured
             ]
             print(f"[DEBUG] Extracted {len(medication_info)} valid medication info entries")
-
-            if not medication_info:
-                print(f"[DEBUG] No valid medication info found for user {user_id}")
-                return None
+            print(f"[DEBUG] Medication info: {medication_info}")
             
-            # 챗봇 인스턴스 생성
+            # 챗봇 인스턴스 생성 (medication_info가 없어도 생성)
             chatbot = MedicationChatbot(
                 user_id=user_id,
                 chat_service=self.chat_service,

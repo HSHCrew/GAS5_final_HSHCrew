@@ -85,14 +85,14 @@ class MedicationItem(BaseModel):
     medication_id: int
 
 class UserMedicationsRequest(BaseModel):
-    user_id: int
-    medications: list[MedicationItem]
+    user_profile_id: int
 
     class Config:
         from_attributes = True
 
 class ChatRequest(BaseModel):
-    message: str
+    user_profile_id: int
+    message: Optional[str] = None
     
     class Config:
         min_length_message = 1

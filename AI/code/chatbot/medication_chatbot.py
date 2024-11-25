@@ -71,18 +71,27 @@ class MedicationChatbot:
 
     async def _update_session_timestamp(self) -> None:
         """세션 마지막 접근 시간 업데이트"""
+        session = await self.session_service.get_session(self.user_id)
+        if not session:
+            return
+            
         session_key = f"chatbot:session:{self.user_id}"
         await self.session_service.redis.hset(
             session_key,
             mapping={
                 "last_accessed": datetime.now(UTC).isoformat(),
-                "medication_count": len(self.medication_info)
+                "medication_count": len(session.medication_info) if session.medication_info else 0
             }
         )
         await self.session_service.redis.expire(session_key, self.settings.SESSION_TTL)
 
     async def _validate_session(self) -> bool:
         """세션 유효성 검증"""
+        session = await self.session_service.get_session(self.user_id)
+        if not session:
+            await self.start_chat()
+            return True
+            
         session_key = f"chatbot:session:{self.user_id}"
         chat_key = await self.get_chat_key(self.user_id)
         
@@ -360,13 +369,13 @@ class MedicationChatbot:
                 f"약물 {idx+1}:\n{info}" 
                 for idx, info in enumerate(session.medication_info)
                 if info
-            ]) or "등록된 약물 정보가 없습니다."
+            ]) if session.medication_info else "등록된 약물 정보가 없습니다."
             
             # 프롬프트 데이터 구성
             prompt_data = {
                 "question": message,
                 "medication_info": medication_info_str,
-                "user_info": f"사용자 ID: {self.user_id}\n{session.user_info}"
+                "user_info": f"사용자 ID: {self.user_id}\n{session.user_info if session.user_info else ''}"
             }
             
             # 응답 생성
