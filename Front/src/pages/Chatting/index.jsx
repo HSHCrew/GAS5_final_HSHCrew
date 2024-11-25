@@ -12,6 +12,8 @@ function Chatting() {
   const [input, setInput] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
   const lastMessageRef = useRef(null);
+  const pollIntervalRef = useRef(null);  // 폴링 인터벌 ref 추가
+  const userId = 1;  // 테스트용 사용자 ID
 
   // 서버에 메시지 전송 및 응답 받기
   const sendMessageToServer = async (message) => {
@@ -27,19 +29,19 @@ function Chatting() {
       setMessages(prev => [...prev, { id: botMessageId, text: '', sent: false }]);
 
       // 스트리밍 응답 처리
-      const response = await fetch('http://localhost:8000/user/medications/chat/message/stream', {
+      const response = await fetch(`http://localhost:8000/user/${userId}/medications/chat/message/stream`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          user_id: 1,
           message: message,
         }),
       });
 
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
+      let accumulatedText = '';  // 누적할 텍스트
 
       while (true) {
         const { value, done } = await reader.read();
@@ -49,14 +51,20 @@ function Chatting() {
         const lines = chunk.split('\n');
         
         for (const line of lines) {
-          if (line.startsWith('data: ')) {
+          if (line.trim() && line.startsWith('data: ')) {
             try {
-              const data = JSON.parse(line.slice(6));
-              setMessages(prev => prev.map(msg => 
-                msg.id === botMessageId
-                  ? { ...msg, text: msg.text + data.token }
-                  : msg
-              ));
+              const jsonData = JSON.parse(line.slice(6));
+              if (jsonData.token) {
+                // 토큰을 누적
+                accumulatedText += jsonData.token;
+                
+                // 누적된 텍스트로 메시지 업데이트
+                setMessages(prev => prev.map(msg =>
+                  msg.id === botMessageId
+                    ? { ...msg, text: accumulatedText }
+                    : msg
+                ));
+              }
             } catch (e) {
               console.error('Error parsing SSE data:', e);
             }
@@ -81,28 +89,62 @@ function Chatting() {
 
   const pollForFollowUp = async (maxAttempts = 30) => {
     let attempts = 0;
-    const pollInterval = setInterval(async () => {
+    
+    // 이전 인터벌이 있다면 정리
+    if (pollIntervalRef.current) {
+      clearInterval(pollIntervalRef.current);
+    }
+
+    pollIntervalRef.current = setInterval(async () => {
       try {
-        const response = await axios.get(`http://localhost:8000/user/medications/chat/follow-up/1`);
+        const response = await axios.get(`http://localhost:8000/user/${userId}/medications/chat/follow-up`);
+        const { follow_up, status } = response.data;
         
-        if (response.data.follow_up) {
-          setMessages(prev => [...prev, {
-            id: Date.now(),
-            text: response.data.follow_up,
-            sent: false
-          }]);
-          clearInterval(pollInterval);
-        } else if (response.data.status === "completed" || attempts >= maxAttempts) {
-          clearInterval(pollInterval);
+        switch (status) {
+          case "completed":
+            if (follow_up) {
+              setMessages(prev => [...prev, {
+                id: Date.now(),
+                text: follow_up,
+                sent: false
+              }]);
+            }
+            clearInterval(pollIntervalRef.current);
+            pollIntervalRef.current = null;
+            break;
+            
+          case "processing":
+            if (attempts >= maxAttempts) {
+              console.log("Follow-up message timeout");
+              clearInterval(pollIntervalRef.current);
+              pollIntervalRef.current = null;
+            }
+            break;
+            
+          default:
+            console.warn("Unknown follow-up status:", status);
+            clearInterval(pollIntervalRef.current);
+            pollIntervalRef.current = null;
         }
         
         attempts++;
       } catch (error) {
         console.error("Follow-up polling error:", error);
-        clearInterval(pollInterval);
+        clearInterval(pollIntervalRef.current);
+        pollIntervalRef.current = null;
       }
     }, 1000);
   };
+
+  // 컴포넌트 언마운트 시 정리
+  useEffect(() => {
+    return () => {
+      if (pollIntervalRef.current) {
+        clearInterval(pollIntervalRef.current);
+        pollIntervalRef.current = null;
+      }
+    };
+  }, []);
 
   const handleSend = () => {
     if (input.trim() && !isStreaming) {
