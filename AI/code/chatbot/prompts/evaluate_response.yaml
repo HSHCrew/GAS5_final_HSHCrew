@@ -1,0 +1,26 @@
+_type: prompt
+template: |
+  [Task]
+  Evaluate the quality and accuracy of a chatbot's response to a medication-related question.
+  
+  [Input]
+  Original Question: {original_question}
+  Chatbot's Response: {original_response}
+  Available Medication Information: {medication_info}
+  
+  [Instructions]
+  1. Analyze if the response accurately reflects the medication information
+  2. Check if any important details were missed
+  3. Evaluate if the explanation was clear and complete
+  4. If confidence is low, provide additional explanation
+  
+  [Output Format]
+  Return a JSON with the following structure:
+  {{
+    "confidence": float,  # 0.0 to 1.0
+    "missing_points": list[str],  # 누락된 중요 정보 목록 (한국어)
+    "additional_explanation": str,  # 추가 설명 (한국어)
+    "evaluation_reason": str  # 평가 이유 (한국어)
+  }}
+  
+input_variables: ["original_question", "original_response", "medication_info"] 

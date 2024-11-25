@@ -313,14 +313,33 @@ class MedicationChatbot:
                 "1"
             )
 
-            # 테스트용 지연 추가 (3초)
-            await asyncio.sleep(3)
+            # 세션에서 복약 정보 가져오기
+            session = await self.session_service.get_session(self.user_id)
+            if not session or not session.medication_info:
+                return None
+
+            # 의도 분류 확인
+            intent_result = await self.classify_intent(original_message)
+            if intent_result.intent != "medical_or_daily":
+                return None
+
+            # 응답 신뢰도 평가를 위한 프롬프트 생성
+            evaluate_prompt = await self.prompt_manager.get_prompt_template('evaluate_response')
+            chain = evaluate_prompt | self.llm | JsonOutputParser()
             
-            # 테스트용 후속 메시지
-            follow_up_message = f"[후속 메시지] 이전 답변 '{original_message}'에 대한 추가 정보입니다:\n\n" + \
-                               "1. 복용 시 주의사항을 추가로 알려드립니다.\n" + \
-                               "2. 부작용이 있다면 즉시 의사와 상담하세요.\n" + \
-                               "3. 이 정보가 도움이 되셨나요?"
+            evaluation_result = await chain.ainvoke({
+                "original_question": original_message,
+                "original_response": original_response,
+                "medication_info": "\n".join(session.medication_info)
+            })
+
+            # 신뢰도가 낮은 경우 (예: 0.7 미만) 추가 설명 생성
+            if evaluation_result["confidence"] < 1.0:
+                follow_up_message = (
+                    "💊 추가 정보를 안내해 드립니다:\n\n"
+                    f"{evaluation_result['additional_explanation']}\n\n"
+                    "❗ 더 자세한 정보가 필요하시다면 추가 질문해 주세요."
+                )
 
             if follow_up_message:
                 # 후속 메시지 저장
@@ -332,8 +351,10 @@ class MedicationChatbot:
                         metadata={"is_follow_up": True}
                     )
                 )
-            
-            return follow_up_message
+                
+                return follow_up_message
+                
+            return None
             
         except Exception as e:
             print(f"Error generating follow-up: {str(e)}")
