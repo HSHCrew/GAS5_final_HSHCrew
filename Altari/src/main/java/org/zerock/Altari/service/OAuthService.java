@@ -1,4 +1,4 @@
-package org.zerock.Altari.Kakao;
+package org.zerock.Altari.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -12,17 +12,14 @@ import org.zerock.Altari.dto.UserDTO;
 import org.zerock.Altari.entity.UserEntity;
 import org.zerock.Altari.entity.UserMedicationTimeEntity;
 import org.zerock.Altari.entity.UserProfileEntity;
-import org.zerock.Altari.exception.UserExceptions;
 import org.zerock.Altari.repository.UserMedicationTimeRepository;
 import org.zerock.Altari.repository.UserProfileRepository;
 import org.zerock.Altari.repository.UserRepository;
 import org.zerock.Altari.security.util.JWTUtil;
-import org.zerock.Altari.service.UserService;
 
 import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 @Service

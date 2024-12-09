@@ -1,14 +1,16 @@
-package org.zerock.Altari.CodefTest;
+package org.zerock.Altari.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.zerock.Altari.dto.UserDTO;
+import org.zerock.Altari.dto.MedicineRequestDTO;
+import org.zerock.Altari.dto.SecondApiRequestDTO;
 import org.zerock.Altari.entity.UserEntity;
 import org.zerock.Altari.entity.UserProfileEntity;
 import org.zerock.Altari.repository.UserProfileRepository;
 import org.zerock.Altari.repository.UserRepository;
 import org.zerock.Altari.security.util.JWTUtil;
+import org.zerock.Altari.service.CodefTestService;
 import org.zerock.Altari.service.MedicationAlarmService;
 import org.zerock.Altari.service.UserService;
 

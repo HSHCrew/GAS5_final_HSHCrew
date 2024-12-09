@@ -1,4 +1,4 @@
-package org.zerock.Altari.CodefTest;
+package org.zerock.Altari.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;

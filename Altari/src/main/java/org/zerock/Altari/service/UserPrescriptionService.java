@@ -3,6 +3,7 @@ package org.zerock.Altari.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +19,7 @@ import java.util.*;
 @Log4j2
 @RequiredArgsConstructor
 @Transactional
+@CacheConfig(cacheNames = "userPrescription")
 public class UserPrescriptionService {
 
     @Autowired
@@ -38,6 +40,7 @@ public class UserPrescriptionService {
     private UserMedicationRepository userMedicationRepository;
 
     @Transactional(readOnly = true)
+    @Cacheable(key = "#username")
     public List<UserPrescriptionDTO> getUserPrescription(UserEntity username) {
 
         Optional<UserProfileEntity> optionalUserProfile = Optional.ofNullable(userProfileRepository.findByUsername(username));
@@ -98,6 +101,7 @@ public class UserPrescriptionService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(key = "#userPrescriptionId")
     public UserPrescriptionDTO getPrescription(Integer userPrescriptionId) {
 
         try {

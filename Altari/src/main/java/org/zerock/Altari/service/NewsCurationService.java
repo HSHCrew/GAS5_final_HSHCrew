@@ -1,7 +1,10 @@
 package org.zerock.Altari.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.zerock.Altari.dto.NewsCurationDTO;
 import org.zerock.Altari.entity.*;
 import org.zerock.Altari.repository.*;
@@ -9,6 +12,7 @@ import org.zerock.Altari.repository.*;
 import java.util.*;
 
 @Service
+@CacheConfig(cacheNames = "newsCuration")
 public class NewsCurationService {
 
     @Autowired
@@ -24,6 +28,8 @@ public class NewsCurationService {
     @Autowired
     private UserProfileRepository userProfileRepository;
 
+    @Transactional(readOnly = true)
+    @Cacheable(key = "#user")
     public List<NewsCurationDTO> getNewsCurationByUserId(UserEntity user) {
 
         UserProfileEntity userProfile = userProfileRepository.findByUsername(user);

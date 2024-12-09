@@ -1,6 +1,8 @@
 package org.zerock.Altari.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@CacheConfig(cacheNames = "medication")
 public class MedicationService {
 
     private final MedicationRepository medicationRepository;
@@ -35,6 +38,7 @@ public class MedicationService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(key = "'allMedication'")
     public List<MedicationEntity> getAllDrugs() {
         List<MedicationEntity> drugs = medicationRepository.findAll();
         if (drugs.isEmpty()) {
@@ -44,6 +48,7 @@ public class MedicationService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(key = "#medicationId")
     public MedicationEntity getDrugInfo(Integer medicationId) {
         MedicationEntity medication = medicationRepository.findByMedicationId(medicationId);
         if (medication == null) {
@@ -53,6 +58,7 @@ public class MedicationService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(key = "#UserPrescriptionId")
     public TimedMedicationDTO getTimedMedicationList(Integer UserPrescriptionId) {
         UserPrescriptionEntity userPrescription = userPrescriptionRepository.findByUserPrescriptionId(UserPrescriptionId);
         List<UserMedicationEntity> timedMedicationList = userMedicationRepository.findByPrescriptionId(userPrescription);
@@ -108,5 +114,10 @@ public class MedicationService {
 
         return timedMedication;
 
+    }
+
+    @CacheEvict(allEntries = true)
+    public void clearAllCache() {
+        // 아무 작업도 하지 않음 - 캐시만 초기화
     }
 }

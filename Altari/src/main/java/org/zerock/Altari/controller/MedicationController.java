@@ -146,5 +146,11 @@ public class MedicationController {
         return ResponseEntity.ok(medicationCompletion);
     }
 
+    @DeleteMapping("/medication/clear-cache")
+    public ResponseEntity<String> clearCache() {
+        medicationService.clearAllCache();  // 캐시 초기화 메서드 호출
+        return ResponseEntity.ok("All disease caches have been cleared.");
+    }
+
 
 }

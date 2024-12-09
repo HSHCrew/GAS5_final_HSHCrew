@@ -2,7 +2,9 @@ package org.zerock.Altari.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +22,7 @@ import java.util.Optional;
 @Log4j2
 @RequiredArgsConstructor
 @Transactional
+@CacheConfig(cacheNames = "userProfile")
 public class UserProfileService {
 
     private final UserProfileRepository userProfileRepository;
@@ -27,6 +30,7 @@ public class UserProfileService {
 
 
     @Transactional(readOnly = true)
+    @Cacheable(key = "#username")
     public UserProfileDTO getUserProfile(UserEntity username) {
         Optional<UserProfileEntity> optionalUserProfile = Optional.ofNullable(userProfileRepository.findByUsername(username));
         if (optionalUserProfile.isEmpty()) {
@@ -56,6 +60,7 @@ public class UserProfileService {
 
 
     @Transactional
+    @CacheEvict(key = "#username.username")  // 캐시 갱신
     public UserProfileDTO updateUserProfile(UserEntity username,
                                             UserProfileDTO userProfileDTO) {
 

@@ -1,6 +1,7 @@
 package org.zerock.Altari.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ import org.zerock.Altari.repository.UserProfileRepository;
 import java.util.Optional;
 
 @Service
+@CacheConfig(cacheNames = "userMedicationTime")
 public class UserMedicationTimeService {
 
     @Autowired
@@ -27,6 +29,7 @@ public class UserMedicationTimeService {
     private MedicationAlarmService medicationAlarmService;
 
     @Transactional
+    @CacheEvict(key = "#username")
     public UserMedicationTimeDTO updateMedicationAlarmStatus(UserEntity username, UserMedicationTimeDTO userMedicationTimeDTO) {
         Optional<UserProfileEntity> optionalUserProfile = Optional.ofNullable(userProfileRepository.findByUsername(username));
         if (optionalUserProfile.isEmpty()) {
@@ -67,6 +70,7 @@ public class UserMedicationTimeService {
 
     // 특정 사용자의 알람 상태 조회
     @Transactional(readOnly = true)
+    @Cacheable(key = "#username")
     public UserMedicationTimeDTO getMedicationTime(UserEntity username) {
         Optional<UserProfileEntity> optionalUserProfile = Optional.ofNullable(userProfileRepository.findByUsername(username));
         if (optionalUserProfile.isEmpty()) {

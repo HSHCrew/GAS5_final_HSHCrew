@@ -1,9 +1,9 @@
-package org.zerock.Altari.CodefTest;
+package org.zerock.Altari.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -12,10 +12,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.zerock.Altari.Codef.EasyCodefToken;
+import org.zerock.Altari.dto.MedicineRequestDTO;
+import org.zerock.Altari.dto.SecondApiRequestDTO;
+import org.zerock.Altari.dto.TwoWayInfoDTO;
 import org.zerock.Altari.entity.*;
 import org.zerock.Altari.repository.*;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
@@ -47,6 +49,8 @@ public class CodefTestService {
     private UserMedicationRepository prescriptionDrugRepository;
     @Autowired
     private MedicationCompletionRepository medicationCompletionRepository;
+    @Autowired
+    private CacheManager cacheManager;
 
     @Transactional
     public String callApi(String identity,
@@ -94,6 +98,8 @@ public class CodefTestService {
     @Transactional
     public String callSecondApi(boolean is2Way, String jti, int jobIndex, int threadIndex, long twoWayTimestamp, UserProfileEntity userProfile) {
         try {
+
+            clearCache(userProfile.getUsername());
             // 두 번째 호출을 위한 요청 데이터 설정
             SecondApiRequestDTO secondRequestDTO = SecondApiRequestDTO.builder()
                     .organization("0020")
@@ -259,6 +265,18 @@ public class CodefTestService {
             e.printStackTrace();
             return null;
         }
+    }
+
+    private void clearCache(UserEntity username) {
+        Cache userPrescriptionCache = cacheManager.getCache("userPrescription");
+
+
+        if (userPrescriptionCache != null) {
+            // 해당 캐시에서 username을 키로 하는 데이터를 삭제
+            userPrescriptionCache.clear();
+
+
+           }
     }
 }
 

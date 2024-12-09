@@ -18,8 +18,8 @@ public class EasyCodefClientInfo {
      * TODO :	사용자는 코드에프 가입을 통해 발급 받은 클라이언트 정보와 RSA 공개키 정보를 설정해야 함.
      * 			설정하지 않은 상태에서는 SANDBOX 테스트만 사용 가능.
      */
-    public static final String DEMO_CLIENT_ID = "0ea31620-2017-4461-bc22-96c37ee99af1";
-    public static final String DEMO_CLIENT_SECRET = "8d166866-72eb-4621-92bc-7defbe2e7b64";
+    public static final String DEMO_CLIENT_ID = "ef27cfaa-10c1-4470-adac-60ba476273f9";
+    public static final String DEMO_CLIENT_SECRET = "83160c33-9045-4915-86d8-809473cdf5c3";
 
 //	public static final String CLIENT_ID = "코드에프 데모 서비스 신청 후 발급 받은 정식버전 클라이언트 아이디 설정";
 //	public static final String CLIENT_SECRET = "코드에프 데모 서비스 신청 후 발급 받은 정식버전 클라이언트 아이디 설정";
