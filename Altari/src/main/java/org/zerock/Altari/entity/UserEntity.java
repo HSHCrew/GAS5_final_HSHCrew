@@ -7,6 +7,8 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "user")
@@ -20,6 +22,10 @@ import java.time.LocalDateTime;
 public class UserEntity {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "user_id")
+    private Integer userId;
+
     private String username;
 
     private String password;
@@ -39,6 +45,45 @@ public class UserEntity {
         this.password = password;
         this.role = role;
     }
+
+    // 9. User Prescription 테이블 (user_profile이 참조하는 user_prescription 테이블)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    private List<UserPrescriptionEntity> userPrescriptions = new ArrayList<>();
+
+    // 1. Allergy 테이블 (user_profile이 참조하는 allergy 테이블)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    private List<AllergyEntity> allergies = new ArrayList<>();
+
+    // 2. Family History 테이블 (user_profile이 참조하는 family_history 테이블)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    private List<FamilyHistoryEntity> familyHistories = new ArrayList<>();
+
+    // 6. User Disease 테이블 (user_profile이 참조하는 user_disease 테이블)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    private List<UserDiseaseEntity> userDiseases = new ArrayList<>();
+
+    // 7. User Past Disease 테이블 (user_profile이 참조하는 user_past_disease 테이블)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    private List<UserPastDiseaseEntity> userPastDiseases = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    private List<UserMedicationTimeEntity> userMedicationTimes = new ArrayList<>();
+
+    // 2. Family History 테이블 (user_profile이 참조하는 family_history 테이블)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    private List<UserMedicationEntity> userMedications = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    private List<MedicationCompletionEntity> medicationCompletions = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    private List<MedicationSummaryEntity> medicationSummaries = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    private List<ChatSummaryEntity> chatSummaries = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    private List<ExpertFeedbackEntity> expertFeedbackEntities = new ArrayList<>();
 
 
 

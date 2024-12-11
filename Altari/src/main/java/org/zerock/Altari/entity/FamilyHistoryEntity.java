@@ -28,9 +28,9 @@ public class FamilyHistoryEntity {
     @JoinColumn(name = "disease_id")
     private DiseaseEntity disease;
     @ManyToOne(cascade = CascadeType.REMOVE)
-    @JoinColumn(name = "user_profile_id")
+    @JoinColumn(name = "user_id")
     @JsonIgnore
-    private UserProfileEntity userProfile;
+    private UserEntity user;
 
     @Column(name = "family_relation")
     private String familyRelation;

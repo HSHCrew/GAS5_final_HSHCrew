@@ -26,9 +26,9 @@ public class UserDiseaseEntity {
     private Integer userDiseaseId;
 
     @ManyToOne(cascade = CascadeType.REMOVE)
-    @JoinColumn(name = "user_profile_id")
+    @JoinColumn(name = "user_id")
     @JsonBackReference
-    private UserProfileEntity userProfile;
+    private UserEntity user;
 
     @ManyToOne
     @JoinColumn(name = "disease_id")

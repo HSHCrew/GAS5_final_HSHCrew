@@ -93,7 +93,7 @@ public class OAuthService {
                 UserEntity user = userRepository.save(userEntity);
 
                 UserProfileEntity userProfile = UserProfileEntity.builder()
-                        .username(user)
+                        .user(user)
                         .fullName(nickname)
                         .profileImage(profileImageUrl)
                         .morningMedicationTime(LocalTime.parse("10:00"))

@@ -2,6 +2,7 @@ package org.zerock.Altari.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
+import org.zerock.Altari.entity.UserEntity;
 import org.zerock.Altari.entity.UserProfileEntity;
 
 @Getter
@@ -15,6 +16,6 @@ public class SecondApiRequestDTO {
     @JsonProperty("is2Way")// SMS 인증 번호
     private boolean is2Way;
     private TwoWayInfoDTO twoWayInfo;  // 2-way 정보
-    private UserProfileEntity user_profile_id;
+    private UserEntity user;
 
 }

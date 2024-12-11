@@ -53,7 +53,7 @@ public class RegisterService {
                     .fullName(registerDTO.getFullName())
                     .dateOfBirth(registerDTO.getDateOfBirth())
                     .phoneNumber(formattedPhoneNumber)
-                    .username(user)
+                    .user(user)
                     .morningMedicationTime(LocalTime.parse("10:00"))
                     .lunchMedicationTime(LocalTime.parse("14:00"))
                     .dinnerMedicationTime(LocalTime.parse("19:00"))
@@ -81,7 +81,7 @@ public class RegisterService {
 }
     public boolean isUsernameDuplicate(String username) {
         // username으로 UserEntity를 찾음
-        UserEntity user = userRepository.findByUsername(username);
+        Optional<UserEntity> user = userRepository.findByUsername(username);
 
         // user가 null이면 중복되지 않음, 아니면 중복됨
         return user != null; // 중복이면 true, 아니면 false
@@ -93,7 +93,7 @@ public class RegisterService {
         jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 0");
 
         try {
-            UserEntity userEntity = userRepository.findByUsername(username);
+            Optional<UserEntity> userEntity = userRepository.findByUsername(username);
             if (userEntity == null) {
                 throw new RuntimeException("사용자를 찾을 수 없습니다.");
             }

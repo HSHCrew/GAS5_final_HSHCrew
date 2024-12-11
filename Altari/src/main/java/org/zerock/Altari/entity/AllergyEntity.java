@@ -27,9 +27,9 @@ public class AllergyEntity {
     private Integer allergyId;
 
     @ManyToOne(cascade = CascadeType.REMOVE)
-    @JoinColumn(name = "user_profile_id")
+    @JoinColumn(name = "user_id")
     @JsonIgnore
-    private UserProfileEntity userProfile;
+    private UserEntity user;
 
     @ManyToOne
     @JoinColumn(name = "medication_id", referencedColumnName = "medication_id")

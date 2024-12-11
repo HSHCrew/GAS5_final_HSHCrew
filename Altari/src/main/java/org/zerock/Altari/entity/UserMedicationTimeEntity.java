@@ -20,8 +20,8 @@ public class UserMedicationTimeEntity {
     private Integer UserMedicationTimeId;
 
     @ManyToOne(cascade = CascadeType.REMOVE)
-    @JoinColumn(name = "user_profile_id")
-    private UserProfileEntity userProfile;
+    @JoinColumn(name = "user_id")
+    private UserEntity user;
 
     @Column(name = "on_morning_medication_Alarm")
     private Boolean onMorningMedicationAlarm;

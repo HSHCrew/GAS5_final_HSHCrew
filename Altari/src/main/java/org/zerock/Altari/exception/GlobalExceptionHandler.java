@@ -21,6 +21,14 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>("Requested entity data not found", HttpStatus.NOT_FOUND);  // 프론트엔드에 간단한 메시지 전달
     }
 
+    // DatabaseException 예외 처리
+    @ExceptionHandler(DatabaseException.class)
+    public ResponseEntity<String> handleDatabaseException(DatabaseException ex) {
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR) // HTTP 상태 500
+                .body("Database error: " + ex.getMessage());
+    }
+
     // 기타 예외 처리
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleGeneralException(Exception ex) {

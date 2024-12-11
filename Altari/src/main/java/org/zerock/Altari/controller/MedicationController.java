@@ -94,18 +94,9 @@ public class MedicationController {
     @PostMapping("/medication/onAlarm/{username}")
     public ResponseEntity<UserMedicationTimeDTO> setOnAlarm(@PathVariable String username,
                                                             @RequestBody UserMedicationTimeDTO userMedicationTimeDTO,
-                                                            @RequestHeader("Authorization") String accessToken
-    ) throws UnsupportedEncodingException {
-        UserEntity userToken = jWTUtil.getUsernameFromToken(accessToken);
-        UserEntity user = new UserEntity(username);
-        String tokenUsername = userToken.getUsername();
-        String entityUsername = user.getUsername();
+                                                            @RequestHeader("Authorization") String accessToken) throws UnsupportedEncodingException {
 
-        // 3. userToken과 user가 다르면 예외 처리
-        if (!tokenUsername.equals(entityUsername)) {
-            throw new EntityNotMatchedException("권한이 없습니다.");
-        }
-
+        UserEntity user = jWTUtil.getUserFromToken(accessToken);
         UserMedicationTimeDTO updatedMedicationTime = userMedicationTimeService.updateMedicationAlarmStatus(user, userMedicationTimeDTO);
         return ResponseEntity.ok(updatedMedicationTime);
     }
@@ -114,15 +105,8 @@ public class MedicationController {
     public ResponseEntity<UserMedicationTimeDTO> getOnAlarm(@PathVariable String username,
                                                             @RequestHeader("Authorization") String accessToken
                                                                ) throws UnsupportedEncodingException {
-        UserEntity userToken = jWTUtil.getUsernameFromToken(accessToken);
-        UserEntity user = new UserEntity(username);
-        String tokenUsername = userToken.getUsername();
-        String entityUsername = user.getUsername();
 
-        // 3. userToken과 user가 다르면 예외 처리
-        if (!tokenUsername.equals(entityUsername)) {
-            throw new EntityNotMatchedException("권한이 없습니다.");
-        }
+        UserEntity user = jWTUtil.getUserFromToken(accessToken);
         UserMedicationTimeDTO MedicationTime = userMedicationTimeService.getMedicationTime(user);
         return ResponseEntity.ok(MedicationTime);
     }

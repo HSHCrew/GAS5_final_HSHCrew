@@ -63,8 +63,8 @@ public class UserPrescriptionEntity {
     private Integer totalDosingDay;
 
     @ManyToOne(cascade = CascadeType.REMOVE)
-    @JoinColumn(name = "user_profile_id")
-    private UserProfileEntity userProfile;
+    @JoinColumn(name = "user_id")
+    private UserEntity user;
 
     @CreatedDate
     private LocalDateTime user_prescription_created_at;

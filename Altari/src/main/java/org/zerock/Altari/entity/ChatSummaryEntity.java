@@ -25,8 +25,8 @@ public class ChatSummaryEntity {
     private Integer chatSummaryId;
 
     @ManyToOne(cascade = CascadeType.REMOVE)
-    @JoinColumn(name = "user_profile_id")
-    private UserProfileEntity userProfile;
+    @JoinColumn(name = "user_id")
+    private UserEntity user;
 
     @Column(name = "chat_date")
     private LocalDateTime chatDate;

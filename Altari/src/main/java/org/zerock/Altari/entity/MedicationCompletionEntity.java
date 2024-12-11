@@ -23,8 +23,8 @@ public class MedicationCompletionEntity {
     private Integer medication_completion_id; // Primary Key
 
     @ManyToOne(cascade = CascadeType.REMOVE)
-    @JoinColumn(name = "user_profile_id")
-    private UserProfileEntity userProfile;
+    @JoinColumn(name = "user_id")
+    private UserEntity user;
 
     @CreatedDate
     private LocalDate createdAt; // 생성일자

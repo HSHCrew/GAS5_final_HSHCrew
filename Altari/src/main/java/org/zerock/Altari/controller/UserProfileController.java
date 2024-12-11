@@ -34,50 +34,20 @@ public class UserProfileController {
 
     //
     @GetMapping("/getInfo/userProfile/{username}")
-    public ResponseEntity<UserProfileDTO> getUserProfile(@PathVariable String username,
+    public ResponseEntity<UserProfileDTO> getUserProfile(@PathVariable String username, @RequestHeader("Authorization") String accessToken) throws UnsupportedEncodingException {
 
-                                                         @RequestHeader("Authorization") String accessToken) throws UnsupportedEncodingException {
-
-        UserEntity userToken = jwtUtil.getUsernameFromToken(accessToken);
-        UserEntity user = new UserEntity(username);
-        String tokenUsername = userToken.getUsername();
-        String entityUsername = user.getUsername();
-
-        // 3. userToken과 user가 다르면 예외 처리
-        if (!tokenUsername.equals(entityUsername)) {
-            throw new EntityNotMatchedException("권한이 없습니다.");
-        }
+        UserEntity user = jwtUtil.getUserFromToken(accessToken);
         UserProfileDTO userProfile = userProfileService.getUserProfile(user);
         return ResponseEntity.ok(userProfile);
     }
 
     @PutMapping("/updateInfo/userProfile/{username}")
-    public ResponseEntity<UserProfileDTO> updateUserProfile(@PathVariable String username,
-                                                               @Valid @RequestBody UserProfileDTO userProfileDTO,
-                                                            @RequestHeader("Authorization") String accessToken) throws UnsupportedEncodingException {
+    public ResponseEntity<UserProfileDTO> updateUserProfile(@PathVariable String username, @Valid @RequestBody UserProfileDTO userProfileDTO, @RequestHeader("Authorization") String accessToken) throws UnsupportedEncodingException {
 
-        UserEntity userToken = jwtUtil.getUsernameFromToken(accessToken);
-        UserEntity user = new UserEntity(username);
-        String tokenUsername = userToken.getUsername();
-        String entityUsername = user.getUsername();
-
-        // 3. userToken과 user가 다르면 예외 처리
-        if (!tokenUsername.equals(entityUsername)) {
-            throw new EntityNotMatchedException("권한이 없습니다.");
-        }
+        UserEntity user = jwtUtil.getUserFromToken(accessToken);
         UserProfileDTO updatedProfile = userProfileService.updateUserProfile(user, userProfileDTO);
-        medicationAlarmService.userScheduleAlerts(user);
-
         return ResponseEntity.ok(updatedProfile);
     }
-    // {
-//     "username": "test2",                // 사용자가 가입할 아이디
-//     "password": "1111",          // 사용자 비밀번호
-//     "role": "USER",                        // 사용자 역할 (예: USER, ADMIN)
-//     "full_name": "홍길동",                  // 사용자 이름
-//     "date_of_birth": "1990-01-01",        // 생년월일 (YYYY-MM-DD 형식)
-//     "phone_number": "010-1121-1278"    // 전화번호
-// }
 
 
 }

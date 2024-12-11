@@ -25,9 +25,9 @@ public class UserPastDiseaseEntity {
     @Column(name = "user_past_disease_id")
     private Integer userPastDiseaseId;
     @ManyToOne
-    @JoinColumn(name = "user_profile_id")
+    @JoinColumn(name = "user_id")
     @JsonIgnore
-    private UserProfileEntity userProfile;
+    private UserEntity user;
     @ManyToOne
     @JoinColumn(name = "disease_id")
     private DiseaseEntity disease;

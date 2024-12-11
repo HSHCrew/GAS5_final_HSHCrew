@@ -82,7 +82,7 @@ public class JWTUtil {
         return null; // 헤더가 없거나 형식이 올바르지 않으면 null 반환
     }
 
-    public UserEntity getUsernameFromToken(String token) throws UnsupportedEncodingException {
+    public UserEntity getUserFromToken(String token) throws UnsupportedEncodingException {
 
         SecretKey secretKey = null;
         try {
@@ -95,7 +95,7 @@ public class JWTUtil {
 
             String username = claims.get("username", String.class);
 
-            Optional<UserEntity> result = userRepository.findById(username);
+            Optional<UserEntity> result = userRepository.findByUsername(username);
             UserEntity userEntity = result.orElseThrow(UserExceptions.NOT_FOUND::get);
 
             return userEntity;
@@ -105,29 +105,28 @@ public class JWTUtil {
         }
     }
 
-    public UserProfileEntity getUserProfileFromToken(String token) throws UnsupportedEncodingException {
-
-        SecretKey secretKey = null;
-        try {
-            secretKey = Keys.hmacShaKeyFor(key.getBytes("UTF-8"));
-
-            Claims claims = Jwts.parser()
-                    .setSigningKey(secretKey)
-                    .build()
-                    .parseClaimsJws(token.substring(7)).getBody();
-
-            String username = claims.get("username", String.class);
-
-            Optional<UserEntity> result = userRepository.findById(username);
-            UserEntity userEntity = result.orElseThrow(UserExceptions.NOT_FOUND::get);
-
-            UserProfileEntity userProfile = userProfileRepository.findByUsername(userEntity);
-
-            return userProfile;
-
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
-        }
-    }
+//    public UserProfileEntity getUserProfileFromToken(String token) throws UnsupportedEncodingException {
+//
+//        SecretKey secretKey = null;
+//        try {
+//            secretKey = Keys.hmacShaKeyFor(key.getBytes("UTF-8"));
+//
+//            Claims claims = Jwts.parser()
+//                    .setSigningKey(secretKey)
+//                    .build()
+//                    .parseClaimsJws(token.substring(7)).getBody();
+//
+//            String username = claims.get("username", String.class);
+//
+//            Optional<UserEntity> userEntity = userRepository.findByUsername(username);
+//
+//            UserProfileEntity userProfile = userProfileRepository.findByUsername(userEntity);
+//
+//            return userProfile;
+//
+//        } catch (Exception e) {
+//            throw new RuntimeException(e.getMessage());
+//        }
+//    }
 
 }

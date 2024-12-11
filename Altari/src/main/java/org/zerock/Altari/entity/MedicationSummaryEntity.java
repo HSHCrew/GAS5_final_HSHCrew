@@ -24,8 +24,8 @@ public class MedicationSummaryEntity {
     private Integer MedicationSummaryId;
 
     @ManyToOne
-    @JoinColumn(name = "user_profile_id", nullable = false)
-    private UserProfileEntity userProfile;
+    @JoinColumn(name = "user_id", nullable = false)
+    private UserEntity user;
 
     @ManyToOne
     @JoinColumn(name = "medication_id", nullable = false)

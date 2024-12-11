@@ -38,8 +38,8 @@ public class UserMedicationEntity {
 
     @ManyToOne(cascade = CascadeType.REMOVE)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @JoinColumn(name = "user_profile_id")
-    private UserProfileEntity userProfile;
+    @JoinColumn(name = "user_id")
+    private UserEntity user;
 
     @Column(nullable = false, name = "one_dose")
     private String oneDose;

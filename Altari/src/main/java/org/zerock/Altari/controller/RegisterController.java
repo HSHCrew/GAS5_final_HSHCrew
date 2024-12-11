@@ -48,7 +48,7 @@ public class RegisterController {
     public ResponseEntity<String> deleteUser(@PathVariable String username,
                                              @RequestHeader("Authorization") String accessToken) throws UnsupportedEncodingException {
 
-        UserEntity userToken = jwtUtil.getUsernameFromToken(accessToken);
+        UserEntity userToken = jwtUtil.getUserFromToken(accessToken);
         UserEntity user = new UserEntity(username);
         String tokenUsername = userToken.getUsername();
         String entityUsername = user.getUsername();

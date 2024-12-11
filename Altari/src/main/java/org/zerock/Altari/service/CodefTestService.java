@@ -99,7 +99,7 @@ public class CodefTestService {
     public String callSecondApi(boolean is2Way, String jti, int jobIndex, int threadIndex, long twoWayTimestamp, UserProfileEntity userProfile) {
         try {
 
-            clearCache(userProfile.getUsername());
+            clearCache(userProfile.getUser());
             // 두 번째 호출을 위한 요청 데이터 설정
             SecondApiRequestDTO secondRequestDTO = SecondApiRequestDTO.builder()
                     .organization("0020")

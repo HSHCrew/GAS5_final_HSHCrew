@@ -10,6 +10,7 @@ import org.zerock.Altari.dto.UserMedicationTimeDTO;
 import org.zerock.Altari.dto.UserPrescriptionDTO;
 import org.zerock.Altari.entity.UserEntity;
 import org.zerock.Altari.entity.UserMedicationTimeEntity;
+import org.zerock.Altari.entity.UserPrescriptionEntity;
 import org.zerock.Altari.entity.UserProfileEntity;
 import org.zerock.Altari.exception.UserExceptions;
 import org.zerock.Altari.repository.UserMedicationTimeRepository;
@@ -30,65 +31,39 @@ public class UserMedicationTimeService {
 
     @Transactional
     @CacheEvict(key = "#username")
-    public UserMedicationTimeDTO updateMedicationAlarmStatus(UserEntity username, UserMedicationTimeDTO userMedicationTimeDTO) {
-        Optional<UserProfileEntity> optionalUserProfile = Optional.ofNullable(userProfileRepository.findByUsername(username));
-        if (optionalUserProfile.isEmpty()) {
-            throw UserExceptions.NOT_FOUND.get();
+    public UserMedicationTimeDTO updateMedicationAlarmStatus(UserEntity user, UserMedicationTimeDTO userMedicationTimeDTO) {
+
+        Optional<UserMedicationTimeEntity> optionalUserMedicationTime = userMedicationTimeRepository.findByUser(user);
+        UserMedicationTimeEntity userMedicationTime = optionalUserMedicationTime.orElseThrow(UserExceptions.NOT_FOUND::get);
+
+        if (userMedicationTimeDTO.getOnMorningMedicationAlarm() != null) {
+            userMedicationTime.setOnMorningMedicationAlarm(userMedicationTimeDTO.getOnMorningMedicationAlarm());
+        }
+        if (userMedicationTimeDTO.getOnLunchMedicationTimeAlarm() != null) {
+            userMedicationTime.setOnLunchMedicationTimeAlarm(userMedicationTimeDTO.getOnLunchMedicationTimeAlarm());
+        }
+        if (userMedicationTimeDTO.getOnDinnerMedicationTimeAlarm() != null) {
+            userMedicationTime.setOnDinnerMedicationTimeAlarm(userMedicationTimeDTO.getOnDinnerMedicationTimeAlarm());
+        }
+        if (userMedicationTimeDTO.getOnNightMedicationTimeAlarm() != null) {
+            userMedicationTime.setOnNightMedicationTimeAlarm(userMedicationTimeDTO.getOnNightMedicationTimeAlarm());
         }
 
-        UserMedicationTimeEntity userMedicationTime = userMedicationTimeRepository.findByUserProfile(optionalUserProfile.get());
+        userMedicationTimeRepository.save(userMedicationTime);
+        medicationAlarmService.userScheduleAlerts(user);
 
-
-            // 업데이트 진행
-            if (userMedicationTimeDTO.getOnMorningMedicationAlarm() != null) {
-                userMedicationTime.setOnMorningMedicationAlarm(userMedicationTimeDTO.getOnMorningMedicationAlarm());
-            }
-            if (userMedicationTimeDTO.getOnLunchMedicationTimeAlarm() != null) {
-                userMedicationTime.setOnLunchMedicationTimeAlarm(userMedicationTimeDTO.getOnLunchMedicationTimeAlarm());
-            }
-            if (userMedicationTimeDTO.getOnDinnerMedicationTimeAlarm() != null) {
-                userMedicationTime.setOnDinnerMedicationTimeAlarm(userMedicationTimeDTO.getOnDinnerMedicationTimeAlarm());
-            }
-            if (userMedicationTimeDTO.getOnNightMedicationTimeAlarm() != null) {
-                userMedicationTime.setOnNightMedicationTimeAlarm(userMedicationTimeDTO.getOnNightMedicationTimeAlarm());
-            }
-
-            userMedicationTimeRepository.save(userMedicationTime);
-            medicationAlarmService.userScheduleAlerts(username);
-
-            // 업데이트된 userMedicationTime의 값을 사용하여 DTO 생성
-            UserMedicationTimeDTO userMedicationTimeResult = UserMedicationTimeDTO.builder()
-                    .onMorningMedicationAlarm(userMedicationTime.getOnMorningMedicationAlarm())
-                    .onLunchMedicationTimeAlarm(userMedicationTime.getOnLunchMedicationTimeAlarm())
-                    .onDinnerMedicationTimeAlarm(userMedicationTime.getOnDinnerMedicationTimeAlarm())
-                    .onNightMedicationTimeAlarm(userMedicationTime.getOnNightMedicationTimeAlarm())
-                    .build();
-
-            return userMedicationTimeDTO;
+        return UserMedicationTimeDTO.builder().onMorningMedicationAlarm(userMedicationTime.getOnMorningMedicationAlarm()).onLunchMedicationTimeAlarm(userMedicationTime.getOnLunchMedicationTimeAlarm()).onDinnerMedicationTimeAlarm(userMedicationTime.getOnDinnerMedicationTimeAlarm()).onNightMedicationTimeAlarm(userMedicationTime.getOnNightMedicationTimeAlarm()).build();
     }
 
 
     // 특정 사용자의 알람 상태 조회
     @Transactional(readOnly = true)
     @Cacheable(key = "#username")
-    public UserMedicationTimeDTO getMedicationTime(UserEntity username) {
-        Optional<UserProfileEntity> optionalUserProfile = Optional.ofNullable(userProfileRepository.findByUsername(username));
-        if (optionalUserProfile.isEmpty()) {
-            throw UserExceptions.NOT_FOUND.get();
-        }
-        Optional<UserMedicationTimeEntity> optionalUserMedicationTime = Optional.ofNullable(userMedicationTimeRepository.findByUserProfile(optionalUserProfile.get()));
-        if (optionalUserProfile.isEmpty()) {
-            throw UserExceptions.NOT_FOUND.get();
-        }
+    public UserMedicationTimeDTO getMedicationTime(UserEntity user) {
 
-        UserMedicationTimeDTO userMedicationTimeDTO = UserMedicationTimeDTO.builder()
-                .onMorningMedicationAlarm(optionalUserMedicationTime.get().getOnMorningMedicationAlarm())
-                .onLunchMedicationTimeAlarm(optionalUserMedicationTime.get().getOnLunchMedicationTimeAlarm())
-                .onDinnerMedicationTimeAlarm(optionalUserMedicationTime.get().getOnDinnerMedicationTimeAlarm())
-                .onNightMedicationTimeAlarm(optionalUserMedicationTime.get().getOnNightMedicationTimeAlarm())
-                .build();
+        Optional<UserMedicationTimeEntity> optionalUserMedicationTime = userMedicationTimeRepository.findByUser(user);
+        UserMedicationTimeEntity userMedicationTime = optionalUserMedicationTime.orElseThrow(UserExceptions.NOT_FOUND::get);
 
-
-        return userMedicationTimeDTO;
+        return UserMedicationTimeDTO.builder().onMorningMedicationAlarm(userMedicationTime.getOnMorningMedicationAlarm()).onLunchMedicationTimeAlarm(userMedicationTime.getOnLunchMedicationTimeAlarm()).onDinnerMedicationTimeAlarm(userMedicationTime.getOnDinnerMedicationTimeAlarm()).onNightMedicationTimeAlarm(userMedicationTime.getOnNightMedicationTimeAlarm()).build();
     }
 }
