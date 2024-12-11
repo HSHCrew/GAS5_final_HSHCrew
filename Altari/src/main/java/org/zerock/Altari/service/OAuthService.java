@@ -11,7 +11,9 @@ import org.springframework.web.client.RestTemplate;
 import org.zerock.Altari.dto.UserDTO;
 import org.zerock.Altari.entity.UserEntity;
 import org.zerock.Altari.entity.UserMedicationTimeEntity;
+import org.zerock.Altari.entity.UserPrescriptionEntity;
 import org.zerock.Altari.entity.UserProfileEntity;
+import org.zerock.Altari.exception.UserExceptions;
 import org.zerock.Altari.repository.UserMedicationTimeRepository;
 import org.zerock.Altari.repository.UserProfileRepository;
 import org.zerock.Altari.repository.UserRepository;
@@ -20,6 +22,7 @@ import org.zerock.Altari.security.util.JWTUtil;
 import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 @Service
@@ -80,7 +83,9 @@ public class OAuthService {
 
             boolean isNewUser = false;
 
-            UserEntity userEntity = userRepository.findByUsername(email);
+            Optional<UserEntity> optionalUser = userRepository.findByUsername(email);
+            UserEntity userEntity = optionalUser.orElseThrow(UserExceptions.NOT_FOUND::get);
+
             if (userEntity == null) {
 
                 isNewUser = true; // 새로운 회원임을 표시
@@ -108,7 +113,7 @@ public class OAuthService {
                         .onLunchMedicationTimeAlarm(true)
                         .onDinnerMedicationTimeAlarm(true)
                         .onNightMedicationTimeAlarm(true)
-                        .userProfile(userProfile)
+                        .user(user)
                         .build();
 
                 userMedicationTimeRepository.save(userMedicationTime);

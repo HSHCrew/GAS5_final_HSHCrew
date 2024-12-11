@@ -46,6 +46,9 @@ public class UserEntity {
         this.role = role;
     }
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    private List<UserProfileEntity> userProfiles = new ArrayList<>();
+
     // 9. User Prescription 테이블 (user_profile이 참조하는 user_prescription 테이블)
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     private List<UserPrescriptionEntity> userPrescriptions = new ArrayList<>();

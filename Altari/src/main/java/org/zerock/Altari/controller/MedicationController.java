@@ -10,7 +10,6 @@ import org.zerock.Altari.dto.TimedMedicationDTO;
 import org.zerock.Altari.dto.UserMedicationTimeDTO;
 import org.zerock.Altari.entity.MedicationEntity;
 import org.zerock.Altari.entity.UserEntity;
-import org.zerock.Altari.exception.EntityNotMatchedException;
 import org.zerock.Altari.repository.MedicationRepository;
 import org.zerock.Altari.security.util.JWTUtil;
 import org.zerock.Altari.service.MedicationAlarmService;

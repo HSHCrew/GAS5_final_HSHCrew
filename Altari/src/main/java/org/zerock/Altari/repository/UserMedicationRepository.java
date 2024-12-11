@@ -6,8 +6,9 @@ import org.zerock.Altari.entity.UserMedicationEntity;
 import org.zerock.Altari.entity.UserPrescriptionEntity;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface UserMedicationRepository extends JpaRepository<UserMedicationEntity, Integer> {
-    List<UserMedicationEntity> findByPrescriptionId(UserPrescriptionEntity userPrescriptionId);
+    Optional<List<UserMedicationEntity>> findByPrescriptionId(UserPrescriptionEntity userPrescriptionId);
 }

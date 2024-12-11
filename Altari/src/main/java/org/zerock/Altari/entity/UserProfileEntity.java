@@ -31,8 +31,8 @@ public class UserProfileEntity {
     @Column(name = "user_profile_id")
     private Integer userProfileId;
 
-    @OneToOne(cascade = CascadeType.REMOVE)
-    @JoinColumn(name = "user_id", referencedColumnName = "user_id")
+    @ManyToOne(cascade = CascadeType.REMOVE)
+    @JoinColumn(name = "user_id")
     private UserEntity user;
 
     @Column(name = "full_name", columnDefinition = "TEXT")

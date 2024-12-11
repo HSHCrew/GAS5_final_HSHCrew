@@ -7,17 +7,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.zerock.Altari.dto.NewsCurationDTO;
-import org.zerock.Altari.entity.ArticleEntity;
-import org.zerock.Altari.entity.NewsCurationEntity;
 import org.zerock.Altari.entity.UserEntity;
-import org.zerock.Altari.exception.EntityNotMatchedException;
 import org.zerock.Altari.security.util.JWTUtil;
 import org.zerock.Altari.service.NewsCurationService;
-import org.zerock.Altari.service.RegisterService;
 
 import java.io.UnsupportedEncodingException;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/altari")

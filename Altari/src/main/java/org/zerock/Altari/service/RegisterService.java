@@ -66,7 +66,7 @@ public class RegisterService {
                     .onLunchMedicationTimeAlarm(true)
                     .onDinnerMedicationTimeAlarm(true)
                     .onNightMedicationTimeAlarm(true)
-                    .userProfile(userProfile)
+                    .user(user)
                     .build();
 
             userMedicationTimeRepository.save(userMedicationTime);
@@ -76,9 +76,10 @@ public class RegisterService {
         } catch (Exception e) {
             throw RegisterExceptions.registrationFailed();
 
+        }
+
     }
 
-}
     public boolean isUsernameDuplicate(String username) {
         // username으로 UserEntity를 찾음
         Optional<UserEntity> user = userRepository.findByUsername(username);
@@ -88,29 +89,12 @@ public class RegisterService {
     }
 
     @Transactional
-    public void deleteUser(String username) {
+    public void deleteUser(UserEntity user) {
         // 외래 키 제약을 비활성화
         jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 0");
 
-        try {
-            Optional<UserEntity> userEntity = userRepository.findByUsername(username);
-            if (userEntity == null) {
-                throw new RuntimeException("사용자를 찾을 수 없습니다.");
-            }
-
-            UserProfileEntity userProfile = userProfileRepository.findByUsername(userEntity);
-            if (userProfile != null) {
-                // 관련 데이터 삭제
-                userProfileRepository.delete(userProfile);
-            }
-
-            userRepository.delete(userEntity);
-        } finally {
-            // 외래 키 제약을 다시 활성화
-            jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 1");
-        }
+        userRepository.delete(user);
+        // 외래 키 제약을 다시 활성화
+        jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 1");
     }
-
-
-
 }

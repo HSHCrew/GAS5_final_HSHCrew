@@ -5,9 +5,6 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.zerock.Altari.entity.DiseaseEntity;
-import org.zerock.Altari.entity.MedicationEntity;
-import org.zerock.Altari.exception.EntityNotFoundException;
-import org.zerock.Altari.repository.DiseaseRepository;
 import org.zerock.Altari.service.DiseaseService;
 
 import java.util.List;

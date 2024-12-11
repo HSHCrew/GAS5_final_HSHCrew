@@ -7,16 +7,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.zerock.Altari.dto.UserHealthInfoDTO;
-import org.zerock.Altari.dto.UserProfileDTO;
-import org.zerock.Altari.entity.UserDiseaseEntity;
 import org.zerock.Altari.entity.UserEntity;
-import org.zerock.Altari.entity.UserProfileEntity;
-import org.zerock.Altari.exception.EntityNotMatchedException;
 import org.zerock.Altari.security.util.JWTUtil;
 import org.zerock.Altari.service.UserHealthInfoService;
 
 import java.io.UnsupportedEncodingException;
-import java.util.List;
 
 @RestController
 @RequestMapping("/altari")
@@ -32,15 +27,7 @@ public class UserHealthInfoController {
     public ResponseEntity<UserHealthInfoDTO> getUserHealthInfo(@PathVariable String username,
                                                                @RequestHeader("Authorization") String accessToken) throws UnsupportedEncodingException {
 
-        UserEntity userToken = jwtUtil.getUsernameFromToken(accessToken);
-        UserEntity user = new UserEntity(username);
-        String tokenUsername = userToken.getUsername();
-        String entityUsername = user.getUsername();
-
-        // 3. userToken과 user가 다르면 예외 처리
-        if (!tokenUsername.equals(entityUsername)) {
-            throw new EntityNotMatchedException("권한이 없습니다.");
-        }
+        UserEntity user = jwtUtil.getUserFromToken(accessToken);
         UserHealthInfoDTO userHealthInfoDTO = userHealthInfoService.getUserHealthInfo(user);
         return ResponseEntity.ok(userHealthInfoDTO);
     }
@@ -50,15 +37,7 @@ public class UserHealthInfoController {
                                                     @Valid @RequestBody UserHealthInfoDTO userHealthInfoDTO,
                                                     @RequestHeader("Authorization") String accessToken) throws UnsupportedEncodingException {
 
-        UserEntity userToken = jwtUtil.getUsernameFromToken(accessToken);
-        UserEntity user = new UserEntity(username);
-        String tokenUsername = userToken.getUsername();
-        String entityUsername = user.getUsername();
-
-        // 3. userToken과 user가 다르면 예외 처리
-        if (!tokenUsername.equals(entityUsername)) {
-            throw new EntityNotMatchedException("권한이 없습니다.");
-        }
+        UserEntity user = jwtUtil.getUserFromToken(accessToken);
         String result = userHealthInfoService.updateUserDisease(user, userHealthInfoDTO);
 
         return ResponseEntity.ok(result);
@@ -69,15 +48,7 @@ public class UserHealthInfoController {
                                                     @Valid @RequestBody UserHealthInfoDTO userHealthInfoDTO,
                                                         @RequestHeader("Authorization") String accessToken) throws UnsupportedEncodingException {
 
-        UserEntity userToken = jwtUtil.getUsernameFromToken(accessToken);
-        UserEntity user = new UserEntity(username);
-        String tokenUsername = userToken.getUsername();
-        String entityUsername = user.getUsername();
-
-        // 3. userToken과 user가 다르면 예외 처리
-        if (!tokenUsername.equals(entityUsername)) {
-            throw new EntityNotMatchedException("권한이 없습니다.");
-        }
+        UserEntity user = jwtUtil.getUserFromToken(accessToken);
         String result = userHealthInfoService.updateUserPastDisease(user, userHealthInfoDTO);
 
         return ResponseEntity.ok(result);
@@ -88,15 +59,7 @@ public class UserHealthInfoController {
                                                     @Valid @RequestBody UserHealthInfoDTO userHealthInfoDTO,
                                                           @RequestHeader("Authorization") String accessToken) throws UnsupportedEncodingException {
 
-        UserEntity userToken = jwtUtil.getUsernameFromToken(accessToken);
-        UserEntity user = new UserEntity(username);
-        String tokenUsername = userToken.getUsername();
-        String entityUsername = user.getUsername();
-
-        // 3. userToken과 user가 다르면 예외 처리
-        if (!tokenUsername.equals(entityUsername)) {
-            throw new EntityNotMatchedException("권한이 없습니다.");
-        }
+        UserEntity user = jwtUtil.getUserFromToken(accessToken);
         String result = userHealthInfoService.updateUserFamilyDisease(user, userHealthInfoDTO);
 
         return ResponseEntity.ok(result);
@@ -107,15 +70,7 @@ public class UserHealthInfoController {
                                                     @Valid @RequestBody UserHealthInfoDTO userHealthInfoDTO,
                                                     @RequestHeader("Authorization") String accessToken) throws UnsupportedEncodingException {
 
-        UserEntity userToken = jwtUtil.getUsernameFromToken(accessToken);
-        UserEntity user = new UserEntity(username);
-        String tokenUsername = userToken.getUsername();
-        String entityUsername = user.getUsername();
-
-        // 3. userToken과 user가 다르면 예외 처리
-        if (!tokenUsername.equals(entityUsername)) {
-            throw new EntityNotMatchedException("권한이 없습니다.");
-        }
+        UserEntity user = jwtUtil.getUserFromToken(accessToken);
         String result = userHealthInfoService.updateUserAllergy(user, userHealthInfoDTO);
 
         return ResponseEntity.ok(result);

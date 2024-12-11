@@ -6,13 +6,12 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.zerock.Altari.dto.MedicationDTO;
 import org.zerock.Altari.dto.MedicationNameImageDTO;
 import org.zerock.Altari.dto.TimedMedicationDTO;
-import org.zerock.Altari.dto.UserMedicationDTO;
 import org.zerock.Altari.entity.MedicationEntity;
 import org.zerock.Altari.entity.UserMedicationEntity;
 import org.zerock.Altari.entity.UserPrescriptionEntity;
+import org.zerock.Altari.exception.CustomEntityExceptions;
 import org.zerock.Altari.repository.MedicationRepository;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -21,6 +20,7 @@ import org.zerock.Altari.repository.UserPrescriptionRepository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @CacheConfig(cacheNames = "medication")
@@ -50,24 +50,19 @@ public class MedicationService {
     @Transactional(readOnly = true)
     @Cacheable(key = "#medicationId")
     public MedicationEntity getDrugInfo(Integer medicationId) {
-        MedicationEntity medication = medicationRepository.findByMedicationId(medicationId);
-        if (medication == null) {
-            throw new EntityNotFoundException("No medication found for the given ID");
-        }
-        return medication;
+        Optional<MedicationEntity> optionalMedication = medicationRepository.findByMedicationId(medicationId);
+
+        return optionalMedication.orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
     }
 
     @Transactional(readOnly = true)
     @Cacheable(key = "#UserPrescriptionId")
     public TimedMedicationDTO getTimedMedicationList(Integer UserPrescriptionId) {
-        UserPrescriptionEntity userPrescription = userPrescriptionRepository.findByUserPrescriptionId(UserPrescriptionId);
-        List<UserMedicationEntity> timedMedicationList = userMedicationRepository.findByPrescriptionId(userPrescription);
 
-        if (timedMedicationList.isEmpty()) {
-            throw new EntityNotFoundException("No medications found for the given ID");
-        }
-
-
+        Optional<UserPrescriptionEntity> optionalUserPrescription = userPrescriptionRepository.findByUserPrescriptionId(UserPrescriptionId);
+        UserPrescriptionEntity userPrescription = optionalUserPrescription.orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
+        Optional<List<UserMedicationEntity>> optionalTimedMedicationList = userMedicationRepository.findByPrescriptionId(userPrescription);
+        List<UserMedicationEntity> timedMedicationList = optionalTimedMedicationList.orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
 
         List<MedicationNameImageDTO> MorningMedicationList = new ArrayList<MedicationNameImageDTO>();
         List<MedicationNameImageDTO> LunchMedicationList = new ArrayList<MedicationNameImageDTO>();

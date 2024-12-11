@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.zerock.Altari.dto.NewsCurationDTO;
 import org.zerock.Altari.entity.*;
+import org.zerock.Altari.exception.UserExceptions;
 import org.zerock.Altari.repository.*;
 
 import java.util.*;
@@ -32,11 +33,11 @@ public class NewsCurationService {
     @Cacheable(key = "#user")
     public List<NewsCurationDTO> getNewsCurationByUserId(UserEntity user) {
 
-        UserProfileEntity userProfile = userProfileRepository.findByUsername(user);
-
         Set<DiseaseEntity> diseaseEntities = new HashSet<>();
 
-        List<UserDiseaseEntity> userDiseases = userDiseaseRepository.findByUserProfile(userProfile);
+        Optional<List<UserDiseaseEntity>> optionalUserDiseases = userDiseaseRepository.findByUser(user);
+        List<UserDiseaseEntity> userDiseases = optionalUserDiseases.orElseThrow(UserExceptions.NOT_FOUND::get);
+
         for (UserDiseaseEntity userDisease : userDiseases) {
             DiseaseEntity disease = userDisease.getDisease(); // DiseaseEntity 가져오기
             if (disease != null) { // disease가 null인지 확인
@@ -44,8 +45,10 @@ public class NewsCurationService {
             }
         }
 
+        Optional<List<UserPastDiseaseEntity>> optionalUserPastDiseases = userPastDiseaseRepository.findByUser(user);
+        List<UserPastDiseaseEntity> userPastDiseases = optionalUserPastDiseases.orElseThrow(UserExceptions.NOT_FOUND::get);
+
         // user_past_disease 테이블
-        List<UserPastDiseaseEntity> userPastDiseases = userPastDiseaseRepository.findByUserProfile(userProfile);
         for (UserPastDiseaseEntity userPastDisease : userPastDiseases) {
             DiseaseEntity disease = userPastDisease.getDisease(); // DiseaseEntity 가져오기
             if (disease != null) { // disease가 null인지 확인
@@ -54,8 +57,11 @@ public class NewsCurationService {
         }
 
         // family_history 테이블
-        List<FamilyHistoryEntity> familyHistories = familyHistoryRepository.findByUserProfile(userProfile);
-        for (FamilyHistoryEntity familyHistory : familyHistories) {
+
+        Optional<List<FamilyHistoryEntity>> optionalUserFamilyDiseases = familyHistoryRepository.findByUser(user);
+        List<FamilyHistoryEntity> userFamilyDiseases = optionalUserFamilyDiseases.orElseThrow(UserExceptions.NOT_FOUND::get);
+
+        for (FamilyHistoryEntity familyHistory : userFamilyDiseases) {
             DiseaseEntity disease = familyHistory.getDisease(); // DiseaseEntity 가져오기
             if (disease != null) { // disease가 null인지 확인
                 diseaseEntities.add(disease); // 중복 없이 추가
