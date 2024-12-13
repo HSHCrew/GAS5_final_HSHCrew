@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.zerock.Altari.dto.UserMedicationDTO;
 import org.zerock.Altari.dto.UserPrescriptionDTO;
 import org.zerock.Altari.entity.*;
+import org.zerock.Altari.exception.CustomEntityExceptions;
 import org.zerock.Altari.exception.UserExceptions;
 import org.zerock.Altari.repository.*;
 
@@ -45,13 +46,14 @@ public class UserPrescriontionService {
 
         // 여러 처방전을 처리할 수 있도록 findByUserProfile이 반환하는 타입을 List로 변경
         Optional<List<UserPrescriptionEntity>> optionalUserPrescriptions = userPrescriptionRepository.findByUser(user);
-        List<UserPrescriptionEntity> userPrescriptions = optionalUserPrescriptions.orElseThrow(UserExceptions.NOT_FOUND::get);
+        List<UserPrescriptionEntity> userPrescriptions = optionalUserPrescriptions.orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
 
         List<UserPrescriptionDTO> userPrescriptionDTOs = new ArrayList<>();
 
         for (UserPrescriptionEntity userPrescription : userPrescriptions) {
             // 각 처방전에 대해 약 리스트를 가져옵니다
-            List<UserMedicationEntity> prescriptionDrugs = prescriptionDrugRepository.findByPrescriptionId(userPrescription);
+            Optional<List<UserMedicationEntity>> optionalPrescriptionDrugs = prescriptionDrugRepository.findByPrescriptionId(userPrescription);
+            List<UserMedicationEntity> prescriptionDrugs = optionalPrescriptionDrugs.orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
 
             List<UserMedicationDTO> prescriptionDrugDTOs = new ArrayList<>();
             for (UserMedicationEntity prescriptionDrug : prescriptionDrugs) {
@@ -79,7 +81,8 @@ public class UserPrescriontionService {
         UserPrescriptionEntity userPrescription = optionalUserPrescription.orElseThrow(UserExceptions.NOT_FOUND::get);
         // optionalUserPrescription 이 null 일 경우 예외 메시지 반환
 
-        List<UserMedicationEntity> userMedications = userMedicationRepository.findByPrescriptionId(userPrescription);
+        Optional<List<UserMedicationEntity>> optionalUserMedications = userMedicationRepository.findByPrescriptionId(userPrescription);
+        List<UserMedicationEntity> userMedications = optionalUserMedications.orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
 
         List<UserMedicationDTO> userMedicationDTOS = new ArrayList<>();
 

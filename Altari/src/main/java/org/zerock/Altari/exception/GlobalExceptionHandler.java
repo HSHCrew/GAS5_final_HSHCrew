@@ -14,13 +14,6 @@ public class GlobalExceptionHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-    // EntityNotFoundException 예외 처리
-    @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<String> handleEntityNotFoundException(EntityNotFoundException ex) {
-        logger.error("Entity not found: {}", ex.getMessage());  // 서버에 로그 남기기
-        return new ResponseEntity<>("Requested entity data not found", HttpStatus.NOT_FOUND);  // 프론트엔드에 간단한 메시지 전달
-    }
-
     // DatabaseException 예외 처리
     @ExceptionHandler(DatabaseException.class)
     public ResponseEntity<String> handleDatabaseException(DatabaseException ex) {

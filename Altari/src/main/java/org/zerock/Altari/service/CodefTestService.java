@@ -16,6 +16,7 @@ import org.zerock.Altari.dto.MedicineRequestDTO;
 import org.zerock.Altari.dto.SecondApiRequestDTO;
 import org.zerock.Altari.dto.TwoWayInfoDTO;
 import org.zerock.Altari.entity.*;
+import org.zerock.Altari.exception.CustomEntityExceptions;
 import org.zerock.Altari.repository.*;
 
 import java.net.URLDecoder;
@@ -96,10 +97,10 @@ public class CodefTestService {
 
 
     @Transactional
-    public String callSecondApi(boolean is2Way, String jti, int jobIndex, int threadIndex, long twoWayTimestamp, UserProfileEntity userProfile) {
+    public String callSecondApi(boolean is2Way, String jti, int jobIndex, int threadIndex, long twoWayTimestamp, UserEntity user) {
         try {
 
-            clearCache(userProfile.getUser());
+            clearCache(user);
             // 두 번째 호출을 위한 요청 데이터 설정
             SecondApiRequestDTO secondRequestDTO = SecondApiRequestDTO.builder()
                     .organization("0020")
@@ -158,7 +159,7 @@ public class CodefTestService {
                 userPrescription.setPrescribeNo(prescribeNo);
                 userPrescription.setTelNo2(telNo1);
                 userPrescription.setManufactureDate(manufactureDate);
-                userPrescription.setUserProfile(userProfile);
+                userPrescription.setUser(user);
                 userPrescription.setIsTaken(false);
                 userPrescription.setOnAlarm(true);
 
@@ -170,7 +171,7 @@ public class CodefTestService {
                 medicationCompletion.setLunchTaken(false);
                 medicationCompletion.setDinnerTaken(false);
                 medicationCompletion.setNightTaken(false);
-                medicationCompletion.setUserProfile(userProfile);
+                medicationCompletion.setUser(user);
 
                 medicationCompletionRepository.save(medicationCompletion);
 
@@ -191,7 +192,7 @@ public class CodefTestService {
                         UserMedicationEntity prescriptionDrug = new UserMedicationEntity();
                         prescriptionDrug.setPrescriptionId(userPrescription);
                         prescriptionDrug.setMedication(drugItemSeq);
-                        prescriptionDrug.setUserProfile(userProfile);
+                        prescriptionDrug.setUser(user);
                         prescriptionDrug.setOneDose(drugData.get("resOneDose").asText());
                         prescriptionDrug.setDailyDosesNumber(Integer.parseInt(drugData.get("resDailyDosesNumber").asText())); // dailyDosesNumber는 여전히 int로 받아야 하므로 Integer로 파싱
                         String drugTotalDosingDaysStr = drugData.get("resTotalDosingdays").asText();
@@ -225,7 +226,9 @@ public class CodefTestService {
                     userPrescription.setOnAlarm(false); // 지난 처방전이므로 알림 비활성화
 
                     // 처방전의 약물 리스트에 대해 taken_dosage를 total_dosage와 같게 설정
-                    List<UserMedicationEntity> prescriptionDrugs = prescriptionDrugRepository.findByPrescriptionId(userPrescription);
+                    Optional<List<UserMedicationEntity>> optionalPrescriptionDrugs = prescriptionDrugRepository.findByPrescriptionId(userPrescription);
+                    List<UserMedicationEntity> prescriptionDrugs = optionalPrescriptionDrugs.orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
+
                     for (UserMedicationEntity prescriptionDrug : prescriptionDrugs) {
                         prescriptionDrug.setTakenDosingDays(prescriptionDrug.getTotalDosingDays());
                         prescriptionDrug.setTakenDosage(prescriptionDrug.getTotalDosage());
@@ -235,7 +238,9 @@ public class CodefTestService {
                     userPrescription.setIsTaken(false); // 복용 미완료
                     userPrescription.setOnAlarm(true);  // 복용 중이므로 알림 활성화
 
-                    List<UserMedicationEntity> prescriptionDrugs = prescriptionDrugRepository.findByPrescriptionId(userPrescription);
+                    Optional<List<UserMedicationEntity>> optionalPrescriptionDrugs = prescriptionDrugRepository.findByPrescriptionId(userPrescription);
+                    List<UserMedicationEntity> prescriptionDrugs = optionalPrescriptionDrugs.orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
+
                     for (UserMedicationEntity prescriptionDrug : prescriptionDrugs) {
                         // 제조일로부터 경과된 일수 계산
                         long daysSinceManufacture = ChronoUnit.DAYS.between(prescriptionDrug.getPrescriptionId().getManufactureDate(), LocalDate.now());
@@ -267,7 +272,7 @@ public class CodefTestService {
         }
     }
 
-    private void clearCache(UserEntity username) {
+    private void clearCache(UserEntity user) {
         Cache userPrescriptionCache = cacheManager.getCache("userPrescription");
 
 

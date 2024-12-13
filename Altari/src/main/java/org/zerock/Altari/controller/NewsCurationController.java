@@ -29,23 +29,8 @@ public class NewsCurationController {
     public ResponseEntity<List<NewsCurationDTO>> getNewsCurationByUserId(@PathVariable("username") String username,
                                                                          @RequestHeader("Authorization") String accessToken) throws UnsupportedEncodingException {
 
-        // JWT에서 사용자 정보를 추출
-        UserEntity userToken = jwtUtil.getUsernameFromToken(accessToken);
-        UserEntity user = new UserEntity(username);
-        String tokenUsername = userToken.getUsername();
-        String entityUsername = user.getUsername();
-
-        // userToken과 user가 다르면 예외 처리
-        if (!tokenUsername.equals(entityUsername)) {
-            throw new EntityNotMatchedException("권한이 없습니다.");
-        }
-
-        // NewsCurationService를 통해 관련된 NewsCurationDTO 목록을 조회
+        UserEntity user = jwtUtil.getUserFromToken(accessToken);
         List<NewsCurationDTO> newsCurationData = newsCurationService.getNewsCurationByUserId(user);
-
-        if (newsCurationData.isEmpty()) {
-            return ResponseEntity.noContent().build(); // 결과가 없을 경우 204 No Content 응답
-        }
 
         return ResponseEntity.ok(newsCurationData); // 결과가 있으면 200 OK 응답
     }

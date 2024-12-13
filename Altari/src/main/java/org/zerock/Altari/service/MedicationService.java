@@ -42,7 +42,7 @@ public class MedicationService {
     public List<MedicationEntity> getAllDrugs() {
         List<MedicationEntity> drugs = medicationRepository.findAll();
         if (drugs.isEmpty()) {
-            throw new EntityNotFoundException("No medications found in the database");
+            throw CustomEntityExceptions.NOT_FOUND.get();
         }
         return drugs;
     }

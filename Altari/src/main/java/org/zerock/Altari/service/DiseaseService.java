@@ -8,10 +8,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.zerock.Altari.dto.DiseaseDTO;
 import org.zerock.Altari.entity.DiseaseEntity;
+import org.zerock.Altari.exception.CustomEntityExceptions;
 import org.zerock.Altari.repository.DiseaseRepository;
 
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -26,7 +28,7 @@ public class DiseaseService {
     public List<DiseaseEntity> getAllDiseases() {
         List<DiseaseEntity> diseases = diseaseRepository.findAll();
         if (diseases.isEmpty()) {
-            throw new EntityNotFoundException("No diseases found in the database");
+            throw CustomEntityExceptions.NOT_FOUND.get();
         }
         return diseases;
     }
@@ -35,20 +37,17 @@ public class DiseaseService {
     @Transactional(readOnly = true)
     @Cacheable(key = "#diseaseId")
     public DiseaseEntity getDiseaseInfo(Integer diseaseId) {
-        DiseaseEntity disease = diseaseRepository.findByDiseaseId(diseaseId);
-        if (disease == null) {
-            throw new EntityNotFoundException("No disease found with the given ID");
-        }
+        Optional<DiseaseEntity> optionalDisease = diseaseRepository.findByDiseaseId(diseaseId);
+        DiseaseEntity disease = optionalDisease.orElseThrow(CustomEntityExceptions.NOT_FOUND::get);;
+
         return disease;
     }
 
     @Transactional
     @CacheEvict(key = "#diseaseId")
     public DiseaseEntity updateDisease(Integer diseaseId, DiseaseDTO updatedDisease) {
-        DiseaseEntity disease = diseaseRepository.findByDiseaseId(diseaseId);
-        if (disease == null) {
-            throw new EntityNotFoundException("No disease found with the given ID");
-        }
+        Optional<DiseaseEntity> optionalDisease = diseaseRepository.findByDiseaseId(diseaseId);
+        DiseaseEntity disease = optionalDisease.orElseThrow(CustomEntityExceptions.NOT_FOUND::get);;
 
         disease.setDiseaseId(updatedDisease.getDiseaseId());
         disease.setDiseaseName(updatedDisease.getDiseaseName());

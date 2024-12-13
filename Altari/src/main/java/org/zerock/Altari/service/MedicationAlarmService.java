@@ -2,9 +2,6 @@ package org.zerock.Altari.service;
 
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheConfig;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.scheduling.support.CronTrigger;
@@ -12,15 +9,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.zerock.Altari.dto.MedicationCompletionDTO;
 import org.zerock.Altari.entity.*;
+import org.zerock.Altari.exception.CustomEntityExceptions;
 import org.zerock.Altari.repository.*;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ScheduledFuture;
 
 @Service
@@ -60,23 +54,28 @@ public class MedicationAlarmService {
     @Transactional
     public void updateTakenDosingDays() {
         List<UserPrescriptionEntity> prescriptions = userPrescriptionRepository.findAll();
-        List<UserProfileEntity> userProfiles = userProfileRepository.findAll();
+        List<UserEntity> users = userRepository.findAll();
 
-        for (UserProfileEntity userProfile : userProfiles) {
+        if (prescriptions.isEmpty() || users.isEmpty()) {
+            throw CustomEntityExceptions.NOT_FOUND.get();
+        }
+
+        for (UserEntity user : users) {
             MedicationCompletionEntity medicationCompletion = new MedicationCompletionEntity();
-            medicationCompletion.setUserProfile(userProfile);
+            medicationCompletion.setUser(user);
             medicationCompletion.setCreatedAt(LocalDate.now());
             medicationCompletion.setMorningTaken(false);
             medicationCompletion.setLunchTaken(false);
             medicationCompletion.setDinnerTaken(false);
             medicationCompletion.setNightTaken(false);
-            medicationCompletion.setUserProfile(userProfile);
+            medicationCompletion.setUser(user);
 
             medicationCompletionRepository.save(medicationCompletion);
 
             LocalDate threeDaysAgo = LocalDate.now().minusDays(3);
 
-            List<MedicationCompletionEntity> medicationCompletions = medicationCompletionRepository.findByUserProfile(userProfile);
+            Optional<List<MedicationCompletionEntity>> optionalMedicationCompletions = medicationCompletionRepository.findByUser(user);
+            List<MedicationCompletionEntity> medicationCompletions = optionalMedicationCompletions.orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
 
             for (MedicationCompletionEntity medicationCompletionEntity : medicationCompletions) {
 
@@ -88,7 +87,8 @@ public class MedicationAlarmService {
         }
 
         for (UserPrescriptionEntity prescription : prescriptions) {
-            List<UserMedicationEntity> drugs = prescriptionDrugRepository.findByPrescriptionId(prescription);
+            Optional<List<UserMedicationEntity>> optionalDrugs = prescriptionDrugRepository.findByPrescriptionId(prescription);
+            List<UserMedicationEntity> drugs = optionalDrugs.orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
 
             boolean allDrugsCompleted = true; // 모든 약의 taken_dosing_days가 total_dosing_days와 같은지 확인
 
@@ -115,11 +115,16 @@ public class MedicationAlarmService {
 
     public void scheduleAlerts() {
         List<UserEntity> users = userRepository.findAll();
+        if (users.isEmpty()) {
+            throw CustomEntityExceptions.NOT_FOUND.get();
+        }
 
         for (UserEntity user : users) {
             List<Integer> dosagesCount = setDailyNotificationCount(user);
-            UserProfileEntity userProfile = userProfileRepository.findByUsername(user);
-            UserMedicationTimeEntity userMedicationTime = userMedicationTimeRepository.findByUserProfile(userProfile);
+            Optional<UserProfileEntity> optionalUserProfile = userProfileRepository.findByUser(user);
+            UserProfileEntity userProfile = optionalUserProfile.orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
+            Optional<UserMedicationTimeEntity> optionalUserMedicationTime = userMedicationTimeRepository.findByUser(user);
+            UserMedicationTimeEntity userMedicationTime = optionalUserMedicationTime.orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
 
             if (userProfile == null) {
                 // 유저의 프로필이 없으면 알림 스케줄링을 건너뜀
@@ -219,12 +224,13 @@ public class MedicationAlarmService {
     }
 
     @Transactional
-    public void confirmMedication(UserEntity username,
+    public void confirmMedication(UserEntity user,
                                   MedicationCompletionDTO medicationCompletionDTO
     ) {
-        UserProfileEntity userProfile = userProfileRepository.findByUsername(username);
-        List<UserPrescriptionEntity> activePrescriptions = userPrescriptionRepository.findByUserProfile(userProfile);
-        List<MedicationCompletionEntity> medicationCompletions = medicationCompletionRepository.findByUserProfile(userProfile);
+        Optional<List<UserPrescriptionEntity>> optionalActivePrescriptions = userPrescriptionRepository.findByUser(user);
+        Optional<List<MedicationCompletionEntity>> optionalMedicationCompletions = medicationCompletionRepository.findByUser(user);
+        List<UserPrescriptionEntity> activePrescriptions = optionalActivePrescriptions.orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
+        List<MedicationCompletionEntity> medicationCompletions = optionalMedicationCompletions.orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
 
         LocalDate today = LocalDate.now(); // 오늘 날짜
 
@@ -263,7 +269,8 @@ public class MedicationAlarmService {
 
         for (UserPrescriptionEntity prescription : activePrescriptions) {
 
-            List<UserMedicationEntity> prescriptionDrugs = prescriptionDrugRepository.findByPrescriptionId(prescription);
+            Optional<List<UserMedicationEntity>> optionalPrescriptionDrugs = prescriptionDrugRepository.findByPrescriptionId(prescription);
+            List<UserMedicationEntity> prescriptionDrugs = optionalPrescriptionDrugs.orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
 
             boolean allDrugsTaken = true; // 모든 약물이 복용 완료된 상태인지 여부를 추적
 
@@ -289,13 +296,17 @@ public class MedicationAlarmService {
         }
 
 
-        userScheduleAlerts(username);
+        userScheduleAlerts(user);
     }
 
 
     @Scheduled(cron = "0 0 0 * * ?") // 매일 자정
     public void resetTodayTakenCount() {
         List<UserMedicationEntity> allDrugs = prescriptionDrugRepository.findAll();
+        if (allDrugs.isEmpty()) {
+            throw CustomEntityExceptions.NOT_FOUND.get();
+        }
+
         for (UserMedicationEntity drug : allDrugs) {
             drug.setTodayTakenCount(0); // 오늘 복용한 횟수 초기화
             prescriptionDrugRepository.save(drug);
@@ -303,10 +314,10 @@ public class MedicationAlarmService {
     }
 
     @Transactional
-    public List<Integer> setDailyNotificationCount(UserEntity username) {
-        UserProfileEntity userProfile = userProfileRepository.findByUsername(username);
+    public List<Integer> setDailyNotificationCount(UserEntity user) {
         // is_taken이 false인 활성 상태의 처방전을 조회합니다.
-        List<UserPrescriptionEntity> activePrescriptions = userPrescriptionRepository.findByUserProfileAndIsTakenFalse(userProfile);
+        Optional<List<UserPrescriptionEntity>> optionalActivePrescriptions = userPrescriptionRepository.findByUserAndIsTakenFalse(user);
+        List<UserPrescriptionEntity> activePrescriptions = optionalActivePrescriptions.orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
 
         int maxDailyDosage = 0; // 초기 하루 복약 알림 횟수
         int maxTotalDays = 0;   // 초기 알림 제공 최대 일수
@@ -316,7 +327,8 @@ public class MedicationAlarmService {
         // is_taken이 false인 처방전 내 모든 약물에 대해 최대 하루 복용 횟수와 총 복용 일수 설정
         for (UserPrescriptionEntity prescription : activePrescriptions) {
             if (prescription.getOnAlarm()) {
-                List<UserMedicationEntity> prescriptionDrugs = prescriptionDrugRepository.findByPrescriptionId(prescription);
+                Optional<List<UserMedicationEntity>> optionalPrescriptionDrugs = prescriptionDrugRepository.findByPrescriptionId(prescription);
+                List<UserMedicationEntity> prescriptionDrugs = optionalPrescriptionDrugs.orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
 
                 for (UserMedicationEntity prescriptionDrug : prescriptionDrugs) {
                     // 현재 약물의 총 복용 횟수와 지금까지 복용한 횟수를 비교
@@ -354,8 +366,9 @@ public class MedicationAlarmService {
     public void sendDailyMedicationAlerts(UserEntity user) {
         checkMedications(user);
     }
-    public void checkMedications(UserEntity username) {
-        UserProfileEntity userProfile = userProfileRepository.findByUsername(username);
+    public void checkMedications(UserEntity user) {
+        Optional<UserProfileEntity> optionalUserProfile = userProfileRepository.findByUser(user);
+        UserProfileEntity userProfile = optionalUserProfile.orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
         String toPhoneNumber = userProfile.getPhoneNumber(); // 사용자 전화번호
         String messageBody = "안녕하세요! 알타리 서비스 입니다. 지금은 약 복용 시간이니, 잊지 말고 약을 드세요. 건강을 지키는 데 도움이 될 거예요!";
 
@@ -364,9 +377,9 @@ public class MedicationAlarmService {
     }
 
     @Transactional(readOnly = true)
-    public Map<String, Object> calculateProgressByPrescription(UserEntity username) {
-        UserProfileEntity userProfile = userProfileRepository.findByUsername(username);
-        List<UserPrescriptionEntity> prescriptions = userPrescriptionRepository.findByUserProfile(userProfile);
+    public Map<String, Object> calculateProgressByPrescription(UserEntity user) {
+        Optional<List<UserPrescriptionEntity>> optionalPrescriptions = userPrescriptionRepository.findByUser(user);
+        List<UserPrescriptionEntity> prescriptions = optionalPrescriptions.orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
 
         Map<String, Object> result = new HashMap<>();
         List<Map<String, Object>> prescriptionProgressList = new ArrayList<>();
@@ -375,7 +388,9 @@ public class MedicationAlarmService {
             int totalTaken = 0;
             int totalRequired = 0;
 
-            List<UserMedicationEntity> medications = prescriptionDrugRepository.findByPrescriptionId(prescription);
+            Optional<List<UserMedicationEntity>> optionalMedications = prescriptionDrugRepository.findByPrescriptionId(prescription);
+            List<UserMedicationEntity> medications = optionalMedications.orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
+
             for (UserMedicationEntity medication : medications) {
                 totalTaken += medication.getTakenDosage();
                 totalRequired += medication.getTotalDosage();
@@ -405,8 +420,10 @@ public class MedicationAlarmService {
     public void userScheduleAlerts(UserEntity user) {
         // 사용자의 복약 알림 예약을 수행
         List<Integer> dosagesCount = setDailyNotificationCount(user);
-        UserProfileEntity userProfile = userProfileRepository.findByUsername(user);
-        UserMedicationTimeEntity userMedicationTime = userMedicationTimeRepository.findByUserProfile(userProfile);
+        Optional<UserMedicationTimeEntity> optionalUserMedicationTime = userMedicationTimeRepository.findByUser(user);
+        UserMedicationTimeEntity userMedicationTime = optionalUserMedicationTime.orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
+        Optional<UserProfileEntity> optionalUserProfile = userProfileRepository.findByUser(user);
+        UserProfileEntity userProfile = optionalUserProfile.orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
 
         if (dosagesCount == null) {
             // 유저가 설정한 알람 시간 혹은 복약 중이지 않을 경우 작업 취소
@@ -514,8 +531,9 @@ public class MedicationAlarmService {
 
     @Transactional(readOnly = true)
     public List<MedicationCompletionDTO> getMedicationCompletion(UserEntity user) {
-        UserProfileEntity userProfile = userProfileRepository.findByUsername(user);
-        List<MedicationCompletionEntity> medicationCompletions = medicationCompletionRepository.findByUserProfile(userProfile);
+
+        Optional<List<MedicationCompletionEntity>> optionalMedicationCompletions = medicationCompletionRepository.findByUser(user);
+        List<MedicationCompletionEntity> medicationCompletions = optionalMedicationCompletions.orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
         List<MedicationCompletionDTO> medicationCompletionList = new ArrayList<>();
 
         // 각 MedicationCompletionEntity를 MedicationCompletionDTO로 변환

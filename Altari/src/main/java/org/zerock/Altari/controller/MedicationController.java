@@ -27,7 +27,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class MedicationController {
 
-    private final MedicationRepository medicationRepository;
     private final MedicationAlarmService medicationAlarmService;
     private final UserMedicationTimeService userMedicationTimeService;
     private final JWTUtil jWTUtil;
@@ -53,15 +52,7 @@ public class MedicationController {
                                                     @RequestBody MedicationCompletionDTO medicationCompletionDTO,
                                                     @RequestHeader("Authorization") String accessToken) throws UnsupportedEncodingException {
 
-        UserEntity userToken = jWTUtil.getUsernameFromToken(accessToken);
-        UserEntity user = new UserEntity(username);
-        String tokenUsername = userToken.getUsername();
-        String entityUsername = user.getUsername();
-
-        // 3. userToken과 user가 다르면 예외 처리
-        if (!tokenUsername.equals(entityUsername)) {
-            throw new EntityNotMatchedException("권한이 없습니다.");
-        }
+        UserEntity user = jWTUtil.getUserFromToken(accessToken);
         try {
             medicationAlarmService.confirmMedication(user, medicationCompletionDTO); // 복용 확인 메서드 호출
             return ResponseEntity.ok("약 복용이 확인되었습니다.");
@@ -75,16 +66,7 @@ public class MedicationController {
     public ResponseEntity<Map<String, Object>> getProgressByPrescription(@PathVariable String username,
                                                                          @RequestHeader("Authorization") String accessToken) throws UnsupportedEncodingException {
 
-        UserEntity userToken = jWTUtil.getUsernameFromToken(accessToken);
-        UserEntity user = new UserEntity(username);
-        String tokenUsername = userToken.getUsername();
-        String entityUsername = user.getUsername();
-
-        // 3. userToken과 user가 다르면 예외 처리
-        if (!tokenUsername.equals(entityUsername)) {
-            throw new EntityNotMatchedException("권한이 없습니다.");
-        }
-
+        UserEntity user = jWTUtil.getUserFromToken(accessToken);
         Map<String, Object> userProgress = medicationAlarmService.calculateProgressByPrescription(user);
 
         return ResponseEntity.ok(userProgress);
@@ -103,7 +85,7 @@ public class MedicationController {
     @GetMapping("/medication/getAlarm/{username}")
     public ResponseEntity<UserMedicationTimeDTO> getOnAlarm(@PathVariable String username,
                                                             @RequestHeader("Authorization") String accessToken
-                                                               ) throws UnsupportedEncodingException {
+    ) throws UnsupportedEncodingException {
 
         UserEntity user = jWTUtil.getUserFromToken(accessToken);
         UserMedicationTimeDTO MedicationTime = userMedicationTimeService.getMedicationTime(user);
@@ -114,16 +96,7 @@ public class MedicationController {
     public ResponseEntity<List<MedicationCompletionDTO>> getUserMedicationCompletion(@PathVariable String username,
                                                                                      @RequestHeader("Authorization") String accessToken) throws UnsupportedEncodingException {
 
-        UserEntity userToken = jWTUtil.getUsernameFromToken(accessToken);
-        UserEntity user = new UserEntity(username);
-        String tokenUsername = userToken.getUsername();
-        String entityUsername = user.getUsername();
-
-        // 3. userToken과 user가 다르면 예외 처리
-        if (!tokenUsername.equals(entityUsername)) {
-            throw new EntityNotMatchedException("권한이 없습니다.");
-        }
-
+        UserEntity user = jWTUtil.getUserFromToken(accessToken);
         List<MedicationCompletionDTO> medicationCompletion = medicationAlarmService.getMedicationCompletion(user);
 
         return ResponseEntity.ok(medicationCompletion);
@@ -131,6 +104,7 @@ public class MedicationController {
 
     @DeleteMapping("/medication/clear-cache")
     public ResponseEntity<String> clearCache() {
+
         medicationService.clearAllCache();  // 캐시 초기화 메서드 호출
         return ResponseEntity.ok("All disease caches have been cleared.");
     }
