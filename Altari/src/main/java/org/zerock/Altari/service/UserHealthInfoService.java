@@ -42,29 +42,35 @@ public class UserHealthInfoService {
     public UserHealthInfoDTO getUserHealthInfo(UserEntity user) {
 
         // 사용자 프로필에 따라 관련된 모든 엔티티를 가져옴
-        Optional<List<UserDiseaseEntity>> optionalUserDiseases = userDiseaseRepository.findByUser(user);
-        Optional<List<UserPastDiseaseEntity>> optionalUserPastDiseases = userPastDiseaseRepository.findByUser(user);
-        Optional<List<FamilyHistoryEntity>> optionalUserFamilyDiseases = familyHistoryRepository.findByUser(user);
-        Optional<List<AllergyEntity>> optionalUserAllergies = allergyRepository.findByUser(user);
+        List<UserDiseaseEntity> userDiseases = userDiseaseRepository.findByUser(user)
+                .orElseThrow(UserExceptions.NOT_FOUND::get);
 
-        List<UserDiseaseEntity> userDiseases = optionalUserDiseases.orElseThrow(UserExceptions.NOT_FOUND::get);
-        List<UserPastDiseaseEntity> userPastDiseases = optionalUserPastDiseases.orElseThrow(UserExceptions.NOT_FOUND::get);
-        List<FamilyHistoryEntity> userFamilyDiseases = optionalUserFamilyDiseases.orElseThrow(UserExceptions.NOT_FOUND::get);
-        List<AllergyEntity> userAllergies = optionalUserAllergies.orElseThrow(UserExceptions.NOT_FOUND::get);
+        List<UserPastDiseaseEntity> userPastDiseases = userPastDiseaseRepository.findByUser(user)
+                .orElseThrow(UserExceptions.NOT_FOUND::get);
 
-        // 각 엔티티 리스트를 DTO에 설정
-        UserHealthInfoDTO userHealthInfoDTO = new UserHealthInfoDTO();
-        userHealthInfoDTO.setDiseases(userDiseases.stream().map(UserDiseaseEntity::getDisease).collect(Collectors.toList()));
+        List<FamilyHistoryEntity> userFamilyDiseases = familyHistoryRepository.findByUser(user)
+                .orElseThrow(UserExceptions.NOT_FOUND::get);
 
-        userHealthInfoDTO.setPastDiseases(userPastDiseases.stream().map(pastDisease -> pastDisease.getDisease()).collect(Collectors.toList()));
+        List<AllergyEntity> userAllergies = allergyRepository.findByUser(user)
+                .orElseThrow(UserExceptions.NOT_FOUND::get);
 
-        userHealthInfoDTO.setFamilyDiseases(userFamilyDiseases.stream().map(FamilyHistoryEntity::getDisease).collect(Collectors.toList()));
-
-        userHealthInfoDTO.setAllergyMedications(userAllergies.stream().map(AllergyEntity::getMedication) // Medication 전체를 반환
-                .collect(Collectors.toList()));
-
-        return userHealthInfoDTO;
+        // 빌더 패턴을 사용하여 DTO 생성
+        return UserHealthInfoDTO.builder()
+                .diseases(userDiseases.stream()
+                        .map(UserDiseaseEntity::getDisease)
+                        .collect(Collectors.toList()))
+                .pastDiseases(userPastDiseases.stream()
+                        .map(UserPastDiseaseEntity::getDisease)
+                        .collect(Collectors.toList()))
+                .familyDiseases(userFamilyDiseases.stream()
+                        .map(FamilyHistoryEntity::getDisease)
+                        .collect(Collectors.toList()))
+                .allergyMedications(userAllergies.stream()
+                        .map(AllergyEntity::getMedication)
+                        .collect(Collectors.toList()))
+                .build();
     }
+
 
 
     @Transactional

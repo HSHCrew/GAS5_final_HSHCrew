@@ -1,6 +1,8 @@
 package org.zerock.Altari.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
@@ -32,6 +34,8 @@ import java.util.concurrent.CompletableFuture;
 import com.fasterxml.jackson.databind.JsonNode;
 
 @Service
+@Log4j2
+@RequiredArgsConstructor
 public class CodefTestService {
 
     @Autowired

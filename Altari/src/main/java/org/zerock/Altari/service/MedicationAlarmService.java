@@ -1,5 +1,6 @@
 package org.zerock.Altari.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.TaskScheduler;
@@ -19,6 +20,7 @@ import java.util.concurrent.ScheduledFuture;
 
 @Service
 @Log4j2
+@RequiredArgsConstructor
 public class MedicationAlarmService {
 
     @Autowired

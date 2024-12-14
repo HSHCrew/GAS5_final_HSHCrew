@@ -1,5 +1,7 @@
 package org.zerock.Altari.service;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
@@ -24,6 +26,7 @@ import java.util.Optional;
 
 @Service
 @CacheConfig(cacheNames = "medication")
+@Log4j2
 public class MedicationService {
 
     private final MedicationRepository medicationRepository;

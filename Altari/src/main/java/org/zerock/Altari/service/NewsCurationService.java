@@ -1,5 +1,7 @@
 package org.zerock.Altari.service;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.Cacheable;
@@ -14,6 +16,8 @@ import java.util.*;
 
 @Service
 @CacheConfig(cacheNames = "newsCuration")
+@Log4j2
+@RequiredArgsConstructor
 public class NewsCurationService {
 
     @Autowired

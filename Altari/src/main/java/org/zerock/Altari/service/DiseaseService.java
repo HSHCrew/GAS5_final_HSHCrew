@@ -1,6 +1,7 @@
 package org.zerock.Altari.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -17,6 +18,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Log4j2
 @CacheConfig(cacheNames = "disease")
 public class DiseaseService {
 
@@ -49,18 +51,21 @@ public class DiseaseService {
         Optional<DiseaseEntity> optionalDisease = diseaseRepository.findByDiseaseId(diseaseId);
         DiseaseEntity disease = optionalDisease.orElseThrow(CustomEntityExceptions.NOT_FOUND::get);;
 
-        disease.setDiseaseId(updatedDisease.getDiseaseId());
-        disease.setDiseaseName(updatedDisease.getDiseaseName());
-        disease.setDiseaseDefinition(updatedDisease.getDiseaseDefinition());
-        disease.setCause(updatedDisease.getCause());
-        disease.setAttention(updatedDisease.getAttention());
-        disease.setClassification(updatedDisease.getClassification());
-        disease.setEtcInfo(updatedDisease.getEtcInfo());
-        disease.setIsHereditary(updatedDisease.getIsHereditary());
-        disease.setTreatment(updatedDisease.getTreatment());
-        disease.setLifeAttention(updatedDisease.getLifeAttention());
-        // 다른 필드도 업데이트
-        return diseaseRepository.save(disease);
+        DiseaseEntity updatedDiseaseEntity = DiseaseEntity.builder()
+                .diseaseId(updatedDisease.getDiseaseId())
+                .diseaseId(updatedDisease.getDiseaseId())
+                .diseaseName(updatedDisease.getDiseaseName())
+                .diseaseDefinition(updatedDisease.getDiseaseDefinition())
+                .cause(updatedDisease.getCause())
+                .attention(updatedDisease.getAttention())
+                .classification(updatedDisease.getClassification())
+                .etcInfo(updatedDisease.getEtcInfo())
+                .isHereditary(updatedDisease.getIsHereditary())
+                .treatment(updatedDisease.getTreatment())
+                .lifeAttention(updatedDisease.getLifeAttention())
+                .build();
+
+        return diseaseRepository.save(updatedDiseaseEntity);
     }
 
     @CacheEvict(allEntries = true)
