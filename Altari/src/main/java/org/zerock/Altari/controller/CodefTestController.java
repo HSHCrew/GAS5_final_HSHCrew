@@ -15,6 +15,7 @@ import org.zerock.Altari.service.MedicationAlarmService;
 import org.zerock.Altari.service.UserService;
 
 import java.io.UnsupportedEncodingException;
+import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("/altari")
@@ -29,14 +30,17 @@ public class CodefTestController {
 
     // 첫 번째 API 호출을 위한 엔드포인트
     @PostMapping("/prescriptions/enter-info")
-    public ResponseEntity<String> callApi(@RequestBody MedicineRequestDTO requestDTO) {
+    public ResponseEntity<String> callApi(@RequestBody MedicineRequestDTO requestDTO)throws Exception{
         // 전달된 DTO 데이터를 사용하여 첫 번째 API 호출
-        String response = codefTestService.callApi(
+        CompletableFuture<String> responseFuture = codefTestService.callApi(
 
                 requestDTO.getIdentity(),
                 requestDTO.getUserName(),
                 requestDTO.getPhoneNo()
         );
+
+        String response = responseFuture.get();
+
         return ResponseEntity.ok(response);
     }
 

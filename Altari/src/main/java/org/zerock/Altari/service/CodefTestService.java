@@ -8,6 +8,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
@@ -26,6 +27,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -53,10 +55,10 @@ public class CodefTestService {
     @Autowired
     private CacheManager cacheManager;
 
-    @Transactional
-    public String callApi(String identity,
-                          String userName,
-                          String phoneNo
+    @Async("taskExecutor")
+    public CompletableFuture<String> callApi(String identity,
+                                             String userName,
+                                             String phoneNo
     ) {
         try {
 
@@ -87,11 +89,11 @@ public class CodefTestService {
             String responseBody = response.getBody();
             String decodedResponseBody = URLDecoder.decode(responseBody, StandardCharsets.UTF_8.name());
 
-            return decodedResponseBody;
+            return CompletableFuture.completedFuture(decodedResponseBody);
 
         } catch (Exception e) {
             e.printStackTrace();
-            return null;
+            return CompletableFuture.completedFuture(null);
         }
     }
 
