@@ -7,6 +7,8 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "disease")
@@ -64,6 +66,15 @@ public class DiseaseEntity {
 
     @Column(name = "is_hereditary")
     private Boolean isHereditary;  // 유전 여부
+
+    @ManyToMany(mappedBy = "userDiseases")
+    private Set<UserEntity> userDiseases = new HashSet<>();
+
+    @ManyToMany(mappedBy = "userPastDiseases")
+    private Set<UserEntity> userPastDiseases = new HashSet<>();
+
+    @ManyToMany(mappedBy = "familyHistories")
+    private Set<UserEntity> familyHistory = new HashSet<>();
 
     public DiseaseEntity(int diseaseId) {
         this.diseaseId = diseaseId;

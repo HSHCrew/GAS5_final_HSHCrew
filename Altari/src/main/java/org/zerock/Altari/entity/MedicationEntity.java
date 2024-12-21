@@ -7,7 +7,9 @@ import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
 
@@ -94,6 +96,9 @@ public class MedicationEntity {
     private LocalDateTime medication_created_at;
     @LastModifiedDate
     private LocalDateTime medication_updated_at;
+
+    @ManyToMany(mappedBy = "allergies")
+    private Set<UserEntity> allergy = new HashSet<>();
 
 
     public MedicationEntity(Integer medicationId) {

@@ -23,9 +23,8 @@ public class NewsCurationDTO {
     private String curationContent;
     private String koreanCurationContent;
     private String generatedAt;
-    private DiseaseEntity disease;
-    private MedicationEntity article;
-    private List<ArticleEntity> articles;
+    private String disease;
+    private List<ArticleDTO> articles;
 
 
 }

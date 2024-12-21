@@ -85,7 +85,7 @@ public class JWTUtil {
     public UserEntity getUserFromToken(String token) throws UnsupportedEncodingException {
 
         SecretKey secretKey = null;
-        try {
+
             secretKey = Keys.hmacShaKeyFor(key.getBytes("UTF-8"));
 
             Claims claims = Jwts.parser()
@@ -95,38 +95,9 @@ public class JWTUtil {
 
             String username = claims.get("username", String.class);
 
-            Optional<UserEntity> result = userRepository.findByUsername(username);
-            UserEntity userEntity = result.orElseThrow(UserExceptions.NOT_FOUND::get);
+            UserEntity user = userRepository.findByUsername(username).orElseThrow(UserExceptions.NOT_FOUND::get);
 
-            return userEntity;
-
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
-        }
+            return user;
     }
-
-//    public UserProfileEntity getUserProfileFromToken(String token) throws UnsupportedEncodingException {
-//
-//        SecretKey secretKey = null;
-//        try {
-//            secretKey = Keys.hmacShaKeyFor(key.getBytes("UTF-8"));
-//
-//            Claims claims = Jwts.parser()
-//                    .setSigningKey(secretKey)
-//                    .build()
-//                    .parseClaimsJws(token.substring(7)).getBody();
-//
-//            String username = claims.get("username", String.class);
-//
-//            Optional<UserEntity> userEntity = userRepository.findByUsername(username);
-//
-//            UserProfileEntity userProfile = userProfileRepository.findByUsername(userEntity);
-//
-//            return userProfile;
-//
-//        } catch (Exception e) {
-//            throw new RuntimeException(e.getMessage());
-//        }
-//    }
 
 }

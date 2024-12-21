@@ -8,7 +8,9 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "user")
@@ -36,6 +38,38 @@ public class UserEntity {
     @LastModifiedDate
     private LocalDateTime user_updated_at;
 
+    @ManyToMany
+    @JoinTable(
+            name = "user_disease",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "disease_id")
+    )
+    private Set<DiseaseEntity> userDiseases = new HashSet<>();
+
+    @ManyToMany
+    @JoinTable(
+            name = "user_past_disease",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "disease_id")
+    )
+    private Set<DiseaseEntity> userPastDiseases = new HashSet<>();
+
+    @ManyToMany
+    @JoinTable(
+            name = "family_history",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "disease_id")
+    )
+    private Set<DiseaseEntity> familyHistories = new HashSet<>();
+
+    @ManyToMany
+    @JoinTable(
+            name = "allergy",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "medication_id")
+    )
+    private Set<MedicationEntity> allergies = new HashSet<>();
+
     public void changePassword(String password) {
         this.password = password;
     }
@@ -53,21 +87,21 @@ public class UserEntity {
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     private List<UserPrescriptionEntity> userPrescriptions = new ArrayList<>();
 
-    // 1. Allergy 테이블 (user_profile이 참조하는 allergy 테이블)
-    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
-    private List<AllergyEntity> allergies = new ArrayList<>();
-
-    // 2. Family History 테이블 (user_profile이 참조하는 family_history 테이블)
-    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
-    private List<FamilyHistoryEntity> familyHistories = new ArrayList<>();
-
-    // 6. User Disease 테이블 (user_profile이 참조하는 user_disease 테이블)
-    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
-    private List<UserDiseaseEntity> userDiseases = new ArrayList<>();
-
-    // 7. User Past Disease 테이블 (user_profile이 참조하는 user_past_disease 테이블)
-    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
-    private List<UserPastDiseaseEntity> userPastDiseases = new ArrayList<>();
+//    // 1. Allergy 테이블 (user_profile이 참조하는 allergy 테이블)
+//    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+//    private List<AllergyEntity> allergies = new ArrayList<>();
+//
+//    // 2. Family History 테이블 (user_profile이 참조하는 family_history 테이블)
+//    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+//    private List<FamilyHistoryEntity> familyHistories = new ArrayList<>();
+//
+//    // 6. User Disease 테이블 (user_profile이 참조하는 user_disease 테이블)
+//    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+//    private List<UserDiseaseEntity> userDiseases = new ArrayList<>();
+//
+//    // 7. User Past Disease 테이블 (user_profile이 참조하는 user_past_disease 테이블)
+//    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+//    private List<UserPastDiseaseEntity> userPastDiseases = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     private List<UserMedicationTimeEntity> userMedicationTimes = new ArrayList<>();

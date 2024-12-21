@@ -37,8 +37,7 @@ public class UserMedicationTimeService {
     @CacheEvict(key = "#username")
     public UserMedicationTimeDTO updateMedicationAlarmStatus(UserEntity user, UserMedicationTimeDTO userMedicationTimeDTO) {
 
-        Optional<UserMedicationTimeEntity> optionalUserMedicationTime = userMedicationTimeRepository.findByUser(user);
-        UserMedicationTimeEntity userMedicationTime = optionalUserMedicationTime.orElseThrow(UserExceptions.NOT_FOUND::get);
+        UserMedicationTimeEntity userMedicationTime = userMedicationTimeRepository.findByUser(user).orElseThrow(UserExceptions.NOT_FOUND::get);
 
         if (userMedicationTimeDTO.getOnMorningMedicationAlarm() != null) {
             userMedicationTime.setOnMorningMedicationAlarm(userMedicationTimeDTO.getOnMorningMedicationAlarm());

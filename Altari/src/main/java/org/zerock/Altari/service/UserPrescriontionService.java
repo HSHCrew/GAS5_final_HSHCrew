@@ -24,12 +24,6 @@ import java.util.*;
 public class UserPrescriontionService {
 
     @Autowired
-    private UserDiseaseRepository userDiseaseRepository;
-    @Autowired
-    private UserPastDiseaseRepository userPastDiseaseRepository;
-    @Autowired
-    private AllergyRepository allergyRepository;
-    @Autowired
     private UserProfileRepository userProfileRepository;
     @Autowired
     private UserMedicationRepository prescriptionDrugRepository;

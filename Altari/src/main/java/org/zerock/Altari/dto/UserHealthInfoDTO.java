@@ -9,6 +9,7 @@ import org.zerock.Altari.entity.*;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Set;
 
 @Data
 @Builder
@@ -17,9 +18,9 @@ import java.util.List;
 @NoArgsConstructor
 @ToString
 public class UserHealthInfoDTO {
-    private List<DiseaseEntity> diseases;
-    private List<DiseaseEntity> pastDiseases;
-    private List<DiseaseEntity> familyDiseases;
-    private List<MedicationEntity> allergyMedications;
-
+    private Set<String> currentDiseases;    // 현재 질병
+    private Set<String> pastDiseases;       // 과거 질병
+    private Set<String> familyHistories;    // 가족력
+    private Set<String> allergies;          // 알레르기
 }
+
