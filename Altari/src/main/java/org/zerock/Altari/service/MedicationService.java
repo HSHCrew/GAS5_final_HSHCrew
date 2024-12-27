@@ -53,19 +53,16 @@ public class MedicationService {
     @Transactional(readOnly = true)
     @Cacheable(key = "#medicationId")
     public MedicationEntity getDrugInfo(Integer medicationId) {
-        Optional<MedicationEntity> optionalMedication = medicationRepository.findByMedicationId(medicationId);
 
-        return optionalMedication.orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
+        return medicationRepository.findByMedicationId(medicationId).orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
     }
 
     @Transactional(readOnly = true)
     @Cacheable(key = "#UserPrescriptionId")
     public TimedMedicationDTO getTimedMedicationList(Integer UserPrescriptionId) {
 
-        Optional<UserPrescriptionEntity> optionalUserPrescription = userPrescriptionRepository.findByUserPrescriptionId(UserPrescriptionId);
-        UserPrescriptionEntity userPrescription = optionalUserPrescription.orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
-        Optional<List<UserMedicationEntity>> optionalTimedMedicationList = userMedicationRepository.findByPrescriptionId(userPrescription);
-        List<UserMedicationEntity> timedMedicationList = optionalTimedMedicationList.orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
+        UserPrescriptionEntity userPrescription = userPrescriptionRepository.findByUserPrescriptionId(UserPrescriptionId).orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
+        List<UserMedicationEntity> timedMedicationList = userMedicationRepository.findByPrescriptionId(userPrescription).orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
 
         List<MedicationNameImageDTO> MorningMedicationList = new ArrayList<MedicationNameImageDTO>();
         List<MedicationNameImageDTO> LunchMedicationList = new ArrayList<MedicationNameImageDTO>();

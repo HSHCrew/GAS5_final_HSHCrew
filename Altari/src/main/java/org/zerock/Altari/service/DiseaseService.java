@@ -39,8 +39,8 @@ public class DiseaseService {
     @Transactional(readOnly = true)
     @Cacheable(key = "#diseaseId")
     public DiseaseEntity getDiseaseInfo(Integer diseaseId) {
-        Optional<DiseaseEntity> optionalDisease = diseaseRepository.findByDiseaseId(diseaseId);
-        DiseaseEntity disease = optionalDisease.orElseThrow(CustomEntityExceptions.NOT_FOUND::get);;
+
+        DiseaseEntity disease = diseaseRepository.findByDiseaseId(diseaseId).orElseThrow(CustomEntityExceptions.NOT_FOUND::get);;
 
         return disease;
     }
@@ -48,8 +48,8 @@ public class DiseaseService {
     @Transactional
     @CacheEvict(key = "#diseaseId")
     public DiseaseEntity updateDisease(Integer diseaseId, DiseaseDTO updatedDisease) {
-        Optional<DiseaseEntity> optionalDisease = diseaseRepository.findByDiseaseId(diseaseId);
-        DiseaseEntity disease = optionalDisease.orElseThrow(CustomEntityExceptions.NOT_FOUND::get);;
+
+        DiseaseEntity disease = diseaseRepository.findByDiseaseId(diseaseId).orElseThrow(CustomEntityExceptions.NOT_FOUND::get);;
 
         DiseaseEntity updatedDiseaseEntity = DiseaseEntity.builder()
                 .diseaseId(updatedDisease.getDiseaseId())

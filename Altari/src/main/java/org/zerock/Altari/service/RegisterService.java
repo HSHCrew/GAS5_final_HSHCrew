@@ -85,7 +85,7 @@ public class RegisterService {
         Optional<UserEntity> user = userRepository.findByUsername(username);
 
         // user가 null이면 중복되지 않음, 아니면 중복됨
-        return user != null; // 중복이면 true, 아니면 false
+        return user.isPresent(); // 중복이면 true, 아니면 false
     }
 
     @Transactional

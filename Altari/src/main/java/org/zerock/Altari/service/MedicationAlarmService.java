@@ -76,8 +76,7 @@ public class MedicationAlarmService {
 
             LocalDate threeDaysAgo = LocalDate.now().minusDays(3);
 
-            Optional<List<MedicationCompletionEntity>> optionalMedicationCompletions = medicationCompletionRepository.findByUser(user);
-            List<MedicationCompletionEntity> medicationCompletions = optionalMedicationCompletions.orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
+            List<MedicationCompletionEntity> medicationCompletions = medicationCompletionRepository.findByUser(user).orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
 
             for (MedicationCompletionEntity medicationCompletionEntity : medicationCompletions) {
 
@@ -89,8 +88,8 @@ public class MedicationAlarmService {
         }
 
         for (UserPrescriptionEntity prescription : prescriptions) {
-            Optional<List<UserMedicationEntity>> optionalDrugs = prescriptionDrugRepository.findByPrescriptionId(prescription);
-            List<UserMedicationEntity> drugs = optionalDrugs.orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
+
+            List<UserMedicationEntity> drugs = prescriptionDrugRepository.findByPrescriptionId(prescription).orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
 
             boolean allDrugsCompleted = true; // 모든 약의 taken_dosing_days가 total_dosing_days와 같은지 확인
 
@@ -123,10 +122,8 @@ public class MedicationAlarmService {
 
         for (UserEntity user : users) {
             List<Integer> dosagesCount = setDailyNotificationCount(user);
-            Optional<UserProfileEntity> optionalUserProfile = userProfileRepository.findByUser(user);
-            UserProfileEntity userProfile = optionalUserProfile.orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
-            Optional<UserMedicationTimeEntity> optionalUserMedicationTime = userMedicationTimeRepository.findByUser(user);
-            UserMedicationTimeEntity userMedicationTime = optionalUserMedicationTime.orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
+            UserProfileEntity userProfile = userProfileRepository.findByUser(user).orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
+            UserMedicationTimeEntity userMedicationTime = userMedicationTimeRepository.findByUser(user).orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
 
             if (userProfile == null) {
                 // 유저의 프로필이 없으면 알림 스케줄링을 건너뜀

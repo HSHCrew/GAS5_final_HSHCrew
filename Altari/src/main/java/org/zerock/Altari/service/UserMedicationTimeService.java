@@ -64,8 +64,7 @@ public class UserMedicationTimeService {
     @Cacheable(key = "#username")
     public UserMedicationTimeDTO getMedicationTime(UserEntity user) {
 
-        Optional<UserMedicationTimeEntity> optionalUserMedicationTime = userMedicationTimeRepository.findByUser(user);
-        UserMedicationTimeEntity userMedicationTime = optionalUserMedicationTime.orElseThrow(UserExceptions.NOT_FOUND::get);
+        UserMedicationTimeEntity userMedicationTime = userMedicationTimeRepository.findByUser(user).orElseThrow(UserExceptions.NOT_FOUND::get);
 
         return UserMedicationTimeDTO.builder().onMorningMedicationAlarm(userMedicationTime.getOnMorningMedicationAlarm()).onLunchMedicationTimeAlarm(userMedicationTime.getOnLunchMedicationTimeAlarm()).onDinnerMedicationTimeAlarm(userMedicationTime.getOnDinnerMedicationTimeAlarm()).onNightMedicationTimeAlarm(userMedicationTime.getOnNightMedicationTimeAlarm()).build();
     }

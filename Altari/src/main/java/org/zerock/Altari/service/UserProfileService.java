@@ -33,15 +33,12 @@ public class UserProfileService {
     @Transactional(readOnly = true)
     @Cacheable(key = "#username")
     public UserProfileDTO getUserProfile(UserEntity username) {
-        Optional<UserProfileEntity> optionalUserProfile = userProfileRepository.findByUser(username);
 
-        UserProfileEntity userProfileEntity = optionalUserProfile.orElseThrow(UserExceptions.NOT_FOUND::get);
+        UserProfileEntity userProfileEntity = userProfileRepository.findByUser(username).orElseThrow(UserExceptions.NOT_FOUND::get);
 
-
-        // findByUsername을 한 번만 호출하고 Optional을 처리
-
-
-        return UserProfileDTO.builder().userProfileId(userProfileEntity.getUserProfileId()).fullName(userProfileEntity.getFullName()).dateOfBirth(userProfileEntity.getDateOfBirth()).phoneNumber(userProfileEntity.getPhoneNumber()).height(userProfileEntity.getHeight()).weight(userProfileEntity.getWeight()).bloodType(userProfileEntity.getBloodType()).morningMedicationTime(userProfileEntity.getMorningMedicationTime()).lunchMedicationTime(userProfileEntity.getLunchMedicationTime()).dinnerMedicationTime(userProfileEntity.getDinnerMedicationTime()).user_profile_created_at(userProfileEntity.getUser_profile_created_at()).user_profile_updated_at(userProfileEntity.getUser_profile_updated_at()).profileImage(optionalUserProfile.get().getProfileImage()).build();
+        return UserProfileDTO.builder().userProfileId(userProfileEntity.getUserProfileId()).fullName(userProfileEntity.getFullName()).dateOfBirth(userProfileEntity.getDateOfBirth()).phoneNumber(userProfileEntity.getPhoneNumber()).height(userProfileEntity.getHeight()).weight(userProfileEntity.getWeight()).bloodType(userProfileEntity.getBloodType()).morningMedicationTime(userProfileEntity.getMorningMedicationTime()).lunchMedicationTime(userProfileEntity.getLunchMedicationTime()).dinnerMedicationTime(userProfileEntity.getDinnerMedicationTime()).user_profile_created_at(userProfileEntity.getUser_profile_created_at()).user_profile_updated_at(userProfileEntity.getUser_profile_updated_at())
+                .profileImage(userProfileEntity.getProfileImage())
+                .build();
 
     }
 
@@ -51,9 +48,7 @@ public class UserProfileService {
     public UserProfileDTO updateUserProfile(UserEntity user, UserProfileDTO userProfileDTO) {
 
         // 사용자 프로필 조회
-        Optional<UserProfileEntity> optionalUserProfile = userProfileRepository.findByUser(user);
-
-        UserProfileEntity userProfileEntity = optionalUserProfile.orElseThrow(UserExceptions.NOT_FOUND::get);
+        UserProfileEntity userProfileEntity = userProfileRepository.findByUser(user).orElseThrow(UserExceptions.NOT_FOUND::get);
 
         // DTO의 값으로 프로필 업데이트, 삭제하고 싶은 필드는 null로 설정
         if (userProfileDTO.getFullName() != null) {
