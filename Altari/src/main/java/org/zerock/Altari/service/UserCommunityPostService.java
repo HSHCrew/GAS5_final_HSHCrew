@@ -1,0 +1,107 @@
+package org.zerock.Altari.service;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.zerock.Altari.dto.UserCommunityPostDTO;
+import org.zerock.Altari.entity.UserCommunityPostEntity;
+import org.zerock.Altari.entity.UserEntity;
+import org.zerock.Altari.exception.CustomEntityExceptions;
+import org.zerock.Altari.repository.UserCommunityPostRepository;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+@Log4j2
+@RequiredArgsConstructor
+@Transactional
+public class UserCommunityPostService {
+
+    private final UserCommunityPostRepository userCommunityPostRepository;
+
+    public UserCommunityPostDTO createPost(UserEntity user, UserCommunityPostDTO postDTO) {
+
+        UserCommunityPostEntity userCommunityPostEntity = UserCommunityPostEntity.builder()
+                .userCommunityPostTitle(postDTO.getUserCommunityPostTitle())
+                .userCommunityPostContent(postDTO.getUserCommunityPostContent())
+                .userCommunityPostLikes(postDTO.getUserCommunityPostLikes())
+                .userCommunityPostViewCount(postDTO.getUserCommunityPostViewCount())
+                .user(user)
+                .build();
+
+        UserCommunityPostEntity createdPost = userCommunityPostRepository.save(userCommunityPostEntity);
+
+        return UserCommunityPostDTO.builder()
+                .userCommunityPostId(createdPost.getUserCommunityPostId())
+                .userCommunityPostTitle(createdPost.getUserCommunityPostTitle())
+                .userCommunityPostContent(createdPost.getUserCommunityPostContent())
+                .userCommunityPostLikes(createdPost.getUserCommunityPostLikes())
+                .userCommunityPostViewCount(createdPost.getUserCommunityPostViewCount())
+                .userCommunityPostCreatedAt(createdPost.getUserCommunityPostCreatedAt())
+                .build();
+
+
+    }
+
+    public UserCommunityPostDTO updatePost(Integer postId, UserCommunityPostDTO postDTO) {
+        UserCommunityPostEntity postEntity = userCommunityPostRepository.findByUserCommunityPostId(postId)
+                .orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
+
+        postEntity.setUserCommunityPostTitle(postDTO.getUserCommunityPostTitle());
+        postEntity.setUserCommunityPostContent(postDTO.getUserCommunityPostContent());
+
+        UserCommunityPostEntity updatedPost = userCommunityPostRepository.save(postEntity);
+
+        return UserCommunityPostDTO.builder()
+                .userCommunityPostId(updatedPost.getUserCommunityPostId())
+                .userCommunityPostTitle(updatedPost.getUserCommunityPostTitle())
+                .userCommunityPostContent(updatedPost.getUserCommunityPostContent())
+                .userCommunityPostLikes(updatedPost.getUserCommunityPostLikes())
+                .userCommunityPostViewCount(updatedPost.getUserCommunityPostViewCount())
+                .userCommunityPostCreatedAt(updatedPost.getUserCommunityPostCreatedAt())
+                .build();
+    }
+
+    public UserCommunityPostDTO readPost(Integer postId) {
+        UserCommunityPostEntity postEntity = userCommunityPostRepository.findByUserCommunityPostId(postId)
+                .orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
+
+        return UserCommunityPostDTO.builder()
+                .userCommunityPostId(postEntity.getUserCommunityPostId())
+                .userCommunityPostTitle(postEntity.getUserCommunityPostTitle())
+                .userCommunityPostContent(postEntity.getUserCommunityPostContent())
+                .userCommunityPostLikes(postEntity.getUserCommunityPostLikes())
+                .userCommunityPostViewCount(postEntity.getUserCommunityPostViewCount())
+                .userCommunityPostCreatedAt(postEntity.getUserCommunityPostCreatedAt())
+                .userCommunityPostUpdatedAt(postEntity.getUserCommunityPostUpdatedAt())
+                .build();
+    }
+
+    public List<UserCommunityPostDTO> readAllPosts() {
+        List<UserCommunityPostEntity> posts = userCommunityPostRepository.findAll();
+
+        if (posts.isEmpty()) {
+            throw CustomEntityExceptions.NOT_FOUND.get();
+        }
+
+        return posts.stream().map(post -> UserCommunityPostDTO.builder()
+                        .userCommunityPostId(post.getUserCommunityPostId())
+                        .userCommunityPostTitle(post.getUserCommunityPostTitle())
+                        .userCommunityPostContent(post.getUserCommunityPostContent())
+                        .userCommunityPostLikes(post.getUserCommunityPostLikes())
+                        .userCommunityPostViewCount(post.getUserCommunityPostViewCount())
+                        .userCommunityPostCreatedAt(post.getUserCommunityPostCreatedAt())
+                        .userCommunityPostUpdatedAt(post.getUserCommunityPostUpdatedAt())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    public void deletePost(Integer postId) {
+        UserCommunityPostEntity postEntity = userCommunityPostRepository.findByUserCommunityPostId(postId)
+                .orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
+
+        userCommunityPostRepository.delete(postEntity);
+    }
+}
