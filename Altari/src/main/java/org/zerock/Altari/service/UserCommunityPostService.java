@@ -2,6 +2,8 @@ package org.zerock.Altari.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.zerock.Altari.dto.UserCommunityPostDTO;
@@ -79,23 +81,26 @@ public class UserCommunityPostService {
                 .build();
     }
 
-    public List<UserCommunityPostDTO> readAllPosts() {
-        List<UserCommunityPostEntity> posts = userCommunityPostRepository.findAll();
+    public Page<UserCommunityPostDTO> readAllPosts(Pageable pageable) {
+        Page<UserCommunityPostEntity> posts = userCommunityPostRepository.findAll(pageable);
+        // findAll 메서드에 Pageable 타입의 객체를 넣어 Page 타입으로 포스트들을 반환
 
         if (posts.isEmpty()) {
             throw CustomEntityExceptions.NOT_FOUND.get();
         }
+        // 포스트 엔티티의 null 검사 예외처리 수행
 
-        return posts.stream().map(post -> UserCommunityPostDTO.builder()
-                        .userCommunityPostId(post.getUserCommunityPostId())
-                        .userCommunityPostTitle(post.getUserCommunityPostTitle())
-                        .userCommunityPostContent(post.getUserCommunityPostContent())
-                        .userCommunityPostLikes(post.getUserCommunityPostLikes())
-                        .userCommunityPostViewCount(post.getUserCommunityPostViewCount())
-                        .userCommunityPostCreatedAt(post.getUserCommunityPostCreatedAt())
-                        .userCommunityPostUpdatedAt(post.getUserCommunityPostUpdatedAt())
-                        .build())
-                .collect(Collectors.toList());
+        return posts.map(post -> UserCommunityPostDTO.builder()
+                .user(post.getUser().getUsername())
+                .userCommunityPostId(post.getUserCommunityPostId())
+                .userCommunityPostTitle(post.getUserCommunityPostTitle())
+                .userCommunityPostContent(post.getUserCommunityPostContent())
+                .userCommunityPostLikes(post.getUserCommunityPostLikes())
+                .userCommunityPostViewCount(post.getUserCommunityPostViewCount())
+                .userCommunityPostCreatedAt(post.getUserCommunityPostCreatedAt())
+                .userCommunityPostUpdatedAt(post.getUserCommunityPostUpdatedAt())
+                .build());
+
     }
 
     public void deletePost(Integer postId) {
