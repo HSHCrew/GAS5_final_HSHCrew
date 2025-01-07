@@ -70,9 +70,12 @@ public class UserCommunityCommentService {
                 .build();
     }
 
-    public UserCommunityCommentDTO readComment(Integer commentId) {
+    public UserCommunityCommentDTO readComment(UserEntity user, Integer commentId) {
+
         UserCommunityCommentEntity commentEntity = userCommunityCommentRepository.findById(commentId)
                 .orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
+
+
 
         return UserCommunityCommentDTO.builder()
                 .userCommunityCommentId(commentEntity.getUserCommunityCommentId())
@@ -83,10 +86,11 @@ public class UserCommunityCommentService {
                 .userCommunityCommentLikes(commentEntity.getUserCommunityCommentLikes())
                 .userCommunityCommentCreatedAt(commentEntity.getUserCommunityCommentCreatedAt())
                 .userCommunityCommentUpdatedAt(commentEntity.getUserCommunityCommentUpdatedAt())
+                .isAuthorizedUser(commentEntity.getUser().equals(user))
                 .build();
     }
 
-    public List<UserCommunityCommentDTO> readAllComments(Integer postId) {
+    public List<UserCommunityCommentDTO> readAllComments(UserEntity user, Integer postId) {
         UserCommunityPostEntity postEntity = userCommunityPostRepository.findById(postId)
                 .orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
 
@@ -103,6 +107,7 @@ public class UserCommunityCommentService {
                         .userCommunityCommentLikes(comment.getUserCommunityCommentLikes())
                         .userCommunityCommentCreatedAt(comment.getUserCommunityCommentCreatedAt())
                         .userCommunityCommentUpdatedAt(comment.getUserCommunityCommentUpdatedAt())
+                        .isAuthorizedUser(comment.getUser().equals(user))
                         .build())
                 .collect(Collectors.toList());
     }

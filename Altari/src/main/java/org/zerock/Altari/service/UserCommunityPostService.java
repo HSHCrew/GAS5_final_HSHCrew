@@ -66,22 +66,23 @@ public class UserCommunityPostService {
                 .build();
     }
 
-    public UserCommunityPostDTO readPost(Integer postId) {
-        UserCommunityPostEntity postEntity = userCommunityPostRepository.findByUserCommunityPostId(postId)
+    public UserCommunityPostDTO readPost(UserEntity user, Integer postId) {
+        UserCommunityPostEntity post = userCommunityPostRepository.findByUserCommunityPostId(postId)
                 .orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
 
         return UserCommunityPostDTO.builder()
-                .userCommunityPostId(postEntity.getUserCommunityPostId())
-                .userCommunityPostTitle(postEntity.getUserCommunityPostTitle())
-                .userCommunityPostContent(postEntity.getUserCommunityPostContent())
-                .userCommunityPostLikes(postEntity.getUserCommunityPostLikes())
-                .userCommunityPostViewCount(postEntity.getUserCommunityPostViewCount())
-                .userCommunityPostCreatedAt(postEntity.getUserCommunityPostCreatedAt())
-                .userCommunityPostUpdatedAt(postEntity.getUserCommunityPostUpdatedAt())
+                .userCommunityPostId(post.getUserCommunityPostId())
+                .userCommunityPostTitle(post.getUserCommunityPostTitle())
+                .userCommunityPostContent(post.getUserCommunityPostContent())
+                .userCommunityPostLikes(post.getUserCommunityPostLikes())
+                .userCommunityPostViewCount(post.getUserCommunityPostViewCount())
+                .userCommunityPostCreatedAt(post.getUserCommunityPostCreatedAt())
+                .userCommunityPostUpdatedAt(post.getUserCommunityPostUpdatedAt())
+                .isAuthorizedUser(post.getUser().equals(user))
                 .build();
     }
 
-    public Page<UserCommunityPostDTO> readAllPosts(Pageable pageable) {
+    public Page<UserCommunityPostDTO> readAllPosts(UserEntity user, Pageable pageable) {
         Page<UserCommunityPostEntity> posts = userCommunityPostRepository.findAll(pageable);
         // findAll 메서드에 Pageable 타입의 객체를 넣어 Page 타입으로 포스트들을 반환
 
@@ -99,6 +100,7 @@ public class UserCommunityPostService {
                 .userCommunityPostViewCount(post.getUserCommunityPostViewCount())
                 .userCommunityPostCreatedAt(post.getUserCommunityPostCreatedAt())
                 .userCommunityPostUpdatedAt(post.getUserCommunityPostUpdatedAt())
+                .isAuthorizedUser(post.getUser().equals(user))
                 .build());
 
     }

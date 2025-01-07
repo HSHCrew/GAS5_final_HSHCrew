@@ -24,5 +24,6 @@ public class UserCommunityCommentDTO {
         private Integer userCommunityCommentLikes;
         private LocalDateTime userCommunityCommentCreatedAt;
         private LocalDateTime userCommunityCommentUpdatedAt;
+        private boolean isAuthorizedUser;
 
 }

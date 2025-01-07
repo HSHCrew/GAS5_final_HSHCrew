@@ -23,7 +23,9 @@ public class UserCommunityPostDTO {
     private String userCommunityPostContent;
     private Integer userCommunityPostLikes;
     private Integer userCommunityPostViewCount;
+    private boolean isAuthorizedUser;
     private LocalDateTime userCommunityPostCreatedAt;
     private LocalDateTime userCommunityPostUpdatedAt;
+
 
 }

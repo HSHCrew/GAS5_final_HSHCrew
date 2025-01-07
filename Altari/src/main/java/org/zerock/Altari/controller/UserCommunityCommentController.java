@@ -50,18 +50,22 @@ public class UserCommunityCommentController {
     // 단일 댓글 조회
     @GetMapping("/{commentId}")
     public ResponseEntity<UserCommunityCommentDTO> readComment(
-            @PathVariable("commentId") Integer commentId) {
+            @PathVariable("commentId") Integer commentId,
+            @RequestHeader("Authorization") String accessToken) throws UnsupportedEncodingException {
 
-        UserCommunityCommentDTO comment = userCommunityCommentService.readComment(commentId);
+        UserEntity user = jwtUtil.getUserFromToken(accessToken);
+        UserCommunityCommentDTO comment = userCommunityCommentService.readComment(user, commentId);
         return ResponseEntity.ok(comment);
     }
 
     // 특정 게시글의 모든 댓글 조회
     @GetMapping("/post/{postId}")
     public ResponseEntity<List<UserCommunityCommentDTO>> readAllComments(
-            @PathVariable("postId") Integer postId) {
+            @PathVariable("postId") Integer postId,
+            @RequestHeader("Authorization") String accessToken) throws UnsupportedEncodingException {
 
-        List<UserCommunityCommentDTO> comments = userCommunityCommentService.readAllComments(postId);
+        UserEntity user = jwtUtil.getUserFromToken(accessToken);
+        List<UserCommunityCommentDTO> comments = userCommunityCommentService.readAllComments(user, postId);
         return ResponseEntity.ok(comments);
     }
 

@@ -49,18 +49,22 @@ public class UserCommunityPostController {
 
     @GetMapping("/userCommunityPosts/{postId}")
     public ResponseEntity<UserCommunityPostDTO> readPost(
-            @PathVariable("postId") Integer postId
+            @PathVariable("postId") Integer postId,
+            @RequestHeader("Authorization") String accessToken
     ) throws UnsupportedEncodingException {
 
-        UserCommunityPostDTO userCommunityPost = userCommunityPostService.readPost(postId);
+        UserEntity user = jwtUtil.getUserFromToken(accessToken);
+        UserCommunityPostDTO userCommunityPost = userCommunityPostService.readPost(user, postId);
         return ResponseEntity.ok(userCommunityPost);
     }
 
     @GetMapping("/userCommunityPosts")
     public ResponseEntity<Page<UserCommunityPostDTO>> readAllPosts(
-            @PageableDefault(size = 20, sort = "userCommunityPostCreatedAt", direction = Sort.Direction.DESC) Pageable pageable) {
+            @PageableDefault(size = 20, sort = "userCommunityPostCreatedAt", direction = Sort.Direction.DESC) Pageable pageable,
+            @RequestHeader("Authorization") String accessToken) throws UnsupportedEncodingException {
 
-        Page<UserCommunityPostDTO> userCommunityPosts = userCommunityPostService.readAllPosts(pageable);
+        UserEntity user = jwtUtil.getUserFromToken(accessToken);
+        Page<UserCommunityPostDTO> userCommunityPosts = userCommunityPostService.readAllPosts(user, pageable);
         return ResponseEntity.ok(userCommunityPosts);
     }
 
