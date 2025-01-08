@@ -40,7 +40,6 @@ public class RegisterService {
             UserEntity user = UserEntity.builder()
                     .username(registerDTO.getUsername())
                     .password(passwordEncoder.encode(registerDTO.getPassword()))
-                    .role(registerDTO.getRole())
                     .build();
 
             userRepository.save(user);

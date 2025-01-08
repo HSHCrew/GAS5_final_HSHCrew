@@ -33,14 +33,12 @@ public class UserDTO {
         return UserEntity.builder()
                 .username(this.username)
                 .password(this.password)
-                .role(this.role)
                 .build();
     }
 
     public UserDTO(UserEntity userEntity){
         this.username = userEntity.getUsername();
         this.password = userEntity.getPassword();
-        this.role = userEntity.getRole();
    }
 
 }

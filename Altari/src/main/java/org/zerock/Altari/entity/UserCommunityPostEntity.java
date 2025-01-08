@@ -30,6 +30,10 @@ public class UserCommunityPostEntity {
     @Column(name = "user_community_post_content", columnDefinition = "TEXT")
     private String userCommunityPostContent;
 
+    @ManyToOne
+    @JoinColumn(name = "user_community_post_category_id")
+    private UserCommunityPostCategoryEntity userCommunityPostCategory;
+
     @Column(name = "user_community_post_likes")
     private Integer userCommunityPostLikes;
 

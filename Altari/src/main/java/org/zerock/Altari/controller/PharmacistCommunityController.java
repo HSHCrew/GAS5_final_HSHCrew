@@ -1,0 +1,143 @@
+package org.zerock.Altari.controller;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.zerock.Altari.dto.PharmacistCommunityPostDTO;
+import org.zerock.Altari.dto.PharmacistCommunityCommentDTO;
+import org.zerock.Altari.entity.UserEntity;
+import org.zerock.Altari.security.util.JWTUtil;
+import org.zerock.Altari.service.PharmacistCommunityPostService;
+import org.zerock.Altari.service.PharmacistCommunityCommentService;
+
+import java.io.UnsupportedEncodingException;
+import java.util.List;
+
+@RestController
+@RequestMapping("/altari/pharmacist")
+@Log4j2
+@RequiredArgsConstructor
+public class PharmacistCommunityController {
+
+    private final PharmacistCommunityPostService pharmacistCommunityPostService;
+    private final PharmacistCommunityCommentService pharmacistCommunityCommentService;
+    private final JWTUtil jwtUtil;
+
+    // 약사 커뮤니티 게시글 생성
+    @PostMapping("/posts")
+    public ResponseEntity<PharmacistCommunityPostDTO> createPost(
+            @RequestBody PharmacistCommunityPostDTO postDTO,
+            @RequestHeader("Authorization") String accessToken) throws UnsupportedEncodingException {
+
+        UserEntity user = jwtUtil.getUserFromToken(accessToken);
+        PharmacistCommunityPostDTO createdPost = pharmacistCommunityPostService.createPost(user, postDTO);
+
+        return ResponseEntity.ok(createdPost);
+    }
+
+    // 약사 커뮤니티 게시글 수정
+    @PutMapping("/posts/{postId}")
+    public ResponseEntity<PharmacistCommunityPostDTO> updatePost(
+            @RequestBody PharmacistCommunityPostDTO postDTO,
+            @PathVariable("postId") Integer postId,
+            @RequestHeader("Authorization") String accessToken) throws UnsupportedEncodingException {
+
+        PharmacistCommunityPostDTO updatedPost = pharmacistCommunityPostService.updatePost(postId, postDTO);
+
+        return ResponseEntity.ok(updatedPost);
+    }
+
+    // 단일 약사 커뮤니티 게시글 조회
+    @GetMapping("/posts/{postId}")
+    public ResponseEntity<PharmacistCommunityPostDTO> readPost(
+            @PathVariable("postId") Integer postId,
+            @RequestHeader("Authorization") String accessToken) throws UnsupportedEncodingException {
+
+        UserEntity user = jwtUtil.getUserFromToken(accessToken);
+        PharmacistCommunityPostDTO post = pharmacistCommunityPostService.readPost(user, postId);
+        return ResponseEntity.ok(post);
+    }
+
+    // 모든 약사 커뮤니티 게시글 조회
+    @GetMapping("/posts")
+    public ResponseEntity<Page<PharmacistCommunityPostDTO>> readAllPosts(
+            @PageableDefault(size = 20, sort = "pharmacistCommunityPostCreatedAt", direction = Sort.Direction.DESC) Pageable pageable,
+            @RequestHeader("Authorization") String accessToken) throws UnsupportedEncodingException {
+
+        UserEntity user = jwtUtil.getUserFromToken(accessToken);
+        Page<PharmacistCommunityPostDTO> posts = pharmacistCommunityPostService.readAllPosts(user, pageable);
+        return ResponseEntity.ok(posts);
+    }
+
+    // 약사 커뮤니티 게시글 삭제
+    @DeleteMapping("/posts/{postId}")
+    public ResponseEntity<String> deletePost(
+            @PathVariable("postId") Integer postId,
+            @RequestHeader("Authorization") String accessToken) throws UnsupportedEncodingException {
+
+        pharmacistCommunityPostService.deletePost(postId);
+        return ResponseEntity.ok("게시글 삭제가 완료되었습니다.");
+    }
+
+    // 약사 커뮤니티 댓글 생성
+    @PostMapping("/comments/{postId}")
+    public ResponseEntity<PharmacistCommunityCommentDTO> createComment(
+            @RequestBody PharmacistCommunityCommentDTO commentDTO,
+            @PathVariable("postId") Integer postId,
+            @RequestHeader("Authorization") String accessToken) throws UnsupportedEncodingException {
+
+        UserEntity user = jwtUtil.getUserFromToken(accessToken);
+        PharmacistCommunityCommentDTO createdComment = pharmacistCommunityCommentService.createComment(user, postId, commentDTO);
+
+        return ResponseEntity.ok(createdComment);
+    }
+
+    // 약사 커뮤니티 댓글 수정
+    @PutMapping("/comments/{commentId}")
+    public ResponseEntity<PharmacistCommunityCommentDTO> updateComment(
+            @RequestBody PharmacistCommunityCommentDTO commentDTO,
+            @PathVariable("commentId") Integer commentId,
+            @RequestHeader("Authorization") String accessToken) throws UnsupportedEncodingException {
+
+        PharmacistCommunityCommentDTO updatedComment = pharmacistCommunityCommentService.updateComment(commentId, commentDTO);
+
+        return ResponseEntity.ok(updatedComment);
+    }
+
+    // 단일 약사 커뮤니티 댓글 조회
+    @GetMapping("/comments/{commentId}")
+    public ResponseEntity<PharmacistCommunityCommentDTO> readComment(
+            @PathVariable("commentId") Integer commentId,
+            @RequestHeader("Authorization") String accessToken) throws UnsupportedEncodingException {
+
+        UserEntity user = jwtUtil.getUserFromToken(accessToken);
+        PharmacistCommunityCommentDTO comment = pharmacistCommunityCommentService.readComment(user, commentId);
+        return ResponseEntity.ok(comment);
+    }
+
+    // 특정 게시글에 대한 모든 댓글 조회
+    @GetMapping("/comments/post/{postId}")
+    public ResponseEntity<List<PharmacistCommunityCommentDTO>> readAllComments(
+            @PathVariable("postId") Integer postId,
+            @RequestHeader("Authorization") String accessToken) throws UnsupportedEncodingException {
+
+        UserEntity user = jwtUtil.getUserFromToken(accessToken);
+        List<PharmacistCommunityCommentDTO> comments = pharmacistCommunityCommentService.readAllComments(user, postId);
+        return ResponseEntity.ok(comments);
+    }
+
+    // 약사 커뮤니티 댓글 삭제
+    @DeleteMapping("/comments/{commentId}")
+    public ResponseEntity<String> deleteComment(
+            @PathVariable("commentId") Integer commentId,
+            @RequestHeader("Authorization") String accessToken) throws UnsupportedEncodingException {
+
+        pharmacistCommunityCommentService.deleteComment(commentId);
+        return ResponseEntity.ok("댓글 삭제가 완료되었습니다.");
+    }
+}

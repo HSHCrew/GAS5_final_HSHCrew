@@ -6,6 +6,7 @@ import jakarta.persistence.ManyToOne;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.zerock.Altari.entity.UserCommunityPostCategoryEntity;
 import org.zerock.Altari.entity.UserEntity;
 
 import java.time.LocalDateTime;
@@ -24,6 +25,7 @@ public class UserCommunityPostDTO {
     private Integer userCommunityPostLikes;
     private Integer userCommunityPostViewCount;
     private boolean isAuthorizedUser;
+    private Integer userCommunityPostCategory;
     private LocalDateTime userCommunityPostCreatedAt;
     private LocalDateTime userCommunityPostUpdatedAt;
 

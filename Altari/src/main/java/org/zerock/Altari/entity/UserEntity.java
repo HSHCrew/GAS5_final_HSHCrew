@@ -32,11 +32,18 @@ public class UserEntity {
 
     private String password;
 
-    private String role;
     @CreatedDate
     private LocalDateTime user_created_at;
     @LastModifiedDate
     private LocalDateTime user_updated_at;
+
+    @ManyToMany
+    @JoinTable(
+            name = "user_roles", // 중간 테이블 이름
+            joinColumns = @JoinColumn(name = "user_id"), // 현재 엔티티의 외래키
+            inverseJoinColumns = @JoinColumn(name = "role_id") // 반대 엔티티의 외래키
+    )
+    private Set<RoleEntity> roles = new HashSet<>();
 
     @ManyToMany
     @JoinTable(
@@ -77,7 +84,6 @@ public class UserEntity {
     public UserEntity(String username) {
         this.username = username;
         this.password = password;
-        this.role = role;
     }
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
@@ -87,21 +93,6 @@ public class UserEntity {
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     private List<UserPrescriptionEntity> userPrescriptions = new ArrayList<>();
 
-//    // 1. Allergy 테이블 (user_profile이 참조하는 allergy 테이블)
-//    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
-//    private List<AllergyEntity> allergies = new ArrayList<>();
-//
-//    // 2. Family History 테이블 (user_profile이 참조하는 family_history 테이블)
-//    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
-//    private List<FamilyHistoryEntity> familyHistories = new ArrayList<>();
-//
-//    // 6. User Disease 테이블 (user_profile이 참조하는 user_disease 테이블)
-//    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
-//    private List<UserDiseaseEntity> userDiseases = new ArrayList<>();
-//
-//    // 7. User Past Disease 테이블 (user_profile이 참조하는 user_past_disease 테이블)
-//    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
-//    private List<UserPastDiseaseEntity> userPastDiseases = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     private List<UserMedicationTimeEntity> userMedicationTimes = new ArrayList<>();

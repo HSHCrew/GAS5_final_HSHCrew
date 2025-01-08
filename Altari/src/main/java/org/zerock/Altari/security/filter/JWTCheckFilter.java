@@ -4,6 +4,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.filter.OncePerRequestFilter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -13,11 +14,14 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
 //import org.zerock.ex3.member.security.auth.CustomUserPrincipal;
 import org.springframework.stereotype.Component;
+import org.zerock.Altari.entity.UserEntity;
+import org.zerock.Altari.repository.UserRepository;
 import org.zerock.Altari.security.auth.CustomUserPrincipal;
 import org.zerock.Altari.security.util.JWTUtil;
 
 import java.util.Arrays;
 import java.io.IOException;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
@@ -26,6 +30,7 @@ import java.util.stream.Collectors;
 public class JWTCheckFilter extends OncePerRequestFilter {
 
     private final JWTUtil jwtUtil;
+    private final UserRepository userRepository;
 //    private final HandlerExceptionResolver handlerExceptionResolver;
 
     @Override
@@ -89,20 +94,30 @@ public class JWTCheckFilter extends OncePerRequestFilter {
         String accessToken = headerStr.substring(7);
 
         try {
+            // 1. JWT 토큰 검증 및 정보 추출
             java.util.Map<String, Object> tokenMap = jwtUtil.validateToken(accessToken);
             log.info("tokenMap: " + tokenMap);
 
-            String username = tokenMap.get("username").toString(); // auth_id를 username으로 변경
-            String[] roles = tokenMap.get("role").toString().split(",");
+            String username = tokenMap.get("username").toString();
 
+            // 2. 데이터베이스에서 사용자 정보 및 역할 조회
+            UserEntity user = userRepository.findByUsername(username)
+                    .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+            // 3. 스프링 시큐리티 권한 객체로 변환
+            List<SimpleGrantedAuthority> authorities = user.getRoles().stream()
+                    .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getRoleName()))
+                    .collect(Collectors.toList());
+
+            // 4. 인증 객체 생성
             UsernamePasswordAuthenticationToken authenticationToken =
-                    new UsernamePasswordAuthenticationToken(new CustomUserPrincipal(username),
-                            null,
-                            Arrays.stream(roles)
-                                    .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
-                                    .collect(Collectors.toList())
+                    new UsernamePasswordAuthenticationToken(
+                            new CustomUserPrincipal(username), // 사용자 정보
+                            null, // 비밀번호는 null
+                            authorities // 권한 리스트
                     );
 
+            // 5. 인증 정보 설정
             SecurityContext context = SecurityContextHolder.getContext();
             context.setAuthentication(authenticationToken);
 
@@ -111,6 +126,7 @@ public class JWTCheckFilter extends OncePerRequestFilter {
         } catch (Exception e) {
             handleException(response, e);
         }
+
     }
 //
     private void handleException(HttpServletResponse response, Exception e) throws IOException {

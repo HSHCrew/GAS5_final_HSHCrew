@@ -10,6 +10,8 @@ import org.zerock.Altari.dto.UserCommunityPostDTO;
 import org.zerock.Altari.entity.UserCommunityPostEntity;
 import org.zerock.Altari.entity.UserEntity;
 import org.zerock.Altari.exception.CustomEntityExceptions;
+import org.zerock.Altari.repository.UserCommunityCommentRepository;
+import org.zerock.Altari.repository.UserCommunityPostCategoryRepository;
 import org.zerock.Altari.repository.UserCommunityPostRepository;
 
 import java.util.List;
@@ -22,6 +24,7 @@ import java.util.stream.Collectors;
 public class UserCommunityPostService {
 
     private final UserCommunityPostRepository userCommunityPostRepository;
+    private final UserCommunityPostCategoryRepository userCommunityPostCategoryRepository;
 
     public UserCommunityPostDTO createPost(UserEntity user, UserCommunityPostDTO postDTO) {
 
@@ -30,6 +33,8 @@ public class UserCommunityPostService {
                 .userCommunityPostContent(postDTO.getUserCommunityPostContent())
                 .userCommunityPostLikes(postDTO.getUserCommunityPostLikes())
                 .userCommunityPostViewCount(postDTO.getUserCommunityPostViewCount())
+                .userCommunityPostCategory(userCommunityPostCategoryRepository.findByUserCommunityPostCategoryId(postDTO.getUserCommunityPostCategory())
+                        .orElseThrow(CustomEntityExceptions.NOT_FOUND::get))
                 .user(user)
                 .build();
 
@@ -41,6 +46,7 @@ public class UserCommunityPostService {
                 .userCommunityPostContent(createdPost.getUserCommunityPostContent())
                 .userCommunityPostLikes(createdPost.getUserCommunityPostLikes())
                 .userCommunityPostViewCount(createdPost.getUserCommunityPostViewCount())
+                .userCommunityPostCategory(createdPost.getUserCommunityPostCategory().getUserCommunityPostCategoryId())
                 .userCommunityPostCreatedAt(createdPost.getUserCommunityPostCreatedAt())
                 .build();
 
@@ -62,6 +68,7 @@ public class UserCommunityPostService {
                 .userCommunityPostContent(updatedPost.getUserCommunityPostContent())
                 .userCommunityPostLikes(updatedPost.getUserCommunityPostLikes())
                 .userCommunityPostViewCount(updatedPost.getUserCommunityPostViewCount())
+                .userCommunityPostCategory(updatedPost.getUserCommunityPostCategory().getUserCommunityPostCategoryId())
                 .userCommunityPostCreatedAt(updatedPost.getUserCommunityPostCreatedAt())
                 .build();
     }
@@ -78,6 +85,7 @@ public class UserCommunityPostService {
                 .userCommunityPostViewCount(post.getUserCommunityPostViewCount())
                 .userCommunityPostCreatedAt(post.getUserCommunityPostCreatedAt())
                 .userCommunityPostUpdatedAt(post.getUserCommunityPostUpdatedAt())
+                .userCommunityPostCategory(post.getUserCommunityPostCategory().getUserCommunityPostCategoryId())
                 .isAuthorizedUser(post.getUser().equals(user))
                 .build();
     }
@@ -100,6 +108,7 @@ public class UserCommunityPostService {
                 .userCommunityPostViewCount(post.getUserCommunityPostViewCount())
                 .userCommunityPostCreatedAt(post.getUserCommunityPostCreatedAt())
                 .userCommunityPostUpdatedAt(post.getUserCommunityPostUpdatedAt())
+                .userCommunityPostCategory(post.getUserCommunityPostCategory().getUserCommunityPostCategoryId())
                 .isAuthorizedUser(post.getUser().equals(user))
                 .build());
 
