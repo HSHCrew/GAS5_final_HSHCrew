@@ -32,8 +32,14 @@ public class PharmacistCommunityCommentEntity {
     @JoinColumn(name = "user_id")
     private UserEntity user;
 
-    @Column(name = "pharmacist_community_parent_comment_id")
-    private Integer pharmacistCommunityParentCommentId;
+    @Column(name = "pharmacist_community_comment_group_id")
+    private Integer pharmacistCommunityCommentGroupId;
+
+    @Column(name = "pharmacist_community_comment_group_order")
+    private Integer pharmacistCommunityCommentGroupOrder;
+
+    @Column(name = "pharmacist_community_comment_depth")
+    private Integer pharmacistCommunityCommentDepth;
 
     @Column(name = "pharmacist_community_comment_content", columnDefinition = "TEXT")
     private String pharmacistCommunityCommentContent;

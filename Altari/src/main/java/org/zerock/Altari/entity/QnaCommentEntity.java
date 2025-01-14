@@ -32,8 +32,14 @@ public class QnaCommentEntity {
     @JoinColumn(name = "user_id")
     private UserEntity user;
 
-    @Column(name = "qna_comment_parent_id")
-    private Integer qnaCommentParentId;
+    @Column(name = "qna_comment_group_id")
+    private Integer qnaCommentGroupId;
+
+    @Column(name = "qna_comment_group_order")
+    private Integer qnaCommentGroupOrder;
+
+    @Column(name = "qna_comment_depth")
+    private Integer qnaCommentDepth;
 
     @Column(name = "qna_comment_content", columnDefinition = "TEXT")
     private String qnaCommentContent;

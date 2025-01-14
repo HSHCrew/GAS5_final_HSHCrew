@@ -28,8 +28,14 @@ public class UserCommunityCommentEntity {
     @JoinColumn(name = "user_id")
     private UserEntity user;
 
-    @Column(name = "user_community_parent_comment_id")
-    private Integer userCommunityParentCommentId;
+    @Column(name = "user_community_comment_group_id")
+    private Integer userCommunityCommentGroupId;
+
+    @Column(name = "user_community_comment_group_order")
+    private Integer userCommunityCommentGroupOrder;
+
+    @Column(name = "user_community_comment_depth")
+    private Integer userCommunityCommentDepth;
 
     @Column(name = "user_community_comment_content", columnDefinition = "TEXT")
     private String userCommunityCommentContent;

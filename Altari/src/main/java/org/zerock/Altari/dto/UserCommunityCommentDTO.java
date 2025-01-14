@@ -19,7 +19,9 @@ public class UserCommunityCommentDTO {
         private Integer userCommunityCommentId;
         private Integer userCommunityPost;
         private String user;
-        private Integer userCommunityParentCommentId;
+        private Integer userCommunityCommentGroupId;
+        private Integer userCommunityCommentGroupOrder;
+        private Integer userCommunityCommentDepth;
         private String userCommunityCommentContent;
         private Integer userCommunityCommentLikes;
         private LocalDateTime userCommunityCommentCreatedAt;

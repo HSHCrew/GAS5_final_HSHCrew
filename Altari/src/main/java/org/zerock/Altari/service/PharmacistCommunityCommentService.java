@@ -5,14 +5,15 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.zerock.Altari.dto.PharmacistCommunityCommentDTO;
-import org.zerock.Altari.entity.UserCommunityPostEntity;
-import org.zerock.Altari.entity.UserCommunityCommentEntity;
+import org.zerock.Altari.entity.PharmacistCommunityCommentEntity;
+import org.zerock.Altari.entity.PharmacistCommunityPostEntity;
 import org.zerock.Altari.entity.UserEntity;
 import org.zerock.Altari.exception.CustomEntityExceptions;
-import org.zerock.Altari.repository.UserCommunityCommentRepository;
-import org.zerock.Altari.repository.UserCommunityPostRepository;
+import org.zerock.Altari.repository.PharmacistCommunityCommentRepository;
+import org.zerock.Altari.repository.PharmacistCommunityPostRepository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -21,96 +22,108 @@ import java.util.stream.Collectors;
 @Transactional
 public class PharmacistCommunityCommentService {
 
-    private final UserCommunityCommentRepository userCommunityCommentRepository;
-    private final UserCommunityPostRepository userCommunityPostRepository;
+    private final PharmacistCommunityCommentRepository pharmacistCommunityCommentRepository;
+    private final PharmacistCommunityPostRepository pharmacistCommunityPostRepository;
 
-    public PharmacistCommunityCommentDTO createComment(UserEntity pharmacist, Integer postId, PharmacistCommunityCommentDTO commentDTO) {
-        UserCommunityPostEntity postEntity = userCommunityPostRepository.findById(postId)
+    public PharmacistCommunityCommentDTO createComment(UserEntity user, Integer postId, PharmacistCommunityCommentDTO commentDTO) {
+        PharmacistCommunityPostEntity postEntity = pharmacistCommunityPostRepository.findById(postId)
                 .orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
 
-        UserCommunityCommentEntity commentEntity = UserCommunityCommentEntity.builder()
-                .userCommunityPost(postEntity)
-                .user(pharmacist)
-                .userCommunityParentCommentId(commentDTO.getPharmacistCommunityParentCommentId())
-                .userCommunityCommentContent(commentDTO.getPharmacistCommunityCommentContent())
-                .userCommunityCommentLikes(0)
+        PharmacistCommunityCommentEntity commentEntity = PharmacistCommunityCommentEntity.builder()
+                .pharmacistCommunityPost(postEntity)
+                .user(user)
+                .pharmacistCommunityCommentGroupId(null)
+                .pharmacistCommunityCommentGroupOrder(0)
+                .pharmacistCommunityCommentDepth(0)
+                .pharmacistCommunityCommentContent(commentDTO.getPharmacistCommunityCommentContent())
+                .pharmacistCommunityCommentLikes(0)
                 .build();
 
-        UserCommunityCommentEntity createdComment = userCommunityCommentRepository.save(commentEntity);
+        PharmacistCommunityCommentEntity createdComment = pharmacistCommunityCommentRepository.save(commentEntity);
+        createdComment.setPharmacistCommunityCommentGroupId(createdComment.getPharmacistCommunityCommentId());
 
         return PharmacistCommunityCommentDTO.builder()
-                .pharmacistCommunityCommentId(createdComment.getUserCommunityCommentId())
-                .pharmacistCommunityPost(postEntity.getUserCommunityPostId())
-                .user(pharmacist.getUsername())
-                .pharmacistCommunityParentCommentId(createdComment.getUserCommunityParentCommentId())
-                .pharmacistCommunityCommentContent(createdComment.getUserCommunityCommentContent())
-                .pharmacistCommunityCommentLikes(createdComment.getUserCommunityCommentLikes())
-                .pharmacistCommunityCommentCreatedAt(createdComment.getUserCommunityCommentCreatedAt())
+                .pharmacistCommunityCommentId(createdComment.getPharmacistCommunityCommentId())
+                .pharmacistCommunityPost(postEntity.getPharmacistCommunityPostId())
+                .user(user.getUsername())
+                .pharmacistCommunityCommentGroupId(createdComment.getPharmacistCommunityCommentGroupId())
+                .pharmacistCommunityCommentGroupOrder(createdComment.getPharmacistCommunityCommentGroupOrder())
+                .pharmacistCommunityCommentDepth(createdComment.getPharmacistCommunityCommentDepth())
+                .pharmacistCommunityCommentContent(createdComment.getPharmacistCommunityCommentContent())
+                .pharmacistCommunityCommentLikes(createdComment.getPharmacistCommunityCommentLikes())
+                .pharmacistCommunityCommentCreatedAt(createdComment.getPharmacistCommunityCommentCreatedAt())
                 .build();
     }
 
     public PharmacistCommunityCommentDTO updateComment(Integer commentId, PharmacistCommunityCommentDTO commentDTO) {
-        UserCommunityCommentEntity commentEntity = userCommunityCommentRepository.findById(commentId)
+        PharmacistCommunityCommentEntity commentEntity = pharmacistCommunityCommentRepository.findById(commentId)
                 .orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
 
-        commentEntity.setUserCommunityCommentContent(commentDTO.getPharmacistCommunityCommentContent());
+        commentEntity.setPharmacistCommunityCommentContent(commentDTO.getPharmacistCommunityCommentContent());
 
-        UserCommunityCommentEntity updatedComment = userCommunityCommentRepository.save(commentEntity);
+        PharmacistCommunityCommentEntity updatedComment = pharmacistCommunityCommentRepository.save(commentEntity);
 
         return PharmacistCommunityCommentDTO.builder()
-                .pharmacistCommunityCommentId(updatedComment.getUserCommunityCommentId())
-                .pharmacistCommunityPost(updatedComment.getUserCommunityPost().getUserCommunityPostId())
+                .pharmacistCommunityCommentId(updatedComment.getPharmacistCommunityCommentId())
+                .pharmacistCommunityPost(updatedComment.getPharmacistCommunityPost().getPharmacistCommunityPostId())
                 .user(updatedComment.getUser().getUsername())
-                .pharmacistCommunityParentCommentId(updatedComment.getUserCommunityParentCommentId())
-                .pharmacistCommunityCommentContent(updatedComment.getUserCommunityCommentContent())
-                .pharmacistCommunityCommentLikes(updatedComment.getUserCommunityCommentLikes())
-                .pharmacistCommunityCommentCreatedAt(updatedComment.getUserCommunityCommentCreatedAt())
-                .pharmacistCommunityCommentUpdatedAt(updatedComment.getUserCommunityCommentUpdatedAt())
+                .pharmacistCommunityCommentGroupId(updatedComment.getPharmacistCommunityCommentGroupId())
+                .pharmacistCommunityCommentGroupOrder(updatedComment.getPharmacistCommunityCommentGroupOrder())
+                .pharmacistCommunityCommentDepth(updatedComment.getPharmacistCommunityCommentDepth())
+                .pharmacistCommunityCommentContent(updatedComment.getPharmacistCommunityCommentContent())
+                .pharmacistCommunityCommentLikes(updatedComment.getPharmacistCommunityCommentLikes())
+                .pharmacistCommunityCommentCreatedAt(updatedComment.getPharmacistCommunityCommentCreatedAt())
+                .pharmacistCommunityCommentUpdatedAt(updatedComment.getPharmacistCommunityCommentUpdatedAt())
                 .build();
     }
 
-    public PharmacistCommunityCommentDTO readComment(UserEntity pharmacist, Integer commentId) {
-        UserCommunityCommentEntity commentEntity = userCommunityCommentRepository.findById(commentId)
+    public PharmacistCommunityCommentDTO readComment(UserEntity user, Integer commentId) {
+
+        PharmacistCommunityCommentEntity commentEntity = pharmacistCommunityCommentRepository.findById(commentId)
                 .orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
 
         return PharmacistCommunityCommentDTO.builder()
-                .pharmacistCommunityCommentId(commentEntity.getUserCommunityCommentId())
-                .pharmacistCommunityPost(commentEntity.getUserCommunityPost().getUserCommunityPostId())
+                .pharmacistCommunityCommentId(commentEntity.getPharmacistCommunityCommentId())
+                .pharmacistCommunityPost(commentEntity.getPharmacistCommunityPost().getPharmacistCommunityPostId())
                 .user(commentEntity.getUser().getUsername())
-                .pharmacistCommunityParentCommentId(commentEntity.getUserCommunityParentCommentId())
-                .pharmacistCommunityCommentContent(commentEntity.getUserCommunityCommentContent())
-                .pharmacistCommunityCommentLikes(commentEntity.getUserCommunityCommentLikes())
-                .pharmacistCommunityCommentCreatedAt(commentEntity.getUserCommunityCommentCreatedAt())
-                .pharmacistCommunityCommentUpdatedAt(commentEntity.getUserCommunityCommentUpdatedAt())
-                .isAuthorizedUser(commentEntity.getUser().equals(pharmacist))
+                .pharmacistCommunityCommentGroupId(commentEntity.getPharmacistCommunityCommentGroupId())
+                .pharmacistCommunityCommentGroupOrder(commentEntity.getPharmacistCommunityCommentGroupOrder())
+                .pharmacistCommunityCommentDepth(commentEntity.getPharmacistCommunityCommentDepth())
+                .pharmacistCommunityCommentContent(commentEntity.getPharmacistCommunityCommentContent())
+                .pharmacistCommunityCommentLikes(commentEntity.getPharmacistCommunityCommentLikes())
+                .pharmacistCommunityCommentCreatedAt(commentEntity.getPharmacistCommunityCommentCreatedAt())
+                .pharmacistCommunityCommentUpdatedAt(commentEntity.getPharmacistCommunityCommentUpdatedAt())
+                .isAuthorizedUser(commentEntity.getUser().equals(user))
                 .build();
     }
 
-    public List<PharmacistCommunityCommentDTO> readAllComments(UserEntity pharmacist, Integer postId) {
-        UserCommunityPostEntity postEntity = userCommunityPostRepository.findById(postId)
+    public List<PharmacistCommunityCommentDTO> readAllComments(UserEntity user, Integer postId) {
+        PharmacistCommunityPostEntity postEntity = pharmacistCommunityPostRepository.findById(postId)
                 .orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
 
-        List<UserCommunityCommentEntity> comments = userCommunityCommentRepository.findByUserCommunityPost(postEntity)
+        List<PharmacistCommunityCommentEntity> comments = pharmacistCommunityCommentRepository.findByPharmacistCommunityPost(postEntity)
                 .orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
 
         return comments.stream().map(comment -> PharmacistCommunityCommentDTO.builder()
-                        .pharmacistCommunityCommentId(comment.getUserCommunityCommentId())
-                        .pharmacistCommunityPost(comment.getUserCommunityPost().getUserCommunityPostId())
+                        .pharmacistCommunityCommentId(comment.getPharmacistCommunityCommentId())
+                        .pharmacistCommunityPost(comment.getPharmacistCommunityPost().getPharmacistCommunityPostId())
                         .user(comment.getUser().getUsername())
-                        .pharmacistCommunityParentCommentId(comment.getUserCommunityParentCommentId())
-                        .pharmacistCommunityCommentContent(comment.getUserCommunityCommentContent())
-                        .pharmacistCommunityCommentLikes(comment.getUserCommunityCommentLikes())
-                        .pharmacistCommunityCommentCreatedAt(comment.getUserCommunityCommentCreatedAt())
-                        .pharmacistCommunityCommentUpdatedAt(comment.getUserCommunityCommentUpdatedAt())
-                        .isAuthorizedUser(comment.getUser().equals(pharmacist))
+                        .pharmacistCommunityCommentGroupId(comment.getPharmacistCommunityCommentGroupId())
+                        .pharmacistCommunityCommentGroupOrder(comment.getPharmacistCommunityCommentGroupOrder())
+                        .pharmacistCommunityCommentDepth(comment.getPharmacistCommunityCommentDepth())
+                        .pharmacistCommunityCommentContent(comment.getPharmacistCommunityCommentContent())
+                        .pharmacistCommunityCommentLikes(comment.getPharmacistCommunityCommentLikes())
+                        .pharmacistCommunityCommentCreatedAt(comment.getPharmacistCommunityCommentCreatedAt())
+                        .pharmacistCommunityCommentUpdatedAt(comment.getPharmacistCommunityCommentUpdatedAt())
+                        .isAuthorizedUser(comment.getUser().equals(user))
                         .build())
                 .collect(Collectors.toList());
     }
 
     public void deleteComment(Integer commentId) {
-        UserCommunityCommentEntity commentEntity = userCommunityCommentRepository.findById(commentId)
+        PharmacistCommunityCommentEntity commentEntity = pharmacistCommunityCommentRepository.findById(commentId)
                 .orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
 
-        userCommunityCommentRepository.delete(commentEntity);
+        pharmacistCommunityCommentRepository.delete(commentEntity);
     }
 }
