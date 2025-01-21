@@ -55,6 +55,38 @@ public class UserCommunityCommentService {
                 .build();
     }
 
+    public UserCommunityCommentDTO createReplyComment(UserEntity user, Integer parentCommentId, UserCommunityCommentDTO commentDTO) {
+        UserCommunityCommentEntity parentCommentEntity = userCommunityCommentRepository.findById(parentCommentId)
+                .orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
+
+        UserCommunityCommentEntity maxGroupOrderComment = userCommunityCommentRepository.findTopByUserCommunityCommentGroupIdOrderByUserCommunityCommentGroupOrderDesc(parentCommentEntity.getUserCommunityCommentGroupId())
+                .orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
+
+        UserCommunityCommentEntity commentEntity = UserCommunityCommentEntity.builder()
+                .userCommunityPost(parentCommentEntity.getUserCommunityPost())
+                .user(user)
+                .userCommunityCommentGroupId(parentCommentEntity.getUserCommunityCommentGroupId())
+                .userCommunityCommentGroupOrder(maxGroupOrderComment.getUserCommunityCommentGroupOrder())
+                .userCommunityCommentDepth(1)
+                .userCommunityCommentContent(commentDTO.getUserCommunityCommentContent())
+                .userCommunityCommentLikes(0)
+                .build();
+
+        UserCommunityCommentEntity createdReplyComment = userCommunityCommentRepository.save(commentEntity);
+
+        return UserCommunityCommentDTO.builder()
+                .userCommunityCommentId(createdReplyComment.getUserCommunityCommentId())
+                .userCommunityPost(createdReplyComment.getUserCommunityPost().getUserCommunityPostId())
+                .user(user.getUsername())
+                .userCommunityCommentGroupId(createdReplyComment.getUserCommunityCommentGroupId())
+                .userCommunityCommentGroupOrder(createdReplyComment.getUserCommunityCommentGroupOrder())
+                .userCommunityCommentDepth(createdReplyComment.getUserCommunityCommentDepth())
+                .userCommunityCommentContent(createdReplyComment.getUserCommunityCommentContent())
+                .userCommunityCommentLikes(createdReplyComment.getUserCommunityCommentLikes())
+                .userCommunityCommentCreatedAt(createdReplyComment.getUserCommunityCommentCreatedAt())
+                .build();
+    }
+
     public UserCommunityCommentDTO updateComment(Integer commentId, UserCommunityCommentDTO commentDTO) {
         UserCommunityCommentEntity commentEntity = userCommunityCommentRepository.findById(commentId)
                 .orElseThrow(CustomEntityExceptions.NOT_FOUND::get);

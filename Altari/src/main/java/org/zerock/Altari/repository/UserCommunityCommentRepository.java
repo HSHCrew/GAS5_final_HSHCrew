@@ -13,4 +13,5 @@ public interface UserCommunityCommentRepository extends JpaRepository<UserCommun
     Optional<UserCommunityCommentEntity> findByUserCommunityCommentId(Integer postId);
 
     Optional<List<UserCommunityCommentEntity>> findByUserCommunityPost(UserCommunityPostEntity postEntity);
+    Optional<UserCommunityCommentEntity> findTopByUserCommunityCommentGroupIdOrderByUserCommunityCommentGroupOrderDesc(Integer groupId);
 }

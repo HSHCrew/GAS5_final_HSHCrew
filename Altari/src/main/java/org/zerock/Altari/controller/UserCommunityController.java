@@ -97,6 +97,24 @@ public class UserCommunityController {
         return ResponseEntity.ok(createdComment);
     }
 
+    // 사용자 커뮤니티 대댓글 생성
+    @PostMapping("/ReplyComments/{parentCommentId}")
+    public ResponseEntity<UserCommunityCommentDTO> createReplyComment(
+            @RequestBody UserCommunityCommentDTO commentDTO,
+            @PathVariable("parentCommentId") Integer parentCommentId,
+            @RequestHeader("Authorization") String accessToken) throws UnsupportedEncodingException {
+
+        // 사용자 정보 추출
+        UserEntity user = jwtUtil.getUserFromToken(accessToken);
+
+        // 대댓글 생성 서비스 호출
+        UserCommunityCommentDTO createdReplyComment = userCommunityCommentService.createReplyComment(user, parentCommentId, commentDTO);
+
+        // 생성된 대댓글 DTO 반환
+        return ResponseEntity.ok(createdReplyComment);
+    }
+
+
     // 커뮤니티 댓글 수정
     @PutMapping("/comments/{commentId}")
     public ResponseEntity<UserCommunityCommentDTO> updateComment(

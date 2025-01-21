@@ -12,4 +12,6 @@ import java.util.Optional;
 public interface PharmacistCommunityCommentRepository extends JpaRepository<PharmacistCommunityCommentEntity, Integer> {
 
     Optional<List<PharmacistCommunityCommentEntity>> findByPharmacistCommunityPost(PharmacistCommunityPostEntity postEntity);
+    Optional<PharmacistCommunityCommentEntity> findTopByPharmacistCommunityCommentGroupIdOrderByPharmacistCommunityCommentGroupOrderDesc(Integer commentGroupId);
+
 }

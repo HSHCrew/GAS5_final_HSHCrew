@@ -5,8 +5,10 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.zerock.Altari.dto.PharmacistCommunityCommentDTO;
+import org.zerock.Altari.dto.UserCommunityCommentDTO;
 import org.zerock.Altari.entity.PharmacistCommunityCommentEntity;
 import org.zerock.Altari.entity.PharmacistCommunityPostEntity;
+import org.zerock.Altari.entity.UserCommunityCommentEntity;
 import org.zerock.Altari.entity.UserEntity;
 import org.zerock.Altari.exception.CustomEntityExceptions;
 import org.zerock.Altari.repository.PharmacistCommunityCommentRepository;
@@ -54,6 +56,39 @@ public class PharmacistCommunityCommentService {
                 .pharmacistCommunityCommentCreatedAt(createdComment.getPharmacistCommunityCommentCreatedAt())
                 .build();
     }
+
+    public PharmacistCommunityCommentDTO createReplyComment(UserEntity user, Integer parentCommentId, PharmacistCommunityCommentDTO commentDTO) {
+        PharmacistCommunityCommentEntity parentCommentEntity = pharmacistCommunityCommentRepository.findById(parentCommentId)
+                .orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
+
+        PharmacistCommunityCommentEntity maxGroupOrderComment = pharmacistCommunityCommentRepository.findTopByPharmacistCommunityCommentGroupIdOrderByPharmacistCommunityCommentGroupOrderDesc(parentCommentEntity.getPharmacistCommunityCommentGroupId())
+                .orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
+
+        PharmacistCommunityCommentEntity commentEntity = PharmacistCommunityCommentEntity.builder()
+                .pharmacistCommunityPost(parentCommentEntity.getPharmacistCommunityPost())
+                .user(user)
+                .pharmacistCommunityCommentGroupId(parentCommentEntity.getPharmacistCommunityCommentGroupId())
+                .pharmacistCommunityCommentGroupOrder(maxGroupOrderComment.getPharmacistCommunityCommentGroupOrder() + 1) // 최대 그룹 순서 + 1
+                .pharmacistCommunityCommentDepth(1) // Depth는 1로 고정
+                .pharmacistCommunityCommentContent(commentDTO.getPharmacistCommunityCommentContent())
+                .pharmacistCommunityCommentLikes(0)
+                .build();
+
+        PharmacistCommunityCommentEntity createdReplyComment = pharmacistCommunityCommentRepository.save(commentEntity);
+
+        return PharmacistCommunityCommentDTO.builder()
+                .pharmacistCommunityCommentId(createdReplyComment.getPharmacistCommunityCommentId())
+                .pharmacistCommunityPost(createdReplyComment.getPharmacistCommunityPost().getPharmacistCommunityPostId())
+                .user(user.getUsername())
+                .pharmacistCommunityCommentGroupId(createdReplyComment.getPharmacistCommunityCommentGroupId())
+                .pharmacistCommunityCommentGroupOrder(createdReplyComment.getPharmacistCommunityCommentGroupOrder())
+                .pharmacistCommunityCommentDepth(createdReplyComment.getPharmacistCommunityCommentDepth())
+                .pharmacistCommunityCommentContent(createdReplyComment.getPharmacistCommunityCommentContent())
+                .pharmacistCommunityCommentLikes(createdReplyComment.getPharmacistCommunityCommentLikes())
+                .pharmacistCommunityCommentCreatedAt(createdReplyComment.getPharmacistCommunityCommentCreatedAt())
+                .build();
+    }
+
 
     public PharmacistCommunityCommentDTO updateComment(Integer commentId, PharmacistCommunityCommentDTO commentDTO) {
         PharmacistCommunityCommentEntity commentEntity = pharmacistCommunityCommentRepository.findById(commentId)
