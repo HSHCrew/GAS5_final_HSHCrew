@@ -155,6 +155,40 @@ public class UserCommunityCommentService {
                 .collect(Collectors.toList());
     }
 
+    // 댓글 좋아요 추가
+    public UserCommunityCommentDTO likeComment(Integer commentId) {
+        UserCommunityCommentEntity commentEntity = userCommunityCommentRepository.findById(commentId)
+                .orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
+
+        // 좋아요 수 증가
+        commentEntity.setUserCommunityCommentLikes(commentEntity.getUserCommunityCommentLikes() + 1);
+
+        // 저장 및 DTO 반환
+        userCommunityCommentRepository.save(commentEntity);
+        return UserCommunityCommentDTO.builder()
+                .userCommunityCommentId(commentEntity.getUserCommunityCommentId())
+                .userCommunityCommentLikes(commentEntity.getUserCommunityCommentLikes())
+                .build();
+    }
+
+    // 댓글 좋아요 취소
+    public UserCommunityCommentDTO unlikeComment(Integer commentId) {
+        UserCommunityCommentEntity commentEntity = userCommunityCommentRepository.findById(commentId)
+                .orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
+
+        // 좋아요 수 감소 (0 이하로는 감소하지 않도록 처리)
+        int updatedLikes = Math.max(commentEntity.getUserCommunityCommentLikes() - 1, 0);
+        commentEntity.setUserCommunityCommentLikes(updatedLikes);
+
+        // 저장 및 DTO 반환
+        userCommunityCommentRepository.save(commentEntity);
+
+        return UserCommunityCommentDTO.builder()
+                .userCommunityCommentId(commentEntity.getUserCommunityCommentId())
+                .userCommunityCommentLikes(commentEntity.getUserCommunityCommentLikes())
+                .build();
+    }
+
     public void deleteComment(Integer commentId) {
         UserCommunityCommentEntity commentEntity = userCommunityCommentRepository.findById(commentId)
                 .orElseThrow(CustomEntityExceptions.NOT_FOUND::get);

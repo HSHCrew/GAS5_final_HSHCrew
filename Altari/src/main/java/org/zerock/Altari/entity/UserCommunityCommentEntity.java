@@ -20,6 +20,9 @@ public class UserCommunityCommentEntity {
     @Column(name = "user_community_comment_id")
     private Integer userCommunityCommentId;
 
+    @Version
+    private Integer version;
+
     @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "user_community_post_id")
     private UserCommunityPostEntity userCommunityPost;

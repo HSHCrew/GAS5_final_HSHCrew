@@ -24,6 +24,9 @@ public class PharmacistCommunityCommentEntity {
     @Column(name = "pharmacist_community_comment_id")
     private Integer pharmacistCommunityCommentId;
 
+    @Version
+    private Integer version;
+
     @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "pharmacist_community_post_id")
     private PharmacistCommunityPostEntity pharmacistCommunityPost;

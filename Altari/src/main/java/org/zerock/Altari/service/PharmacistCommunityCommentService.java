@@ -155,6 +155,40 @@ public class PharmacistCommunityCommentService {
                 .collect(Collectors.toList());
     }
 
+    // 댓글 좋아요 추가
+    public PharmacistCommunityCommentDTO likeComment(Integer commentId) {
+        PharmacistCommunityCommentEntity commentEntity = pharmacistCommunityCommentRepository.findById(commentId)
+                .orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
+
+        // 좋아요 수 증가
+        commentEntity.setPharmacistCommunityCommentLikes(commentEntity.getPharmacistCommunityCommentLikes() + 1);
+
+        // 저장 및 DTO 반환
+        pharmacistCommunityCommentRepository.save(commentEntity);
+        return PharmacistCommunityCommentDTO.builder()
+                .pharmacistCommunityCommentId(commentEntity.getPharmacistCommunityCommentId())
+                .pharmacistCommunityCommentLikes(commentEntity.getPharmacistCommunityCommentLikes())
+                .build();
+    }
+
+    // 댓글 좋아요 취소
+    public PharmacistCommunityCommentDTO unlikeComment(Integer commentId) {
+        PharmacistCommunityCommentEntity commentEntity = pharmacistCommunityCommentRepository.findById(commentId)
+                .orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
+
+        // 좋아요 수 감소 (0 이하로는 감소하지 않도록 처리)
+        int updatedLikes = Math.max(commentEntity.getPharmacistCommunityCommentLikes() - 1, 0);
+        commentEntity.setPharmacistCommunityCommentLikes(updatedLikes);
+
+        // 저장 및 DTO 반환
+        pharmacistCommunityCommentRepository.save(commentEntity);
+
+        return PharmacistCommunityCommentDTO.builder()
+                .pharmacistCommunityCommentId(commentEntity.getPharmacistCommunityCommentId())
+                .pharmacistCommunityCommentLikes(commentEntity.getPharmacistCommunityCommentLikes())
+                .build();
+    }
+
     public void deleteComment(Integer commentId) {
         PharmacistCommunityCommentEntity commentEntity = pharmacistCommunityCommentRepository.findById(commentId)
                 .orElseThrow(CustomEntityExceptions.NOT_FOUND::get);

@@ -114,6 +114,46 @@ public class UserCommunityPostService {
 
     }
 
+    @Transactional
+    public UserCommunityPostDTO likePost(Integer postId) {
+        // 게시글 조회
+        UserCommunityPostEntity postEntity = userCommunityPostRepository.findByUserCommunityPostId(postId)
+                .orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
+
+        // 좋아요 수 증가
+        postEntity.setUserCommunityPostLikes(postEntity.getUserCommunityPostLikes() + 1);
+
+        // 변경 감지로 업데이트 수행
+        userCommunityPostRepository.save(postEntity);
+
+        // DTO 반환
+        return UserCommunityPostDTO.builder()
+                .userCommunityPostId(postEntity.getUserCommunityPostId())
+                .userCommunityPostLikes(postEntity.getUserCommunityPostLikes()) // 업데이트된 좋아요 수 포함
+                .build();
+    }
+
+    @Transactional
+    public UserCommunityPostDTO unlikePost(Integer postId) {
+        // 게시글 조회
+        UserCommunityPostEntity postEntity = userCommunityPostRepository.findByUserCommunityPostId(postId)
+                .orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
+
+        // 좋아요 수 감소 (0 이하로는 감소하지 않도록 처리)
+        int updatedLikes = Math.max(postEntity.getUserCommunityPostLikes() - 1, 0);
+        postEntity.setUserCommunityPostLikes(updatedLikes);
+
+        // 변경 감지로 업데이트 수행
+        userCommunityPostRepository.save(postEntity);
+
+        // DTO 반환
+        return UserCommunityPostDTO.builder()
+                .userCommunityPostId(postEntity.getUserCommunityPostId())
+                .userCommunityPostLikes(postEntity.getUserCommunityPostLikes()) // 업데이트된 좋아요 수 포함
+                .build();
+    }
+
+
     public void deletePost(Integer postId) {
         UserCommunityPostEntity postEntity = userCommunityPostRepository.findByUserCommunityPostId(postId)
                 .orElseThrow(CustomEntityExceptions.NOT_FOUND::get);

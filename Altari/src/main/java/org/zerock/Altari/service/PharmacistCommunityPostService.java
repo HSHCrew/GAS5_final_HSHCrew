@@ -107,6 +107,45 @@ public class PharmacistCommunityPostService {
                 .build());
     }
 
+    // 포스트 좋아요 증가 메서드
+    public PharmacistCommunityPostDTO likePost(Integer postId) {
+        // 포스트를 가져옵니다.
+        PharmacistCommunityPostEntity postEntity = pharmacistCommunityPostRepository.findById(postId)
+                .orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
+
+        // 좋아요 수 증가
+        postEntity.setPharmacistCommunityPostLikes(postEntity.getPharmacistCommunityPostLikes() + 1);
+
+        // 저장된 포스트 엔티티를 반환
+        PharmacistCommunityPostEntity updatedPost = pharmacistCommunityPostRepository.save(postEntity);
+
+        // DTO로 반환
+        return PharmacistCommunityPostDTO.builder()
+                .pharmacistCommunityPostId(updatedPost.getPharmacistCommunityPostId())
+                .pharmacistCommunityPostLikes(updatedPost.getPharmacistCommunityPostLikes())
+                .build();
+    }
+
+    // 포스트 좋아요 취소 메서드
+    public PharmacistCommunityPostDTO unlikePost(Integer postId) {
+        // 포스트를 가져옵니다.
+        PharmacistCommunityPostEntity postEntity = pharmacistCommunityPostRepository.findById(postId)
+                .orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
+
+        // 좋아요 수 감소 (0 이하로는 감소하지 않도록 처리)
+        int updatedLikes = Math.max(postEntity.getPharmacistCommunityPostLikes() - 1, 0);
+        postEntity.setPharmacistCommunityPostLikes(updatedLikes);
+
+        // 저장된 포스트 엔티티를 반환
+        PharmacistCommunityPostEntity updatedPost = pharmacistCommunityPostRepository.save(postEntity);
+
+        // DTO로 반환
+        return PharmacistCommunityPostDTO.builder()
+                .pharmacistCommunityPostId(updatedPost.getPharmacistCommunityPostId())
+                .pharmacistCommunityPostLikes(updatedPost.getPharmacistCommunityPostLikes())
+                .build();
+    }
+
     public void deletePost(Integer postId) {
         PharmacistCommunityPostEntity postEntity = pharmacistCommunityPostRepository.findById(postId)
                 .orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
