@@ -27,6 +27,9 @@ public class PharmacistCommunityPostEntity {
     @Version
     private Integer version;
 
+    @Column(name = "on_comments")
+    private Boolean onComments;
+
     @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "user_id")
     private UserEntity user; // 작성자 (약사)

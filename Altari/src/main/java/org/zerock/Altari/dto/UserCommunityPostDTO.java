@@ -20,6 +20,7 @@ public class UserCommunityPostDTO {
 
     private Integer userCommunityPostId;
     private String user;
+    private Boolean onComments;
     private String userCommunityPostTitle;
     private String userCommunityPostContent;
     private Integer userCommunityPostLikes;

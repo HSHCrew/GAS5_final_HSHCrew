@@ -36,6 +36,7 @@ public class UserCommunityPostService {
                 .userCommunityPostCategory(userCommunityPostCategoryRepository.findByUserCommunityPostCategoryId(postDTO.getUserCommunityPostCategory())
                         .orElseThrow(CustomEntityExceptions.NOT_FOUND::get))
                 .user(user)
+                .onComments(postDTO.getOnComments()) // onComments 설정
                 .build();
 
         UserCommunityPostEntity createdPost = userCommunityPostRepository.save(userCommunityPostEntity);
@@ -48,9 +49,8 @@ public class UserCommunityPostService {
                 .userCommunityPostViewCount(createdPost.getUserCommunityPostViewCount())
                 .userCommunityPostCategory(createdPost.getUserCommunityPostCategory().getUserCommunityPostCategoryId())
                 .userCommunityPostCreatedAt(createdPost.getUserCommunityPostCreatedAt())
+                .onComments(createdPost.getOnComments()) // DTO에 onComments 포함
                 .build();
-
-
     }
 
     public UserCommunityPostDTO updatePost(Integer postId, UserCommunityPostDTO postDTO) {
@@ -59,6 +59,7 @@ public class UserCommunityPostService {
 
         postEntity.setUserCommunityPostTitle(postDTO.getUserCommunityPostTitle());
         postEntity.setUserCommunityPostContent(postDTO.getUserCommunityPostContent());
+        postEntity.setOnComments(postDTO.getOnComments()); // onComments 업데이트
 
         UserCommunityPostEntity updatedPost = userCommunityPostRepository.save(postEntity);
 
@@ -70,6 +71,7 @@ public class UserCommunityPostService {
                 .userCommunityPostViewCount(updatedPost.getUserCommunityPostViewCount())
                 .userCommunityPostCategory(updatedPost.getUserCommunityPostCategory().getUserCommunityPostCategoryId())
                 .userCommunityPostCreatedAt(updatedPost.getUserCommunityPostCreatedAt())
+                .onComments(updatedPost.getOnComments()) // DTO에 onComments 포함
                 .build();
     }
 
@@ -87,17 +89,16 @@ public class UserCommunityPostService {
                 .userCommunityPostUpdatedAt(post.getUserCommunityPostUpdatedAt())
                 .userCommunityPostCategory(post.getUserCommunityPostCategory().getUserCommunityPostCategoryId())
                 .isAuthorizedUser(post.getUser().equals(user))
+                .onComments(post.getOnComments()) // DTO에 onComments 포함
                 .build();
     }
 
     public Page<UserCommunityPostDTO> readAllPosts(UserEntity user, Pageable pageable) {
         Page<UserCommunityPostEntity> posts = userCommunityPostRepository.findAll(pageable);
-        // findAll 메서드에 Pageable 타입의 객체를 넣어 Page 타입으로 포스트들을 반환
 
         if (posts.isEmpty()) {
             throw CustomEntityExceptions.NOT_FOUND.get();
         }
-        // 포스트 엔티티의 null 검사 예외처리 수행
 
         return posts.map(post -> UserCommunityPostDTO.builder()
                 .user(post.getUser().getUsername())
@@ -110,8 +111,8 @@ public class UserCommunityPostService {
                 .userCommunityPostUpdatedAt(post.getUserCommunityPostUpdatedAt())
                 .userCommunityPostCategory(post.getUserCommunityPostCategory().getUserCommunityPostCategoryId())
                 .isAuthorizedUser(post.getUser().equals(user))
+                .onComments(post.getOnComments()) // DTO에 onComments 포함
                 .build());
-
     }
 
     @Transactional

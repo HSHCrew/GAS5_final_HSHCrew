@@ -27,6 +27,9 @@ public class UserCommunityPostEntity {
     @JoinColumn(name = "user_id")
     private UserEntity user;
 
+    @Column(name = "on_comments")
+    private Boolean onComments;
+
     @Column(name = "user_community_post_title", columnDefinition = "TEXT")
     private String userCommunityPostTitle;
 

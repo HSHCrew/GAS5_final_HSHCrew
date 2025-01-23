@@ -1,5 +1,6 @@
 package org.zerock.Altari.dto;
 
+import jakarta.persistence.Column;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -13,6 +14,7 @@ public class PharmacistCommunityPostDTO {
 
     private Integer pharmacistCommunityPostId; // 게시글 ID
     private String user;                // 약사 username
+    private Boolean onComments;
     private String pharmacistCommunityPostTitle; // 게시글 제목
     private String pharmacistCommunityPostContent; // 게시글 내용
     private Integer pharmacistCommunityPostLikes;  // 좋아요 수

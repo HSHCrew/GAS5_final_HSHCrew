@@ -24,13 +24,14 @@ public class PharmacistCommunityPostService {
     private final PharmacistCommunityPostRepository pharmacistCommunityPostRepository;
     private final PharmacistCommunityPostCategoryRepository pharmacistCommunityPostCategoryRepository;
 
+    // 포스트 생성 메서드
     public PharmacistCommunityPostDTO createPost(UserEntity user, PharmacistCommunityPostDTO postDTO) {
-
         PharmacistCommunityPostEntity pharmacistCommunityPostEntity = PharmacistCommunityPostEntity.builder()
                 .pharmacistCommunityPostTitle(postDTO.getPharmacistCommunityPostTitle())
                 .pharmacistCommunityPostContent(postDTO.getPharmacistCommunityPostContent())
                 .pharmacistCommunityPostLikes(postDTO.getPharmacistCommunityPostLikes())
                 .pharmacistCommunityPostViewCount(postDTO.getPharmacistCommunityPostViewCount())
+                .onComments(postDTO.getOnComments()) // 추가된 필드 설정
                 .pharmacistCommunityPostCategory(pharmacistCommunityPostCategoryRepository.findById(postDTO.getPharmacistCommunityPostCategory())
                         .orElseThrow(CustomEntityExceptions.NOT_FOUND::get))
                 .user(user)
@@ -44,17 +45,20 @@ public class PharmacistCommunityPostService {
                 .pharmacistCommunityPostContent(createdPost.getPharmacistCommunityPostContent())
                 .pharmacistCommunityPostLikes(createdPost.getPharmacistCommunityPostLikes())
                 .pharmacistCommunityPostViewCount(createdPost.getPharmacistCommunityPostViewCount())
+                .onComments(createdPost.getOnComments()) // 반환 DTO에 포함
                 .pharmacistCommunityPostCategory(createdPost.getPharmacistCommunityPostCategory().getPharmacistCommunityPostCategoryId())
                 .pharmacistCommunityPostCreatedAt(createdPost.getPharmacistCommunityPostCreatedAt())
                 .build();
     }
 
+    // 포스트 업데이트 메서드
     public PharmacistCommunityPostDTO updatePost(Integer postId, PharmacistCommunityPostDTO postDTO) {
         PharmacistCommunityPostEntity postEntity = pharmacistCommunityPostRepository.findById(postId)
                 .orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
 
         postEntity.setPharmacistCommunityPostTitle(postDTO.getPharmacistCommunityPostTitle());
         postEntity.setPharmacistCommunityPostContent(postDTO.getPharmacistCommunityPostContent());
+        postEntity.setOnComments(postDTO.getOnComments()); // 추가된 필드 업데이트
 
         PharmacistCommunityPostEntity updatedPost = pharmacistCommunityPostRepository.save(postEntity);
 
@@ -64,11 +68,13 @@ public class PharmacistCommunityPostService {
                 .pharmacistCommunityPostContent(updatedPost.getPharmacistCommunityPostContent())
                 .pharmacistCommunityPostLikes(updatedPost.getPharmacistCommunityPostLikes())
                 .pharmacistCommunityPostViewCount(updatedPost.getPharmacistCommunityPostViewCount())
+                .onComments(updatedPost.getOnComments()) // 반환 DTO에 포함
                 .pharmacistCommunityPostCategory(updatedPost.getPharmacistCommunityPostCategory().getPharmacistCommunityPostCategoryId())
                 .pharmacistCommunityPostCreatedAt(updatedPost.getPharmacistCommunityPostCreatedAt())
                 .build();
     }
 
+    // 포스트 읽기 메서드
     public PharmacistCommunityPostDTO readPost(UserEntity user, Integer postId) {
         PharmacistCommunityPostEntity post = pharmacistCommunityPostRepository.findById(postId)
                 .orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
@@ -79,6 +85,7 @@ public class PharmacistCommunityPostService {
                 .pharmacistCommunityPostContent(post.getPharmacistCommunityPostContent())
                 .pharmacistCommunityPostLikes(post.getPharmacistCommunityPostLikes())
                 .pharmacistCommunityPostViewCount(post.getPharmacistCommunityPostViewCount())
+                .onComments(post.getOnComments()) // 반환 DTO에 포함
                 .pharmacistCommunityPostCreatedAt(post.getPharmacistCommunityPostCreatedAt())
                 .pharmacistCommunityPostUpdatedAt(post.getPharmacistCommunityPostUpdatedAt())
                 .pharmacistCommunityPostCategory(post.getPharmacistCommunityPostCategory().getPharmacistCommunityPostCategoryId())
@@ -86,6 +93,7 @@ public class PharmacistCommunityPostService {
                 .build();
     }
 
+    // 모든 포스트 읽기 메서드
     public Page<PharmacistCommunityPostDTO> readAllPosts(UserEntity user, Pageable pageable) {
         Page<PharmacistCommunityPostEntity> posts = pharmacistCommunityPostRepository.findAll(pageable);
 
@@ -100,6 +108,7 @@ public class PharmacistCommunityPostService {
                 .pharmacistCommunityPostContent(post.getPharmacistCommunityPostContent())
                 .pharmacistCommunityPostLikes(post.getPharmacistCommunityPostLikes())
                 .pharmacistCommunityPostViewCount(post.getPharmacistCommunityPostViewCount())
+                .onComments(post.getOnComments()) // 반환 DTO에 포함
                 .pharmacistCommunityPostCreatedAt(post.getPharmacistCommunityPostCreatedAt())
                 .pharmacistCommunityPostUpdatedAt(post.getPharmacistCommunityPostUpdatedAt())
                 .pharmacistCommunityPostCategory(post.getPharmacistCommunityPostCategory().getPharmacistCommunityPostCategoryId())
