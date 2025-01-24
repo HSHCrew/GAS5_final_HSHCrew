@@ -72,6 +72,22 @@ public class UserCommunityController {
         return ResponseEntity.ok(posts);
     }
 
+    @GetMapping("/posts/category/{categoryId}")
+    public ResponseEntity<Page<UserCommunityPostDTO>> readPostsByCategory(
+            @PathVariable("categoryId") Integer categoryId,
+            @PageableDefault(size = 20, sort = "userCommunityPostCreatedAt", direction = Sort.Direction.DESC) Pageable pageable,
+            @RequestHeader("Authorization") String accessToken) throws UnsupportedEncodingException {
+
+        // 사용자 정보 추출
+        UserEntity user = jwtUtil.getUserFromToken(accessToken);
+
+        // 특정 카테고리에 속한 게시글 조회
+        Page<UserCommunityPostDTO> posts = userCommunityService.readPostsByCategory(user, categoryId, pageable);
+
+        // 결과 반환
+        return ResponseEntity.ok(posts);
+    }
+
     // 하루 기준으로 인기 게시글 조회 API
     @GetMapping("/posts/top/day")
     public ResponseEntity<Page<UserCommunityPostDTO>> readTopPostsForDay(

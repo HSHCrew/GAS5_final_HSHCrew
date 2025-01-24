@@ -127,6 +127,31 @@ public class UserCommunityService {
                 .build());
     }
 
+    public Page<UserCommunityPostDTO> readPostsByCategory(UserEntity user, Integer categoryId, Pageable pageable) {
+        // 주어진 카테고리 ID에 맞는 게시글을 조회
+        Page<UserCommunityPostEntity> posts = userCommunityPostRepository.findByUserCommunityPostCategory(userCommunityPostCategoryRepository.findByUserCommunityPostCategoryId(categoryId).orElseThrow(CustomEntityExceptions.NOT_FOUND::get), pageable);
+
+        if (posts.isEmpty()) {
+            throw CustomEntityExceptions.NOT_FOUND.get(); // 게시글이 없으면 예외 발생
+        }
+
+        // DTO로 변환하여 반환
+        return posts.map(post -> UserCommunityPostDTO.builder()
+                .user(post.getUser().getUsername())
+                .userCommunityPostId(post.getUserCommunityPostId())
+                .userCommunityPostTitle(post.getUserCommunityPostTitle())
+                .userCommunityPostContent(post.getUserCommunityPostContent())
+                .userCommunityPostLikes(post.getUserCommunityPostLikes())
+                .userCommunityPostViewCount(post.getUserCommunityPostViewCount())
+                .userCommunityPostCreatedAt(post.getUserCommunityPostCreatedAt())
+                .userCommunityPostUpdatedAt(post.getUserCommunityPostUpdatedAt())
+                .userCommunityPostCategory(post.getUserCommunityPostCategory().getUserCommunityPostCategoryId())
+                .isAuthorizedUser(post.getUser().equals(user))
+                .onComments(post.getOnComments()) // DTO에 onComments 포함
+                .build());
+    }
+
+
     public Page<UserCommunityPostDTO> readTopPostsForDay(UserEntity user, Pageable pageable) {
         // 하루 기준으로 인기 게시글을 조회 (예: 24시간 이내 작성된 게시글)
         LocalDateTime now = LocalDateTime.now();
