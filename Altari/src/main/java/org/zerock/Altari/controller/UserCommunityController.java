@@ -45,7 +45,8 @@ public class UserCommunityController {
             @PathVariable("postId") Integer postId,
             @RequestHeader("Authorization") String accessToken) throws UnsupportedEncodingException {
 
-        UserCommunityPostDTO updatedPost = userCommunityService.updatePost(postId, postDTO);
+        UserEntity user = jwtUtil.getUserFromToken(accessToken);
+        UserCommunityPostDTO updatedPost = userCommunityService.updatePost(user, postId, postDTO);
 
         return ResponseEntity.ok(updatedPost);
     }

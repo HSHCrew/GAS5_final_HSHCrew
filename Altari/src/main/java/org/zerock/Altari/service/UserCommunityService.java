@@ -60,10 +60,19 @@ public class UserCommunityService {
                 .build();
     }
 
-    public UserCommunityPostDTO updatePost(Integer postId, UserCommunityPostDTO postDTO) {
+    public UserCommunityPostDTO updatePost(UserEntity user, Integer postId, UserCommunityPostDTO postDTO) {
         UserCommunityPostEntity postEntity = userCommunityPostRepository.findByUserCommunityPostId(postId)
                 .orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
 
+        // 유저가 본인 게시글을 수정하거나 관리자일 때만 수정 가능
+        boolean isAdmin = user.getRoles().stream()
+                .anyMatch(role -> role.getRoleId() == 2); // ADMIN 역할 확인
+
+        if (!postEntity.getUser().equals(user) && !isAdmin) {
+            throw CustomEntityExceptions.UNAUTHORIZED_ACCESS.get();
+        }
+
+        postEntity.setUserCommunityPostCategory(userCommunityPostCategoryRepository.findByUserCommunityPostCategoryId(postDTO.getUserCommunityPostCategory()).orElseThrow(CustomEntityExceptions.NOT_FOUND::get));
         postEntity.setUserCommunityPostTitle(postDTO.getUserCommunityPostTitle());
         postEntity.setUserCommunityPostContent(postDTO.getUserCommunityPostContent());
         postEntity.setOnComments(postDTO.getOnComments()); // onComments 업데이트
@@ -91,6 +100,10 @@ public class UserCommunityService {
         post.setUserCommunityPostViewCount(post.getUserCommunityPostViewCount() + 1);
         userCommunityPostRepository.save(post); // 변경 감지로 업데이트 수행
 
+        // ADMIN 역할이 있는지 체크
+        boolean isAdmin = user.getRoles().stream()
+                .anyMatch(role -> role.getRoleId() == 2); // role_id가 2일 경우 ADMIN
+
         return UserCommunityPostDTO.builder()
                 .userCommunityPostId(post.getUserCommunityPostId())
                 .userCommunityPostTitle(post.getUserCommunityPostTitle())
@@ -100,7 +113,7 @@ public class UserCommunityService {
                 .userCommunityPostCreatedAt(post.getUserCommunityPostCreatedAt())
                 .userCommunityPostUpdatedAt(post.getUserCommunityPostUpdatedAt())
                 .userCommunityPostCategory(post.getUserCommunityPostCategory().getUserCommunityPostCategoryId())
-                .isAuthorizedUser(post.getUser().equals(user))
+                .isAuthorizedUser(post.getUser().equals(user) || isAdmin)
                 .onComments(post.getOnComments()) // DTO에 onComments 포함
                 .build();
     }
