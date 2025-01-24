@@ -79,6 +79,10 @@ public class PharmacistCommunityPostService {
         PharmacistCommunityPostEntity post = pharmacistCommunityPostRepository.findById(postId)
                 .orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
 
+        // 조회수 증가
+        post.setPharmacistCommunityPostViewCount(post.getPharmacistCommunityPostViewCount() + 1);
+        pharmacistCommunityPostRepository.save(post); // 변경 감지로 업데이트 수행
+
         return PharmacistCommunityPostDTO.builder()
                 .pharmacistCommunityPostId(post.getPharmacistCommunityPostId())
                 .pharmacistCommunityPostTitle(post.getPharmacistCommunityPostTitle())

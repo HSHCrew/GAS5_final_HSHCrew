@@ -12,8 +12,7 @@ import org.zerock.Altari.dto.UserCommunityPostDTO;
 import org.zerock.Altari.dto.UserCommunityCommentDTO;
 import org.zerock.Altari.entity.UserEntity;
 import org.zerock.Altari.security.util.JWTUtil;
-import org.zerock.Altari.service.UserCommunityPostService;
-import org.zerock.Altari.service.UserCommunityCommentService;
+import org.zerock.Altari.service.UserCommunityService;
 
 import java.io.UnsupportedEncodingException;
 import java.util.List;
@@ -24,8 +23,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserCommunityController {
 
-    private final UserCommunityPostService userCommunityPostService;
-    private final UserCommunityCommentService userCommunityCommentService;
+    private final UserCommunityService userCommunityService;
     private final JWTUtil jwtUtil;
 
     // 커뮤니티 게시글 생성
@@ -35,7 +33,7 @@ public class UserCommunityController {
             @RequestHeader("Authorization") String accessToken) throws UnsupportedEncodingException {
 
         UserEntity user = jwtUtil.getUserFromToken(accessToken);
-        UserCommunityPostDTO createdPost = userCommunityPostService.createPost(user, postDTO);
+        UserCommunityPostDTO createdPost = userCommunityService.createPost(user, postDTO);
 
         return ResponseEntity.ok(createdPost);
     }
@@ -47,7 +45,7 @@ public class UserCommunityController {
             @PathVariable("postId") Integer postId,
             @RequestHeader("Authorization") String accessToken) throws UnsupportedEncodingException {
 
-        UserCommunityPostDTO updatedPost = userCommunityPostService.updatePost(postId, postDTO);
+        UserCommunityPostDTO updatedPost = userCommunityService.updatePost(postId, postDTO);
 
         return ResponseEntity.ok(updatedPost);
     }
@@ -59,7 +57,7 @@ public class UserCommunityController {
             @RequestHeader("Authorization") String accessToken) throws UnsupportedEncodingException {
 
         UserEntity user = jwtUtil.getUserFromToken(accessToken);
-        UserCommunityPostDTO post = userCommunityPostService.readPost(user, postId);
+        UserCommunityPostDTO post = userCommunityService.readPost(user, postId);
         return ResponseEntity.ok(post);
     }
 
@@ -70,7 +68,29 @@ public class UserCommunityController {
             @RequestHeader("Authorization") String accessToken) throws UnsupportedEncodingException {
 
         UserEntity user = jwtUtil.getUserFromToken(accessToken);
-        Page<UserCommunityPostDTO> posts = userCommunityPostService.readAllPosts(user, pageable);
+        Page<UserCommunityPostDTO> posts = userCommunityService.readAllPosts(user, pageable);
+        return ResponseEntity.ok(posts);
+    }
+
+    // 하루 기준으로 인기 게시글 조회 API
+    @GetMapping("/posts/top/day")
+    public ResponseEntity<Page<UserCommunityPostDTO>> readTopPostsForDay(
+            @PageableDefault(size = 20, sort = "userCommunityPostCreatedAt", direction = Sort.Direction.DESC) Pageable pageable,
+            @RequestHeader("Authorization") String accessToken) throws UnsupportedEncodingException {
+
+        UserEntity user = jwtUtil.getUserFromToken(accessToken);
+        Page<UserCommunityPostDTO> posts = userCommunityService.readTopPostsForDay(user, pageable);
+        return ResponseEntity.ok(posts);
+    }
+
+    // 일주일 기준으로 인기 게시글 조회 API
+    @GetMapping("/posts/top/week")
+    public ResponseEntity<Page<UserCommunityPostDTO>> readTopPostsForWeek(
+            @PageableDefault(size = 20, sort = "userCommunityPostCreatedAt", direction = Sort.Direction.DESC) Pageable pageable,
+            @RequestHeader("Authorization") String accessToken) throws UnsupportedEncodingException {
+
+        UserEntity user = jwtUtil.getUserFromToken(accessToken);
+        Page<UserCommunityPostDTO> posts = userCommunityService.readTopPostsForWeek(user, pageable);
         return ResponseEntity.ok(posts);
     }
 
@@ -80,7 +100,7 @@ public class UserCommunityController {
             @PathVariable("postId") Integer postId,
             @RequestHeader("Authorization") String accessToken) throws UnsupportedEncodingException {
 
-        userCommunityPostService.deletePost(postId);
+        userCommunityService.deletePost(postId);
         return ResponseEntity.ok("게시글 삭제가 완료되었습니다.");
     }
 
@@ -92,7 +112,7 @@ public class UserCommunityController {
             @RequestHeader("Authorization") String accessToken) throws UnsupportedEncodingException {
 
         UserEntity user = jwtUtil.getUserFromToken(accessToken);
-        UserCommunityCommentDTO createdComment = userCommunityCommentService.createComment(user, postId, commentDTO);
+        UserCommunityCommentDTO createdComment = userCommunityService.createComment(user, postId, commentDTO);
 
         return ResponseEntity.ok(createdComment);
     }
@@ -108,7 +128,7 @@ public class UserCommunityController {
         UserEntity user = jwtUtil.getUserFromToken(accessToken);
 
         // 대댓글 생성 서비스 호출
-        UserCommunityCommentDTO createdReplyComment = userCommunityCommentService.createReplyComment(user, parentCommentId, commentDTO);
+        UserCommunityCommentDTO createdReplyComment = userCommunityService.createReplyComment(user, parentCommentId, commentDTO);
 
         // 생성된 대댓글 DTO 반환
         return ResponseEntity.ok(createdReplyComment);
@@ -122,7 +142,7 @@ public class UserCommunityController {
             @PathVariable("commentId") Integer commentId,
             @RequestHeader("Authorization") String accessToken) throws UnsupportedEncodingException {
 
-        UserCommunityCommentDTO updatedComment = userCommunityCommentService.updateComment(commentId, commentDTO);
+        UserCommunityCommentDTO updatedComment = userCommunityService.updateComment(commentId, commentDTO);
 
         return ResponseEntity.ok(updatedComment);
     }
@@ -134,7 +154,7 @@ public class UserCommunityController {
             @RequestHeader("Authorization") String accessToken) throws UnsupportedEncodingException {
 
         UserEntity user = jwtUtil.getUserFromToken(accessToken);
-        UserCommunityCommentDTO comment = userCommunityCommentService.readComment(user, commentId);
+        UserCommunityCommentDTO comment = userCommunityService.readComment(user, commentId);
         return ResponseEntity.ok(comment);
     }
 
@@ -145,7 +165,7 @@ public class UserCommunityController {
             @RequestHeader("Authorization") String accessToken) throws UnsupportedEncodingException {
 
         UserEntity user = jwtUtil.getUserFromToken(accessToken);
-        List<UserCommunityCommentDTO> comments = userCommunityCommentService.readAllComments(user, postId);
+        List<UserCommunityCommentDTO> comments = userCommunityService.readAllComments(user, postId);
         return ResponseEntity.ok(comments);
     }
 
@@ -155,7 +175,7 @@ public class UserCommunityController {
             @PathVariable("commentId") Integer commentId,
             @RequestHeader("Authorization") String accessToken) throws UnsupportedEncodingException {
 
-        userCommunityCommentService.deleteComment(commentId);
+        userCommunityService.deleteComment(commentId);
         return ResponseEntity.ok("댓글 삭제가 완료되었습니다.");
     }
 }
