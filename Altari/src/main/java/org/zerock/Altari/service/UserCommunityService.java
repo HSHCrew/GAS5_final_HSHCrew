@@ -149,7 +149,6 @@ public class UserCommunityService {
                 .userCommunityPostId(post.getUserCommunityPostId())
                 .userCommunityPostTitle(post.getUserCommunityPostTitle())
                 .userCommunityPostContent(post.getUserCommunityPostContent())
-                .userCommunityPostLikes(post.getUserCommunityPostLikes())
                 .userCommunityPostViewCount(post.getUserCommunityPostViewCount())
                 .userCommunityPostCreatedAt(post.getUserCommunityPostCreatedAt())
                 .userCommunityPostUpdatedAt(post.getUserCommunityPostUpdatedAt())
@@ -238,6 +237,25 @@ public class UserCommunityService {
                 .build());
     }
 
+    public Page<UserCommunityPostDTO> searchPosts(String keyword,
+                                                  Pageable pageable) {
+
+        Page<UserCommunityPostEntity> posts = userCommunityPostRepository.findByUserCommunityPostTitle(keyword, pageable)
+                .orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
+
+        return posts.map(post -> UserCommunityPostDTO.builder()
+                .user(post.getUser().getUsername())
+                .userCommunityPostId(post.getUserCommunityPostId())
+                .userCommunityPostTitle(post.getUserCommunityPostTitle())
+                .userCommunityPostContent(post.getUserCommunityPostContent())
+                .userCommunityPostLikes(post.getUserCommunityPostLikes())
+                .userCommunityPostViewCount(post.getUserCommunityPostViewCount())
+                .userCommunityPostCreatedAt(post.getUserCommunityPostCreatedAt())
+                .userCommunityPostUpdatedAt(post.getUserCommunityPostUpdatedAt())
+                .userCommunityPostCategory(post.getUserCommunityPostCategory().getUserCommunityPostCategoryId())
+                .onComments(post.getOnComments()) // DTO에 onComments 포함
+                .build());
+    }
 
     public UserCommunityPostDTO likePost(Integer postId) {
         // 게시글 조회

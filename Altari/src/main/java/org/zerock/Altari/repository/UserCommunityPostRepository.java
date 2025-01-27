@@ -14,9 +14,8 @@ import java.util.Optional;
 @Repository
 public interface UserCommunityPostRepository extends JpaRepository<UserCommunityPostEntity, Integer> {
     Optional<UserCommunityPostEntity> findByUserCommunityPostId(Integer postId);
-
     Optional<Page<UserCommunityPostEntity>> findByUserCommunityPostCategory(UserCommunityPostCategoryEntity category, Pageable pageable);
     Optional<Page<UserCommunityPostEntity>> findByUserCommunityPostCreatedAtAfter(LocalDateTime oneDayAgo, Pageable pageable);
-
     Optional<Page<UserCommunityPostEntity>> findByUser(UserEntity user, Pageable pageable);
+    Optional<Page<UserCommunityPostEntity>> findByUserCommunityPostTitle(String keyword, Pageable pageable);
 }
