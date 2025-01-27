@@ -140,13 +140,29 @@ public class UserCommunityService {
                 .build());
     }
 
+    public Page<UserCommunityPostDTO> readUsersPosts(UserEntity user, Pageable pageable) {
+
+        Page<UserCommunityPostEntity> posts = userCommunityPostRepository.findByUser(user, pageable).orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
+
+        return posts.map(post -> UserCommunityPostDTO.builder()
+                .user(post.getUser().getUsername())
+                .userCommunityPostId(post.getUserCommunityPostId())
+                .userCommunityPostTitle(post.getUserCommunityPostTitle())
+                .userCommunityPostContent(post.getUserCommunityPostContent())
+                .userCommunityPostLikes(post.getUserCommunityPostLikes())
+                .userCommunityPostViewCount(post.getUserCommunityPostViewCount())
+                .userCommunityPostCreatedAt(post.getUserCommunityPostCreatedAt())
+                .userCommunityPostUpdatedAt(post.getUserCommunityPostUpdatedAt())
+                .userCommunityPostCategory(post.getUserCommunityPostCategory().getUserCommunityPostCategoryId())
+                .isAuthorizedUser(post.getUser().equals(user))
+                .onComments(post.getOnComments()) // DTO에 onComments 포함
+                .build());
+    }
+
     public Page<UserCommunityPostDTO> readPostsByCategory(UserEntity user, Integer categoryId, Pageable pageable) {
         // 주어진 카테고리 ID에 맞는 게시글을 조회
-        Page<UserCommunityPostEntity> posts = userCommunityPostRepository.findByUserCommunityPostCategory(userCommunityPostCategoryRepository.findByUserCommunityPostCategoryId(categoryId).orElseThrow(CustomEntityExceptions.NOT_FOUND::get), pageable);
-
-        if (posts.isEmpty()) {
-            throw CustomEntityExceptions.NOT_FOUND.get(); // 게시글이 없으면 예외 발생
-        }
+        Page<UserCommunityPostEntity> posts = userCommunityPostRepository.findByUserCommunityPostCategory(userCommunityPostCategoryRepository.findByUserCommunityPostCategoryId(categoryId).orElseThrow(CustomEntityExceptions.NOT_FOUND::get), pageable)
+                .orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
 
         // DTO로 변환하여 반환
         return posts.map(post -> UserCommunityPostDTO.builder()
@@ -174,12 +190,8 @@ public class UserCommunityService {
         Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Order.desc("userCommunityPostViewCount")));
 
         // 정렬된 페이지로 게시글 조회
-        Page<UserCommunityPostEntity> posts = userCommunityPostRepository.findByUserCommunityPostCreatedAtAfter(oneDayAgo, sortedPageable);
-
-        // 게시글이 없다면 예외 처리
-        if (posts.isEmpty()) {
-            throw CustomEntityExceptions.NOT_FOUND.get();
-        }
+        Page<UserCommunityPostEntity> posts = userCommunityPostRepository.findByUserCommunityPostCreatedAtAfter(oneDayAgo, sortedPageable)
+                .orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
 
         // 인기 게시글을 DTO로 변환하여 반환
         return posts.map(post -> UserCommunityPostDTO.builder()
@@ -207,12 +219,8 @@ public class UserCommunityService {
         Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Order.desc("userCommunityPostViewCount")));
 
         // 정렬된 페이지로 게시글 조회
-        Page<UserCommunityPostEntity> posts = userCommunityPostRepository.findByUserCommunityPostCreatedAtAfter(oneWeekAgo, sortedPageable);
-
-        // 게시글이 없다면 예외 처리
-        if (posts.isEmpty()) {
-            throw CustomEntityExceptions.NOT_FOUND.get();
-        }
+        Page<UserCommunityPostEntity> posts = userCommunityPostRepository.findByUserCommunityPostCreatedAtAfter(oneWeekAgo, sortedPageable)
+                .orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
 
         // 인기 게시글을 DTO로 변환하여 반환
         return posts.map(post -> UserCommunityPostDTO.builder()
