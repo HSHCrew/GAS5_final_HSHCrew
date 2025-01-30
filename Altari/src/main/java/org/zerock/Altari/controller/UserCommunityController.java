@@ -133,6 +133,19 @@ public class UserCommunityController {
         return ResponseEntity.ok(posts);
     }
 
+    @GetMapping("/posts")
+    public ResponseEntity<Page<UserCommunityPostDTO>> searchPostsToCategory(
+            @RequestParam(value = "keyword", required = false, defaultValue = "") String keyword,
+            @RequestParam(value = "categoryId", required = false) Integer categoryId,
+            @PageableDefault(size = 20, sort = "userCommunityPostCreatedAt", direction = Sort.Direction.DESC) Pageable pageable,
+            @RequestHeader("Authorization") String accessToken) throws UnsupportedEncodingException {
+
+        UserEntity user = jwtUtil.getUserFromToken(accessToken);
+        Page<UserCommunityPostDTO> posts = userCommunityService.searchPostsToCategory(keyword, categoryId, pageable);
+        return ResponseEntity.ok(posts);
+    }
+
+
     // 커뮤니티 게시글 삭제
     @DeleteMapping("/posts/{postId}")
     public ResponseEntity<String> deletePost(

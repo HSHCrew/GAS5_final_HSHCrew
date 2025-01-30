@@ -18,4 +18,6 @@ public interface UserCommunityPostRepository extends JpaRepository<UserCommunity
     Optional<Page<UserCommunityPostEntity>> findByUserCommunityPostCreatedAtAfter(LocalDateTime oneDayAgo, Pageable pageable);
     Optional<Page<UserCommunityPostEntity>> findByUser(UserEntity user, Pageable pageable);
     Optional<Page<UserCommunityPostEntity>> findByUserCommunityPostTitle(String keyword, Pageable pageable);
+    Optional<Page<UserCommunityPostEntity>> findByUserCommunityPostTitleContainingAndUserCommunityPostCategoryUserCommunityPostCategoryId(
+            String keyword, Integer categoryId, Pageable pageable);
 }

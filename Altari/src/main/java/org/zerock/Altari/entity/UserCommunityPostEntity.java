@@ -54,5 +54,4 @@ public class UserCommunityPostEntity {
     @LastModifiedDate
     private LocalDateTime userCommunityPostUpdatedAt;
 
-
 }

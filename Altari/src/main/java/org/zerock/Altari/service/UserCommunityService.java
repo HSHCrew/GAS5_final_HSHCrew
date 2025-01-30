@@ -257,6 +257,29 @@ public class UserCommunityService {
                 .build());
     }
 
+    public Page<UserCommunityPostDTO> searchPostsToCategory(String keyword,
+                                                            Integer categoryId,
+                                                            Pageable pageable) {
+        Page<UserCommunityPostEntity> posts = userCommunityPostRepository
+                .findByUserCommunityPostTitleContainingAndUserCommunityPostCategoryUserCommunityPostCategoryId(
+                        keyword, categoryId, pageable)
+                .orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
+
+        return posts.map(post -> UserCommunityPostDTO.builder()
+                .user(post.getUser().getUsername())
+                .userCommunityPostId(post.getUserCommunityPostId())
+                .userCommunityPostTitle(post.getUserCommunityPostTitle())
+                .userCommunityPostContent(post.getUserCommunityPostContent())
+                .userCommunityPostLikes(post.getUserCommunityPostLikes())
+                .userCommunityPostViewCount(post.getUserCommunityPostViewCount())
+                .userCommunityPostCreatedAt(post.getUserCommunityPostCreatedAt())
+                .userCommunityPostUpdatedAt(post.getUserCommunityPostUpdatedAt())
+                .userCommunityPostCategory(post.getUserCommunityPostCategory().getUserCommunityPostCategoryId())
+                .onComments(post.getOnComments())
+                .build());
+    }
+
+
     public UserCommunityPostDTO likePost(Integer postId) {
         // 게시글 조회
         UserCommunityPostEntity postEntity = userCommunityPostRepository.findByUserCommunityPostId(postId)
