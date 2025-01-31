@@ -95,9 +95,7 @@ public class JWTUtil {
 
             String username = claims.get("username", String.class);
 
-            UserEntity user = userRepository.findByUsername(username).orElseThrow(UserExceptions.NOT_FOUND::get);
-
-            return user;
+        return userRepository.findByUsername(username).orElseThrow(UserExceptions.NOT_FOUND::get);
     }
 
 }

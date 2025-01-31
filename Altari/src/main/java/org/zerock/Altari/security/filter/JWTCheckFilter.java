@@ -79,9 +79,6 @@ public class JWTCheckFilter extends OncePerRequestFilter {
         }
 
 
-
-        // 특정 엔드포인트에 대한 접근 제한 해제
-
         String headerStr = request.getHeader("Authorization");
         log.info("headerStr: " + headerStr);
 
@@ -128,9 +125,15 @@ public class JWTCheckFilter extends OncePerRequestFilter {
         }
 
     }
-//
+
     private void handleException(HttpServletResponse response, Exception e) throws IOException {
-        response.sendError(HttpServletResponse.SC_FORBIDDEN);
+        int statusCode = HttpServletResponse.SC_UNAUTHORIZED; // 기본적으로 401 (인증 실패)
+
+        if (e instanceof UsernameNotFoundException) {
+            statusCode = HttpServletResponse.SC_FORBIDDEN; // 403 (권한 없음)
+        }
+
+        response.setStatus(statusCode);
         response.setContentType("application/json");
         response.getWriter().println("{\"error\":\"" + e.getMessage() + "\"}");
     }
