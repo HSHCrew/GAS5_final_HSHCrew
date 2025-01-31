@@ -35,47 +35,45 @@ public class RegisterService {
     @Transactional
     public UserEntity join(RegisterDTO registerDTO) {
 
-        try {
-            // 2. 유저 정보 저장
-            UserEntity user = UserEntity.builder()
-                    .username(registerDTO.getUsername())
-                    .password(passwordEncoder.encode(registerDTO.getPassword()))
-                    .build();
 
-            userRepository.save(user);
-
-            String rawPhoneNumber = registerDTO.getPhoneNumber();
-            String formattedPhoneNumber = userProfileService.formatPhoneNumber(rawPhoneNumber);
-
-            // 3. 유저 프로필 저장
-            UserProfileEntity userProfile = UserProfileEntity.builder()
-                    .fullName(registerDTO.getFullName())
-                    .dateOfBirth(registerDTO.getDateOfBirth())
-                    .phoneNumber(formattedPhoneNumber)
-                    .user(user)
-                    .morningMedicationTime(LocalTime.parse("10:00"))
-                    .lunchMedicationTime(LocalTime.parse("14:00"))
-                    .dinnerMedicationTime(LocalTime.parse("19:00"))
-                    .build();
-
-            userProfileRepository.save(userProfile);
-
-            UserMedicationTimeEntity userMedicationTime = UserMedicationTimeEntity.builder()
-                    .onMorningMedicationAlarm(true)
-                    .onLunchMedicationTimeAlarm(true)
-                    .onDinnerMedicationTimeAlarm(true)
-                    .onNightMedicationTimeAlarm(true)
-                    .user(user)
-                    .build();
-
-            userMedicationTimeRepository.save(userMedicationTime);
-
-            return user;
-
-        } catch (Exception e) {
-            throw RegisterExceptions.registrationFailed();
-
+        if (isUsernameDuplicate(registerDTO.getUsername())) {
+            throw RegisterExceptions.userAlreadyExists();
         }
+        // 2. 유저 정보 저장
+        UserEntity user = UserEntity.builder()
+                .username(registerDTO.getUsername())
+                .password(passwordEncoder.encode(registerDTO.getPassword()))
+                .build();
+
+        userRepository.save(user);
+
+        String rawPhoneNumber = registerDTO.getPhoneNumber();
+        String formattedPhoneNumber = userProfileService.formatPhoneNumber(rawPhoneNumber);
+
+        // 3. 유저 프로필 저장
+        UserProfileEntity userProfile = UserProfileEntity.builder()
+                .fullName(registerDTO.getFullName())
+                .dateOfBirth(registerDTO.getDateOfBirth())
+                .phoneNumber(formattedPhoneNumber)
+                .user(user)
+                .morningMedicationTime(LocalTime.parse("10:00"))
+                .lunchMedicationTime(LocalTime.parse("14:00"))
+                .dinnerMedicationTime(LocalTime.parse("19:00"))
+                .build();
+
+        userProfileRepository.save(userProfile);
+
+        UserMedicationTimeEntity userMedicationTime = UserMedicationTimeEntity.builder()
+                .onMorningMedicationAlarm(true)
+                .onLunchMedicationTimeAlarm(true)
+                .onDinnerMedicationTimeAlarm(true)
+                .onNightMedicationTimeAlarm(true)
+                .user(user)
+                .build();
+
+        userMedicationTimeRepository.save(userMedicationTime);
+
+        return user;
 
     }
 

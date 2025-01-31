@@ -133,7 +133,7 @@ public class UserCommunityController {
         return ResponseEntity.ok(posts);
     }
 
-    @GetMapping("/posts")
+    @GetMapping("/posts/Category")
     public ResponseEntity<Page<UserCommunityPostDTO>> searchPostsToCategory(
             @RequestParam(value = "keyword", required = false, defaultValue = "") String keyword,
             @RequestParam(value = "categoryId", required = false) Integer categoryId,
