@@ -23,7 +23,6 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 @EntityListeners(AuditingEntityListener.class)
-
 public class UserProfileEntity {
 
     @Id

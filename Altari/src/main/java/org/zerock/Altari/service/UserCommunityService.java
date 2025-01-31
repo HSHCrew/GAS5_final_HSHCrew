@@ -38,8 +38,8 @@ public class UserCommunityService {
         UserCommunityPostEntity userCommunityPostEntity = UserCommunityPostEntity.builder()
                 .userCommunityPostTitle(postDTO.getUserCommunityPostTitle())
                 .userCommunityPostContent(postDTO.getUserCommunityPostContent())
-                .userCommunityPostLikes(postDTO.getUserCommunityPostLikes())
-                .userCommunityPostViewCount(postDTO.getUserCommunityPostViewCount())
+                .userCommunityPostLikes(0)
+                .userCommunityPostViewCount(0)
                 .userCommunityPostCategory(userCommunityPostCategoryRepository.findByUserCommunityPostCategoryId(postDTO.getUserCommunityPostCategory())
                         .orElseThrow(CustomEntityExceptions.NOT_FOUND::get))
                 .user(user)
@@ -56,6 +56,7 @@ public class UserCommunityService {
                 .userCommunityPostViewCount(createdPost.getUserCommunityPostViewCount())
                 .userCommunityPostCategory(createdPost.getUserCommunityPostCategory().getUserCommunityPostCategoryId())
                 .userCommunityPostCreatedAt(createdPost.getUserCommunityPostCreatedAt())
+                .userCommunityPostUpdatedAt(createdPost.getUserCommunityPostUpdatedAt())
                 .onComments(createdPost.getOnComments()) // DTO에 onComments 포함
                 .build();
     }

@@ -52,7 +52,7 @@ public class UserCommunityController {
     }
 
     // 단일 커뮤니티 게시글 조회
-    @GetMapping("/posts/{postId}")
+    @GetMapping("/readPosts/{postId}")
     public ResponseEntity<UserCommunityPostDTO> readPost(
             @PathVariable("postId") Integer postId,
             @RequestHeader("Authorization") String accessToken) throws UnsupportedEncodingException {
