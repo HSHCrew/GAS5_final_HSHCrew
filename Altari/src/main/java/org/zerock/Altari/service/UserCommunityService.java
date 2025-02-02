@@ -322,7 +322,7 @@ public class UserCommunityService {
     }
 
     public List<UserCommunityPostDTO> readDraftPosts(UserEntity user) {
-        List<UserCommunityPostEntity> draftPosts = userCommunityPostRepository.findByUserAndIsDraft(user, true)
+        List<UserCommunityPostEntity> draftPosts = userCommunityPostRepository.findByUserAndIsDraftTrue(user)
                 .orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
 
         return draftPosts.stream().map(draftPost -> UserCommunityPostDTO.builder()

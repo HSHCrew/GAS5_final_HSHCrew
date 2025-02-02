@@ -19,7 +19,7 @@ public interface UserCommunityPostRepository extends JpaRepository<UserCommunity
     Optional<Page<UserCommunityPostEntity>> findByUserCommunityPostCreatedAtAfterAndIsDraftFalse(LocalDateTime oneDayAgo, Pageable pageable);
     Optional<Page<UserCommunityPostEntity>> findByUserAndIsDraftFalse(UserEntity user, Pageable pageable);
     Optional<Page<UserCommunityPostEntity>> findByIsDraftFalse(Pageable pageable);
-    Optional<List<UserCommunityPostEntity>> findByUserAndIsDraft(UserEntity user, boolean isDraft);
+    Optional<List<UserCommunityPostEntity>> findByUserAndIsDraftTrue(UserEntity user);
     Optional<Page<UserCommunityPostEntity>> findByUserCommunityPostTitleAndIsDraftFalse(String keyword, Pageable pageable);
     Optional<Page<UserCommunityPostEntity>> findByUserCommunityPostTitleContainingAndUserCommunityPostCategoryUserCommunityPostCategoryIdAndIsDraftFalse(
             String keyword, Integer categoryId, Pageable pageable);
