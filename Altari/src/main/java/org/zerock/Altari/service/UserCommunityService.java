@@ -21,6 +21,7 @@ import org.zerock.Altari.repository.UserCommunityPostRepository;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -42,6 +43,7 @@ public class UserCommunityService {
                 .userCommunityPostViewCount(0)
                 .userCommunityPostCategory(userCommunityPostCategoryRepository.findByUserCommunityPostCategoryId(postDTO.getUserCommunityPostCategory())
                         .orElseThrow(CustomEntityExceptions.NOT_FOUND::get))
+                .isDraft(false)
                 .user(user)
                 .onComments(postDTO.getOnComments()) // onComments 설정
                 .build();
@@ -57,6 +59,7 @@ public class UserCommunityService {
                 .userCommunityPostCategory(createdPost.getUserCommunityPostCategory().getUserCommunityPostCategoryId())
                 .userCommunityPostCreatedAt(createdPost.getUserCommunityPostCreatedAt())
                 .userCommunityPostUpdatedAt(createdPost.getUserCommunityPostUpdatedAt())
+                .isDraft(createdPost.getIsDraft())
                 .onComments(createdPost.getOnComments()) // DTO에 onComments 포함
                 .build();
     }
@@ -98,8 +101,10 @@ public class UserCommunityService {
                 .orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
 
         // 조회수 증가
-        post.setUserCommunityPostViewCount(post.getUserCommunityPostViewCount() + 1);
-        userCommunityPostRepository.save(post); // 변경 감지로 업데이트 수행
+        if (!post.getIsDraft()) {
+            post.setUserCommunityPostViewCount(post.getUserCommunityPostViewCount() + 1);
+            userCommunityPostRepository.save(post); // 변경 감지로 업데이트 수행
+        }
 
         // ADMIN 역할이 있는지 체크
         boolean isAdmin = user.getRoles().stream()
@@ -120,11 +125,8 @@ public class UserCommunityService {
     }
 
     public Page<UserCommunityPostDTO> readAllPosts(UserEntity user, Pageable pageable) {
-        Page<UserCommunityPostEntity> posts = userCommunityPostRepository.findAll(pageable);
-
-        if (posts.isEmpty()) {
-            throw CustomEntityExceptions.NOT_FOUND.get();
-        }
+        Page<UserCommunityPostEntity> posts = userCommunityPostRepository.findByIsDraftFalse(pageable)
+                .orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
 
         return posts.map(post -> UserCommunityPostDTO.builder()
                 .user(post.getUser().getUsername())
@@ -143,7 +145,7 @@ public class UserCommunityService {
 
     public Page<UserCommunityPostDTO> readUsersPosts(UserEntity user, Pageable pageable) {
 
-        Page<UserCommunityPostEntity> posts = userCommunityPostRepository.findByUser(user, pageable).orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
+        Page<UserCommunityPostEntity> posts = userCommunityPostRepository.findByUserAndIsDraftFalse(user, pageable).orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
 
         return posts.map(post -> UserCommunityPostDTO.builder()
                 .user(post.getUser().getUsername())
@@ -161,7 +163,7 @@ public class UserCommunityService {
 
     public Page<UserCommunityPostDTO> readPostsByCategory(UserEntity user, Integer categoryId, Pageable pageable) {
         // 주어진 카테고리 ID에 맞는 게시글을 조회
-        Page<UserCommunityPostEntity> posts = userCommunityPostRepository.findByUserCommunityPostCategory(userCommunityPostCategoryRepository.findByUserCommunityPostCategoryId(categoryId).orElseThrow(CustomEntityExceptions.NOT_FOUND::get), pageable)
+        Page<UserCommunityPostEntity> posts = userCommunityPostRepository.findByUserCommunityPostCategoryAndIsDraftFalse(userCommunityPostCategoryRepository.findByUserCommunityPostCategoryId(categoryId).orElseThrow(CustomEntityExceptions.NOT_FOUND::get), pageable)
                 .orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
 
         // DTO로 변환하여 반환
@@ -190,7 +192,7 @@ public class UserCommunityService {
         Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Order.desc("userCommunityPostViewCount")));
 
         // 정렬된 페이지로 게시글 조회
-        Page<UserCommunityPostEntity> posts = userCommunityPostRepository.findByUserCommunityPostCreatedAtAfter(oneDayAgo, sortedPageable)
+        Page<UserCommunityPostEntity> posts = userCommunityPostRepository.findByUserCommunityPostCreatedAtAfterAndIsDraftFalse(oneDayAgo, sortedPageable)
                 .orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
 
         // 인기 게시글을 DTO로 변환하여 반환
@@ -219,7 +221,7 @@ public class UserCommunityService {
         Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Order.desc("userCommunityPostViewCount")));
 
         // 정렬된 페이지로 게시글 조회
-        Page<UserCommunityPostEntity> posts = userCommunityPostRepository.findByUserCommunityPostCreatedAtAfter(oneWeekAgo, sortedPageable)
+        Page<UserCommunityPostEntity> posts = userCommunityPostRepository.findByUserCommunityPostCreatedAtAfterAndIsDraftFalse(oneWeekAgo, sortedPageable)
                 .orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
 
         // 인기 게시글을 DTO로 변환하여 반환
@@ -241,7 +243,7 @@ public class UserCommunityService {
     public Page<UserCommunityPostDTO> searchPosts(String keyword,
                                                   Pageable pageable) {
 
-        Page<UserCommunityPostEntity> posts = userCommunityPostRepository.findByUserCommunityPostTitle(keyword, pageable)
+        Page<UserCommunityPostEntity> posts = userCommunityPostRepository.findByUserCommunityPostTitleAndIsDraftFalse(keyword, pageable)
                 .orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
 
         return posts.map(post -> UserCommunityPostDTO.builder()
@@ -262,7 +264,7 @@ public class UserCommunityService {
                                                             Integer categoryId,
                                                             Pageable pageable) {
         Page<UserCommunityPostEntity> posts = userCommunityPostRepository
-                .findByUserCommunityPostTitleContainingAndUserCommunityPostCategoryUserCommunityPostCategoryId(
+                .findByUserCommunityPostTitleContainingAndUserCommunityPostCategoryUserCommunityPostCategoryIdAndIsDraftFalse(
                         keyword, categoryId, pageable)
                 .orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
 
@@ -319,13 +321,109 @@ public class UserCommunityService {
                 .build();
     }
 
+    public List<UserCommunityPostDTO> readDraftPosts(UserEntity user) {
+        List<UserCommunityPostEntity> draftPosts = userCommunityPostRepository.findByUserAndIsDraft(user, true)
+                .orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
 
-    public void deletePost(Integer postId) {
+        return draftPosts.stream().map(draftPost -> UserCommunityPostDTO.builder()
+                        .userCommunityPostId(draftPost.getUserCommunityPostId())
+                        .userCommunityPostTitle(draftPost.getUserCommunityPostTitle())
+                        .userCommunityPostContent(draftPost.getUserCommunityPostContent())
+                        .userCommunityPostLikes(draftPost.getUserCommunityPostLikes())
+                        .userCommunityPostViewCount(draftPost.getUserCommunityPostViewCount()) // 업데이트된 조회수 포함
+                        .userCommunityPostCreatedAt(draftPost.getUserCommunityPostCreatedAt())
+                        .userCommunityPostUpdatedAt(draftPost.getUserCommunityPostUpdatedAt())
+                        .userCommunityPostCategory(draftPost.getUserCommunityPostCategory().getUserCommunityPostCategoryId())
+                        .isAuthorizedUser(draftPost.getUser().equals(user))
+                        .onComments(draftPost.getOnComments()) // DTO에 onComments 포함
+                        .build())
+                .collect(Collectors.toList());
+
+    }
+
+    public UserCommunityPostDTO createOrUpdateDraftPost(UserEntity user, UserCommunityPostDTO postDTO) {
+
+        UserCommunityPostEntity postEntity;
+
+        // 게시글이 존재하는지 확인
+        if (postDTO.getUserCommunityPostId() != null) {
+            postEntity = userCommunityPostRepository.findById(postDTO.getUserCommunityPostId())
+                    .orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
+
+            // 사용자 권한 확인 (수정할 권한이 있는지)
+            if (!postEntity.getUser().equals(user)) {
+                throw new RuntimeException("게시글을 수정할 권한이 없습니다");
+            }
+
+            // 게시글 수정
+            postEntity.setUserCommunityPostTitle(postDTO.getUserCommunityPostTitle());
+            postEntity.setUserCommunityPostContent(postDTO.getUserCommunityPostContent());
+            postEntity.setOnComments(postDTO.getOnComments());
+            postEntity.setUserCommunityPostCategory(userCommunityPostCategoryRepository.findByUserCommunityPostCategoryId(postDTO.getUserCommunityPostCategory()).orElseThrow(CustomEntityExceptions.NOT_FOUND::get));
+
+        } else {
+            // 게시글이 존재하지 않으면 새로 생성
+            postEntity = UserCommunityPostEntity.builder()
+                    .user(user)
+                    .onComments(postDTO.getOnComments())
+                    .isDraft(true) // 임시 저장으로 설정
+                    .userCommunityPostTitle(postDTO.getUserCommunityPostTitle())
+                    .userCommunityPostContent(postDTO.getUserCommunityPostContent())
+                    .userCommunityPostLikes(0) // 기본 좋아요는 0
+                    .userCommunityPostViewCount(0) // 기본 조회수는 0
+                    .userCommunityPostCategory(userCommunityPostCategoryRepository.findByUserCommunityPostCategoryId(postDTO.getUserCommunityPostCategory()).orElseThrow(CustomEntityExceptions.NOT_FOUND::get)) // 카테고리 설정
+                    .build();
+        }
+
+        // Entity 저장 (업데이트 또는 신규 저장)
+        UserCommunityPostEntity savedPost = userCommunityPostRepository.save(postEntity);
+
+        // 저장된 Entity를 DTO로 변환하여 반환
+        return UserCommunityPostDTO.builder()
+                .userCommunityPostId(savedPost.getUserCommunityPostId())
+                .userCommunityPostTitle(savedPost.getUserCommunityPostTitle())
+                .userCommunityPostContent(savedPost.getUserCommunityPostContent())
+                .userCommunityPostLikes(savedPost.getUserCommunityPostLikes())
+                .userCommunityPostViewCount(savedPost.getUserCommunityPostViewCount())
+                .userCommunityPostCreatedAt(savedPost.getUserCommunityPostCreatedAt())
+                .userCommunityPostUpdatedAt(savedPost.getUserCommunityPostUpdatedAt())
+                .userCommunityPostCategory(savedPost.getUserCommunityPostCategory().getUserCommunityPostCategoryId()) // 카테고리 아이디 추가
+                .onComments(savedPost.getOnComments())
+                .isAuthorizedUser(savedPost.getUser().equals(user)) // 권한 확인
+                .build();
+    }
+
+    public void deleteDraftPost(UserEntity user, Integer postId) {
+        // 게시글 조회
+        UserCommunityPostEntity postEntity = userCommunityPostRepository.findById(postId)
+                .orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
+
+        // 유저가 본인 게시글을 수정하거나 관리자일 때만 수정 가능
+        boolean isAdmin = user.getRoles().stream()
+                .anyMatch(role -> role.getRoleId() == 2); // ADMIN 역할 확인
+
+        if (!postEntity.getUser().equals(user) && !isAdmin) {
+            throw CustomEntityExceptions.UNAUTHORIZED_ACCESS.get();
+        }
+
+        // 게시글 삭제
+        userCommunityPostRepository.delete(postEntity);
+    }
+
+    public void deletePost(Integer postId, UserEntity user) {
         UserCommunityPostEntity postEntity = userCommunityPostRepository.findByUserCommunityPostId(postId)
                 .orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
+        // 유저가 본인 게시글을 수정하거나 관리자일 때만 수정 가능
+        boolean isAdmin = user.getRoles().stream()
+                .anyMatch(role -> role.getRoleId() == 2); // ADMIN 역할 확인
+
+        if (!postEntity.getUser().equals(user) && !isAdmin) {
+            throw CustomEntityExceptions.UNAUTHORIZED_ACCESS.get();
+        }
 
         userCommunityPostRepository.delete(postEntity);
     }
+
 
     public UserCommunityCommentDTO createComment(UserEntity user, Integer postId, UserCommunityCommentDTO commentDTO) {
         UserCommunityPostEntity postEntity = userCommunityPostRepository.findById(postId)

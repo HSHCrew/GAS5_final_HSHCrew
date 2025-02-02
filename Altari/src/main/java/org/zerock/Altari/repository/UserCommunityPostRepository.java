@@ -9,15 +9,18 @@ import org.zerock.Altari.entity.UserCommunityPostEntity;
 import org.zerock.Altari.entity.UserEntity;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface UserCommunityPostRepository extends JpaRepository<UserCommunityPostEntity, Integer> {
     Optional<UserCommunityPostEntity> findByUserCommunityPostId(Integer postId);
-    Optional<Page<UserCommunityPostEntity>> findByUserCommunityPostCategory(UserCommunityPostCategoryEntity category, Pageable pageable);
-    Optional<Page<UserCommunityPostEntity>> findByUserCommunityPostCreatedAtAfter(LocalDateTime oneDayAgo, Pageable pageable);
-    Optional<Page<UserCommunityPostEntity>> findByUser(UserEntity user, Pageable pageable);
-    Optional<Page<UserCommunityPostEntity>> findByUserCommunityPostTitle(String keyword, Pageable pageable);
-    Optional<Page<UserCommunityPostEntity>> findByUserCommunityPostTitleContainingAndUserCommunityPostCategoryUserCommunityPostCategoryId(
+    Optional<Page<UserCommunityPostEntity>> findByUserCommunityPostCategoryAndIsDraftFalse(UserCommunityPostCategoryEntity category, Pageable pageable);
+    Optional<Page<UserCommunityPostEntity>> findByUserCommunityPostCreatedAtAfterAndIsDraftFalse(LocalDateTime oneDayAgo, Pageable pageable);
+    Optional<Page<UserCommunityPostEntity>> findByUserAndIsDraftFalse(UserEntity user, Pageable pageable);
+    Optional<Page<UserCommunityPostEntity>> findByIsDraftFalse(Pageable pageable);
+    Optional<List<UserCommunityPostEntity>> findByUserAndIsDraft(UserEntity user, boolean isDraft);
+    Optional<Page<UserCommunityPostEntity>> findByUserCommunityPostTitleAndIsDraftFalse(String keyword, Pageable pageable);
+    Optional<Page<UserCommunityPostEntity>> findByUserCommunityPostTitleContainingAndUserCommunityPostCategoryUserCommunityPostCategoryIdAndIsDraftFalse(
             String keyword, Integer categoryId, Pageable pageable);
 }

@@ -63,7 +63,7 @@ public class UserCommunityController {
     }
 
     // 모든 커뮤니티 게시글 조회
-    @GetMapping("/posts")
+    @GetMapping("/readAllPosts")
     public ResponseEntity<Page<UserCommunityPostDTO>> readAllPosts(
             @PageableDefault(size = 20, sort = "userCommunityPostCreatedAt", direction = Sort.Direction.DESC) Pageable pageable,
             @RequestHeader("Authorization") String accessToken) throws UnsupportedEncodingException {
@@ -74,7 +74,7 @@ public class UserCommunityController {
     }
 
     // 모든 커뮤니티 게시글 조회
-    @GetMapping("/usersPosts/")
+    @GetMapping("/usersPosts")
     public ResponseEntity<Page<UserCommunityPostDTO>> readUsersPosts(
             @PageableDefault(size = 20, sort = "userCommunityPostCreatedAt", direction = Sort.Direction.DESC) Pageable pageable,
             @RequestHeader("Authorization") String accessToken) throws UnsupportedEncodingException {
@@ -145,6 +145,37 @@ public class UserCommunityController {
         return ResponseEntity.ok(posts);
     }
 
+    // 임시 저장된 게시글 목록 조회
+    @GetMapping("/posts/draft")
+    public ResponseEntity<List<UserCommunityPostDTO>> readDraftPosts(
+            @RequestHeader("Authorization") String accessToken) throws UnsupportedEncodingException {
+
+        UserEntity user = jwtUtil.getUserFromToken(accessToken);
+        List<UserCommunityPostDTO> draftPosts = userCommunityService.readDraftPosts(user);
+        return ResponseEntity.ok(draftPosts);
+    }
+
+    // 게시글 작성 또는 수정 (Create or Update)
+    @PostMapping("/posts/draft")
+    public ResponseEntity<UserCommunityPostDTO> createOrUpdateDraftPost(
+            @RequestHeader("Authorization") String accessToken,
+            @RequestBody UserCommunityPostDTO postDTO) throws UnsupportedEncodingException {
+
+        UserEntity user = jwtUtil.getUserFromToken(accessToken);
+        UserCommunityPostDTO savedPost = userCommunityService.createOrUpdateDraftPost(user, postDTO);
+        return ResponseEntity.ok(savedPost);
+    }
+
+    // 게시글 삭제 (Draft 포함)
+    @DeleteMapping("/posts/draft/{postId}")
+    public ResponseEntity<String> deleteDraftPost(
+            @PathVariable("postId") Integer postId,
+            @RequestHeader("Authorization") String accessToken) throws UnsupportedEncodingException {
+
+        UserEntity user = jwtUtil.getUserFromToken(accessToken);
+        userCommunityService.deleteDraftPost(user, postId);
+        return ResponseEntity.ok("게시글 삭제가 완료되었습니다.");
+    }
 
     // 커뮤니티 게시글 삭제
     @DeleteMapping("/posts/{postId}")
@@ -152,7 +183,8 @@ public class UserCommunityController {
             @PathVariable("postId") Integer postId,
             @RequestHeader("Authorization") String accessToken) throws UnsupportedEncodingException {
 
-        userCommunityService.deletePost(postId);
+        UserEntity user = jwtUtil.getUserFromToken(accessToken);
+        userCommunityService.deletePost(postId, user);
         return ResponseEntity.ok("게시글 삭제가 완료되었습니다.");
     }
 

@@ -26,6 +26,7 @@ public class UserCommunityPostDTO {
     private Integer userCommunityPostLikes;
     private Integer userCommunityPostViewCount;
     private boolean isAuthorizedUser;
+    private Boolean isDraft;
     private Integer userCommunityPostCategory;
     private LocalDateTime userCommunityPostCreatedAt;
     private LocalDateTime userCommunityPostUpdatedAt;

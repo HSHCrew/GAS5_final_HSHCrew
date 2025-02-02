@@ -70,7 +70,6 @@ public class UserProfileEntity {
     private LocalDateTime user_profile_updated_at;
 
 
-
 }
 
 

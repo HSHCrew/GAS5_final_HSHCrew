@@ -33,6 +33,9 @@ public class UserCommunityPostEntity {
     @Column(name = "on_comments")
     private Boolean onComments;
 
+    @Column(name = "is_draft")
+    private Boolean isDraft;
+
     @Column(name = "user_community_post_title", columnDefinition = "TEXT")
     private String userCommunityPostTitle;
 
