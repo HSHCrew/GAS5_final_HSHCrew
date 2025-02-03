@@ -8,18 +8,22 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.zerock.Altari.dto.FileDTO;
 import org.zerock.Altari.dto.UserCommunityCommentDTO;
 import org.zerock.Altari.dto.UserCommunityPostDTO;
 import org.zerock.Altari.entity.UserCommunityCommentEntity;
+import org.zerock.Altari.entity.UserCommunityFileEntity;
 import org.zerock.Altari.entity.UserCommunityPostEntity;
 import org.zerock.Altari.entity.UserEntity;
 import org.zerock.Altari.exception.CustomEntityExceptions;
 import org.zerock.Altari.repository.UserCommunityCommentRepository;
+import org.zerock.Altari.repository.UserCommunityFileRepository;
 import org.zerock.Altari.repository.UserCommunityPostCategoryRepository;
 import org.zerock.Altari.repository.UserCommunityPostRepository;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -33,6 +37,7 @@ public class UserCommunityService {
     private final UserCommunityPostRepository userCommunityPostRepository;
     private final UserCommunityPostCategoryRepository userCommunityPostCategoryRepository;
     private final UserCommunityCommentRepository userCommunityCommentRepository;
+    private final UserCommunityFileRepository userCommunityFileRepository;
 
     public UserCommunityPostDTO createPost(UserEntity user, UserCommunityPostDTO postDTO) {
 
@@ -100,6 +105,17 @@ public class UserCommunityService {
         UserCommunityPostEntity post = userCommunityPostRepository.findByUserCommunityPostId(postId)
                 .orElseThrow(CustomEntityExceptions.NOT_FOUND::get);
 
+        List<UserCommunityFileEntity> files = userCommunityFileRepository.findByUserCommunityPost(post)
+                .orElse(new ArrayList<>());
+
+        List<FileDTO> fileDTOs = files.stream()
+                .map(file -> FileDTO.builder()
+                        .fileName(file.getUserCommunityFileName())
+                        .filePath(file.getUserCommunityFilePath())
+                        .fileType(file.getUserCommunityFileType())
+                        .build())
+                .toList();
+
         // 조회수 증가
         if (!post.getIsDraft()) {
             post.setUserCommunityPostViewCount(post.getUserCommunityPostViewCount() + 1);
@@ -121,6 +137,7 @@ public class UserCommunityService {
                 .userCommunityPostCategory(post.getUserCommunityPostCategory().getUserCommunityPostCategoryId())
                 .isAuthorizedUser(post.getUser().equals(user) || isAdmin)
                 .onComments(post.getOnComments()) // DTO에 onComments 포함
+                .attachedFiles(fileDTOs)
                 .build();
     }
 
@@ -594,4 +611,6 @@ public class UserCommunityService {
 
         userCommunityCommentRepository.delete(commentEntity);
     }
+
+
 }

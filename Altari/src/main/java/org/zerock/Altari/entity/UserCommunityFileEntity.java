@@ -17,7 +17,7 @@ public class UserCommunityFileEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_community_file_id")
-    private Integer user_community_comment_id;
+    private Integer userCommunityFileId;
 
     @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "user_community_post_id")

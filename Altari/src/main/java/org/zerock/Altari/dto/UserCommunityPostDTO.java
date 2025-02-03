@@ -10,6 +10,7 @@ import org.zerock.Altari.entity.UserCommunityPostCategoryEntity;
 import org.zerock.Altari.entity.UserEntity;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Builder
@@ -28,6 +29,7 @@ public class UserCommunityPostDTO {
     private boolean isAuthorizedUser;
     private Boolean isDraft;
     private Integer userCommunityPostCategory;
+    private List<FileDTO> attachedFiles;
     private LocalDateTime userCommunityPostCreatedAt;
     private LocalDateTime userCommunityPostUpdatedAt;
 
