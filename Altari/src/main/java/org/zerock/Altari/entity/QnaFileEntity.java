@@ -27,7 +27,7 @@ public class QnaFileEntity {
     @Column(name = "qna_file_id")
     private Integer qnaFileId;
 
-    @ManyToOne(cascade = CascadeType.REMOVE)
+    @ManyToOne
     @JoinColumn(name = "qna_post_id")
     private QnaPostEntity qnaPost;
 

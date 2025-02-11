@@ -25,11 +25,11 @@ public class UserCommunityCommentEntity {
     @Version
     private Integer version;
 
-    @ManyToOne(cascade = CascadeType.REMOVE)
+    @ManyToOne
     @JoinColumn(name = "user_community_post_id")
     private UserCommunityPostEntity userCommunityPost;
 
-    @ManyToOne(cascade = CascadeType.REMOVE)
+    @ManyToOne
     @JoinColumn(name = "user_id")
     private UserEntity user;
 

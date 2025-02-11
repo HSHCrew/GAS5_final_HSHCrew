@@ -27,7 +27,7 @@ public class PharmacistCommunityFileEntity {
     @Column(name = "pharmacist_community_file_id")
     private Integer pharmacistCommunityFileId;
 
-    @ManyToOne(cascade = CascadeType.REMOVE)
+    @ManyToOne
     @JoinColumn(name = "pharmacist_community_post_id")
     private PharmacistCommunityPostEntity pharmacistCommunityPost;
 

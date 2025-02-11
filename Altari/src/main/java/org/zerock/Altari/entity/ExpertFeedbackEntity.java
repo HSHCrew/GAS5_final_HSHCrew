@@ -25,11 +25,11 @@ public class ExpertFeedbackEntity {
     @Column(name = "expert_feedback_id")
     private Integer expertFeedbackId;
 
-    @ManyToOne(cascade = CascadeType.REMOVE)
+    @ManyToOne
     @JoinColumn(name = "user_id")
     private UserEntity user;
 
-    @ManyToOne(cascade = CascadeType.REMOVE)
+    @ManyToOne
     @JoinColumn(name = "chat_summary_id")
     private ChatSummaryEntity ChatSummary;
 

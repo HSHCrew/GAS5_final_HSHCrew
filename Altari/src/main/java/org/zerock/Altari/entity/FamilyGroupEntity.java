@@ -6,6 +6,8 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "family_group")
@@ -33,4 +35,8 @@ public class FamilyGroupEntity {
     @Column(name = "family_group_updated_at")
     @LastModifiedDate
     private LocalDateTime familyGroupUpdatedAt;
+
+    @OneToMany(mappedBy = "familyGroup", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    private List<FamilyMemberEntity> familyMemberEntities = new ArrayList<>();
+
 }

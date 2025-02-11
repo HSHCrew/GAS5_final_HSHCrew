@@ -35,6 +35,8 @@ public class FamilyService {
                 .map(familyGroup -> FamilyGroupDTO.builder() // 바로 DTO로 변환
                         .familyGroupId(familyGroup.getFamilyGroupId())
                         .familyGroupName(familyGroup.getFamilyGroupName())
+                        .familyGroupCreatedAt(familyGroup.getFamilyGroupCreatedAt())
+                        .familyGroupUpdatedAt(familyGroup.getFamilyGroupUpdatedAt())
                         .build())
                 .collect(Collectors.toList());
     }

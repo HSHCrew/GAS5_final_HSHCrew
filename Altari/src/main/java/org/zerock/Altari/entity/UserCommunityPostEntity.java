@@ -26,7 +26,7 @@ public class UserCommunityPostEntity {
     @Version
     private Integer version;
 
-    @ManyToOne(cascade = CascadeType.REMOVE)
+    @ManyToOne
     @JoinColumn(name = "user_id")
     private UserEntity user;
 

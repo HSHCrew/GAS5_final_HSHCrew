@@ -19,7 +19,7 @@ public class UserMedicationTimeEntity {
     @Column(name = "user_medication_time_id")
     private Integer UserMedicationTimeId;
 
-    @ManyToOne(cascade = CascadeType.REMOVE)
+    @ManyToOne
     @JoinColumn(name = "user_id")
     private UserEntity user;
 

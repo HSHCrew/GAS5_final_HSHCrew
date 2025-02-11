@@ -24,11 +24,11 @@ public class FamilyMemberEntity {
     @Column(name = "family_member_id")
     private Integer familyMemberId;
 
-    @ManyToOne(cascade = CascadeType.REMOVE)
+    @ManyToOne
     @JoinColumn(name = "family_group_id")
     private FamilyGroupEntity familyGroup;
 
-    @ManyToOne(cascade = CascadeType.REMOVE)
+    @ManyToOne
     @JoinColumn(name = "user_id")
     private UserEntity user;
 

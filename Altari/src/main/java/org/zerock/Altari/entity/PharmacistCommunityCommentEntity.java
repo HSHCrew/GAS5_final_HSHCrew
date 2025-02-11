@@ -30,11 +30,11 @@ public class PharmacistCommunityCommentEntity {
     @Version
     private Integer version;
 
-    @ManyToOne(cascade = CascadeType.REMOVE)
+    @ManyToOne
     @JoinColumn(name = "pharmacist_community_post_id")
     private PharmacistCommunityPostEntity pharmacistCommunityPost;
 
-    @ManyToOne(cascade = CascadeType.REMOVE)
+    @ManyToOne
     @JoinColumn(name = "user_id")
     private UserEntity user;
 

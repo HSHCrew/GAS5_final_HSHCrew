@@ -19,7 +19,7 @@ public class UserCommunityFileEntity {
     @Column(name = "user_community_file_id")
     private Integer userCommunityFileId;
 
-    @ManyToOne(cascade = CascadeType.REMOVE)
+    @ManyToOne
     @JoinColumn(name = "user_community_post_id")
     private UserCommunityPostEntity userCommunityPost;
 

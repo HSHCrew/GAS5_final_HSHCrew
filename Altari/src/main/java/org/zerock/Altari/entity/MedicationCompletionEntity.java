@@ -24,7 +24,7 @@ public class MedicationCompletionEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer medication_completion_id; // Primary Key
 
-    @ManyToOne(cascade = CascadeType.REMOVE)
+    @ManyToOne
     @JoinColumn(name = "user_id")
     private UserEntity user;
 

@@ -31,7 +31,7 @@ public class QnaPostEntity {
     @Column(name = "qna_post_depth")
     private Integer qnaPostDepth;
 
-    @ManyToOne(cascade = CascadeType.REMOVE)
+    @ManyToOne
     @JoinColumn(name = "user_id")
     private UserEntity user;
 

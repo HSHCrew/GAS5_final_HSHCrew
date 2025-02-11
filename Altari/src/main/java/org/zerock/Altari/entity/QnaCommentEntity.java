@@ -27,11 +27,11 @@ public class QnaCommentEntity {
     @Column(name = "qna_comment_id")
     private Integer qnaCommentId;
 
-    @ManyToOne(cascade = CascadeType.REMOVE)
+    @ManyToOne
     @JoinColumn(name = "qna_post_id")
     private QnaPostEntity qnaPost;
 
-    @ManyToOne(cascade = CascadeType.REMOVE)
+    @ManyToOne
     @JoinColumn(name = "user_id")
     private UserEntity user;
 

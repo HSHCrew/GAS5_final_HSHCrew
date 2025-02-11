@@ -62,7 +62,7 @@ public class UserPrescriptionEntity {
     @Column(name = "total_dosing_day")
     private Integer totalDosingDay;
 
-    @ManyToOne(cascade = CascadeType.REMOVE)
+    @ManyToOne
     @JoinColumn(name = "user_id")
     private UserEntity user;
 

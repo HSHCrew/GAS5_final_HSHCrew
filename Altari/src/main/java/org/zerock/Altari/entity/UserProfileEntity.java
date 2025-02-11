@@ -30,7 +30,7 @@ public class UserProfileEntity {
     @Column(name = "user_profile_id")
     private Integer userProfileId;
 
-    @ManyToOne(cascade = CascadeType.REMOVE)
+    @ManyToOne
     @JoinColumn(name = "user_id")
     private UserEntity user;
 

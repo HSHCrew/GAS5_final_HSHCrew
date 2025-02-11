@@ -33,7 +33,7 @@ public class PharmacistCommunityPostEntity {
     @Column(name = "on_comments")
     private Boolean onComments;
 
-    @ManyToOne(cascade = CascadeType.REMOVE)
+    @ManyToOne
     @JoinColumn(name = "user_id")
     private UserEntity user; // 작성자 (약사)
 

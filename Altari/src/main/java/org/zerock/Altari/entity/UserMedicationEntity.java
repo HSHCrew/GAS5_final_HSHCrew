@@ -36,7 +36,7 @@ public class UserMedicationEntity {
     @JoinColumn(name = "medication_id", referencedColumnName = "medication_id")
     private MedicationEntity medication;
 
-    @ManyToOne(cascade = CascadeType.REMOVE)
+    @ManyToOne
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "user_id")
     private UserEntity user;
