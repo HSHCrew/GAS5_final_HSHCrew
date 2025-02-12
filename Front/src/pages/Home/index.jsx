@@ -44,27 +44,6 @@ const Home = () => {
         }
         return nodeRefs.current[dayIndex];
     };
-
-    const fetchMedicationStatus = async () => {
-        try {
-            const response = await apiClient.get(
-                `/altari/medication/getMedicationCompletion/${username}`,
-                {
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    }
-                }
-            );
-            console.log('Medication status:', response.data);
-            
-            // 응답 데이터가 배열이므로 첫 번째 항목 사용
-            if (response.data && response.data.length > 0) {
-                setMedicationStatus(response.data[0]);
-            }
-        } catch (error) {
-            console.error('복약 상태 조회 실패:', error);
-        }
-    };
     
     // 사용자 프로필 및 알림 상태 조회
     useEffect(() => {
@@ -104,6 +83,56 @@ const Home = () => {
         fetchUserProfileAndAlarms();
     }, [username]);
     
+    useEffect(() => {
+        if (username && !loadingProfile) {  // 프로필 로딩이 완료된 후에만 실행
+            fetchMedicationStatus();
+        }
+    }, [day, username, loadingProfile]);
+    
+    // fetchMedicationStatus 함수 수정
+    const fetchMedicationStatus = async () => {
+        try {
+            const response = await apiClient.get(
+                `/altari/medication/getMedicationCompletion/${username}`,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                }
+            );
+            console.log('Medication status:', response.data);
+            
+            // 현재 날짜에 day 상태값을 더해서 인덱스 계산
+            const today = new Date();
+            const targetDate = today.getDate() + day; // day는 -1(어제), 0(오늘), 1(내일)
+            const targetIndex = targetDate - 1;
+            
+
+            console.log('=== 복약 상태 조회 ===');
+            console.log('현재 day 상태:', day);
+            console.log('오늘 날짜:', today.getDate());
+            console.log('계산된 targetDate:', targetDate);
+            console.log('계산된 targetIndex:', targetIndex);
+            console.log('서버 응답 데이터:', response.data);
+            console.log('Current day:', day, 'Target index:', targetIndex);
+            
+            if (targetIndex >= 0 && targetIndex < response.data.length) {
+                const statusData = response.data[targetIndex];
+                if (statusData) {
+                    setMedicationStatus({
+                        morningTaken: Boolean(statusData.morningTaken),
+                        lunchTaken: Boolean(statusData.lunchTaken),
+                        dinnerTaken: Boolean(statusData.dinnerTaken),
+                        nightTaken: Boolean(statusData.nightTaken)
+                    });
+                }
+            }
+        } catch (error) {
+            console.error('복약 상태 조회 실패:', error);
+        }
+    };
+
+    
     const handlers = useSwipeable({
         onSwipedLeft: () => {
             setDirection('left');
@@ -124,12 +153,11 @@ const Home = () => {
 
     const handleConfirmMedicationGroup = async (meds, timeKey) => {
         try {
-            // MedicationCompletionDTO 형식에 맞게 데이터 구성
             const requestData = {
-                morningTaken: timeKey === 'morning' ? true : false,
-                lunchTaken: timeKey === 'lunch' ? true : false,
-                dinnerTaken: timeKey === 'dinner' ? true : false,
-                nightTaken: timeKey === 'night' ? true : false
+                morningTaken: timeKey === 'morning',
+                lunchTaken: timeKey === 'lunch',
+                dinnerTaken: timeKey === 'dinner',
+                nightTaken: timeKey === 'night'
             };
     
             console.log('Sending request:', requestData);
@@ -147,17 +175,18 @@ const Home = () => {
             
             console.log('Response:', response.data);
             
-            // 복약 상태 업데이트
+            // 성공 시 즉시 상태 업데이트
+            setMedicationStatus(prev => ({
+                ...prev,
+                [`${timeKey}Taken`]: true
+            }));
+            
+            // 서버에서 최신 상태 다시 조회
             await fetchMedicationStatus();
             
-            // 성공 메시지 표시 (선택사항)
             alert('복약이 확인되었습니다.');
         } catch (error) {
             console.error('복약 확인 실패:', error);
-            if (error.response) {
-                console.error('에러 상태:', error.response.status);
-                console.error('에러 데이터:', error.response.data);
-            }
             alert('복약 확인 중 오류가 발생했습니다.');
         }
     };

@@ -12,16 +12,20 @@ const HealthNoteProfile = () => {
     { id: 1, name: '고혈압' },
     { id: 2, name: '고지혈증' },
     { id: 3, name: '비만' },
-    { id: 4, name: '당뇨' },
-    { id: 5, name: '노년 백내장' },
-    { id: 6, name: '치매' },
-    { id: 7, name: '비염' },
-    { id: 8, name: '위염' },
-    { id: 9, name: '치주질환' },
-    { id: 10, name: '치핵' },
-    { id: 11, name: '탈모' },
+    { id: 4, name: '당뇨병(인슐린의존성)' },
+    { id: 5, name: '당뇨병(인슐린비의존성)' },
+    { id: 6, name: '백내장' },
+    { id: 7, name: '치매' },
+    { id: 8, name: '비염' },
+    { id: 9, name: '위염' },
+    { id: 10, name: '치주질환' },
+    { id: 11, name: '치핵' },
+    { id: 12, name: '탈모' },
+    { id: 13, name: '뇌졸중' },
+    { id: 14, name: '출혈성 질환' },
+    // { id: 15, name: '당뇨병 <포괄>' },
+    { id: 16, name: '심장병' }
   ];
-
   const drugAllergyOptions = [
     '페니실린',
     '아스피린',
@@ -230,12 +234,21 @@ const EditableInfoItem = ({
   fieldName,
   onValueChange,
 }) => {
-  const [value, setValue] = useState(propValue || (type === 'diseaseSelect' || type === 'multiSelect' ? [] : ''));
+  const [value, setValue] = useState(() => {
+    if (type === 'blood') {
+      return propValue || 'RH+ A형';
+    }
+    return propValue || (type === 'diseaseSelect' || type === 'multiSelect' ? [] : '');
+  });
   const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
-    setValue(propValue || (type === 'diseaseSelect' || type === 'multiSelect' ? [] : ''));
-  }, [propValue]);
+    if (type === 'blood') {
+      setValue(propValue || 'RH+ A형');
+    } else {
+      setValue(propValue || (type === 'diseaseSelect' || type === 'multiSelect' ? [] : ''));
+    }
+  }, [propValue, type]);
 
   const handleEdit = () => setIsEditing(true);
   const handleBlur = () => {
@@ -282,22 +295,22 @@ const EditableInfoItem = ({
             </select>
           </div>
         ) : type === 'diseaseSelect' || type === 'multiSelect' ? (
-          <div className="multi-select-options">
+          <div className="multi-select-options" onBlur={handleBlur}>
             {options.map((option) => (
-              <div key={option.id || option} className="multi-select-option">
+              <div key={option.id} className="multi-select-option">
                 <input
                   type="checkbox"
-                  checked={value.some((v) => (typeof v === 'string' ? v : v.id) === (option.id || option))}
-                  onChange={() => {
-                    const optionValue = option.id ? option : option.toString();
-                    setValue(
-                      value.some((v) => (typeof v === 'string' ? v : v.id) === (option.id || option))
-                        ? value.filter((v) => (typeof v === 'string' ? v : v.id) !== (option.id || option))
-                        : [...value, optionValue]
-                    );
+                  checked={value.some((v) => v.id === option.id)}
+                  onChange={(e) => {
+                    e.stopPropagation(); // 상위 요소로의 이벤트 전파 방지
+                    const newValue = value.some((v) => v.id === option.id)
+                      ? value.filter((v) => v.id !== option.id)
+                      : [...value, { id: option.id, name: option.name }];
+                    setValue(newValue);
+                    // 여기서는 아직 API 호출하지 않음
                   }}
                 />
-                <label>{option.name || option}</label>
+                <label>{option.name}</label>
               </div>
             ))}
           </div>
